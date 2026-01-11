@@ -20,7 +20,7 @@ export default function Manifesto() {
             <br />
           </div>
           
-          <div className="pt-10 border-t border-white/30">
+          <br /><br /><br />
             <div className="bg-black/40 backdrop-blur-sm p-8 rounded-2xl border border-white/10">
               <p className="text-xl sm:text-2xl text-white/95 leading-relaxed">
                 A Street Stars acredita que estilo é extensão da identidade. 
@@ -30,7 +30,6 @@ export default function Manifesto() {
               </p>
             </div>
           </div>
-        </div>
 
     </section>
   )

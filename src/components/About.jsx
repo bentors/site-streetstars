@@ -1,4 +1,5 @@
 import about from '../assets/images/about.jpg'
+import aboutus from '../assets/images/aboutus.jpg'
 
 export default function About() {
   return (
@@ -6,7 +7,7 @@ export default function About() {
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 
         <img
-          src={about}
+          src={aboutus}
           className="w-full h-64 md:h-[420px] object-cover grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
         />
 

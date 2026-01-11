@@ -16,13 +16,14 @@ export default function Contact() {
   <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent hidden sm:block"></div>      
       <div className="max-w-5xl mx-auto relative">
         
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 mb-6">
-            <span className="text-sm tracking-widest text-white/60">FALE COM A GENTE</span>
+        <div className="text-center mb-12 sm:mb-16">
+          <br />
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <span className="text-sm tracking-widest text-white/60 py-1">FALE COM A GENTE</span>
           </div>
         </div>  
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-6 lg:gap-10">
           
         <div className="border border-white/10 rounded-xl sm:rounded-2xl p-6 sm:p-8 hover:border-white/30 transition-all duration-500 group bg-gradient-to-br from-black to-gray-900">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
@@ -38,7 +39,7 @@ export default function Contact() {
             <a
               href="https://www.instagram.com/_streetstars.co/"
               target="_blank"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-lg hover:scale-105 transition-transform"
+              className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
             >
               Seguir agora
               <span className="group-hover:translate-x-1 transition">→</span>
@@ -50,7 +51,7 @@ export default function Contact() {
               <FaEnvelope className="text-pink-500" size={30} />
               <div>
                 <h3 className="text-2xl font-display">Email direto</h3>
-                <p className="text-white/60">Resposta rápida</p>
+                <p className="text-white/60">Para parcerias, imprensa e dúvidas comerciais.</p>
               </div>
             </div>
             
@@ -66,9 +67,6 @@ export default function Contact() {
                   {copied ? '✓ Copiado' : 'Copiar'}
                 </button>
               </div>
-              <p className="text-white/60 text-sm">
-                Para parcerias, imprensa e dúvidas comerciais.
-              </p>
             </div>
 
             <a
@@ -76,7 +74,7 @@ export default function Contact() {
               className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
             >
               Abrir email
-              <span>↗</span>
+              <span className="group-hover:translate-x-1 transition">→</span>
             </a>
           </div>
         </div>

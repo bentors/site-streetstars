@@ -1,11 +1,12 @@
 import hero from '../assets/images/hero.jpg'
+import about from '../assets/images/about.jpg'
 
 export default function Hero() {
   return (
     <section className="min-h-screen flex items-center justify-center text-center px-6 relative overflow-hidden">
       <img
-        src={hero}
-        className="absolute inset-0 w-full h-full object-cover object-top opacity-30"
+        src={about}
+        className="absolute inset-0 w-full h-full object-cover object-top opacity-3000"
       />
       <div className="absolute inset-0 bg-black/60" />
 
@@ -26,7 +27,7 @@ export default function Hero() {
         <div className="flex justify-center gap-4">
           <a
             href="#collections"
-            className="px-8 py-3 bg-white text-black font-semibold hover:scale-105 transition"
+            className="px-8 py-3 bg-white text-black font-semibold hover:scale-105 transition rounded-md"
           >
             Conheça as coleções
           </a>

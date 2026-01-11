@@ -18,6 +18,7 @@ export default function Header() {
           <a href="#collections" className="hover:text-white transition">Coleções</a>
           <a href="#manifesto" className="hover:text-white transition">Manifesto</a>
           <a href="#contact" className="hover:text-white transition">Contato</a>
+          <a href="#shop" className="hover:text-white transition">Shop</a>
         </nav>
 
         <button
@@ -37,6 +38,7 @@ export default function Header() {
             <a href="#collections" className="hover:text-white transition" onClick={() => setIsOpen(false)}>Coleções</a>
             <a href="#manifesto" className="hover:text-white transition" onClick={() => setIsOpen(false)}>Manifesto</a>
             <a href="#contact" className="hover:text-white transition" onClick={() => setIsOpen(false)}>Contato</a>
+            <a href="#shop" className="hover:text-white transition" onClick={() => setIsOpen(false)}>Shop</a>
           </nav>
         </div>
       )}
