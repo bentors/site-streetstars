@@ -23,12 +23,6 @@ export default function Footer() {
               </p>
             </div>
 
-            <div className="text-center max-w-md">
-              <p className="text-white/50 text-sm italic">
-                "Estrelas nascem nas ruas."
-              </p>
-            </div>
-
             <div className="text-right">
               <p className="text-white/40 text-sm">
                 © {new Date().getFullYear()}<br/>
