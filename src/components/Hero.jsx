@@ -10,7 +10,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-black/60" />
 
       <div className="relative max-w-4xl animate-fadeUp">
-        <p className="text-xs tracking-[0.35em] text-white/60 mb-6">
+        <p className="text-xs tracking-[0.35em] text-white/50 mb-6">
           STREET STARS
         </p>
 
@@ -19,7 +19,7 @@ export default function Hero() {
         </h1>
 
         <p className="text-white/70 max-w-2xl mx-auto mb-10">
-          A Street Stars nasce da rua, da cultura urbana e da expressão individual.
+          A Street Stars nasce da rua, da cultura urbana e da expressão individual. <br/>
           Mais do que roupas, criamos identidade.
         </p>
 
