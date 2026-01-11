@@ -12,12 +12,23 @@ export default function Collections() {
           {collections.map((item, index) => (
             <div
               key={index}
-              className="group border border-white/10 overflow-hidden"
+              className="group border border-white/10 overflow-hidden hover:border-white/30 transition-colors duration-300"
             >
-              <img
-                src={item.image}
-                className="w-full aspect-square object-cover group-hover:scale-105 transition duration-500"
-              />
+
+              <div className="relative w-full aspect-square overflow-hidden">
+
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:opacity-0 group-hover:scale-110"
+                />
+
+                <img
+                  src={item.imageHover}
+                  alt={`${item.title} - visão alternativa`}
+                  className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-0 group-hover:opacity-100 scale-105 group-hover:scale-100"
+                />
+              </div>
 
               <div className="p-6">
                 <h3 className="font-display text-xl mb-2">
