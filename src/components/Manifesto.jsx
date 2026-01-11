@@ -8,13 +8,13 @@ export default function Manifesto() {
       <div className="max-w-4xl mx-auto">
 
           <div className="space-y-6">
-            <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-black/50 leading-tight tracking-tight">
+            <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-black/60 leading-tight tracking-tight">
               A rua é palco.
             </p>
-            <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-black/70 leading-tight tracking-tight">
+            <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-black/80 leading-tight tracking-tight">
               O corpo é voz.
             </p>
-            <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-black/90 leading-tight tracking-tight">
+            <p className="text-3xl sm:text-4xl md:text-5xl font-bold text-black leading-tight tracking-tight">
               A roupa é mensagem.
             </p>
             <br />
