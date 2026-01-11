@@ -17,13 +17,13 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             
             <div>
-              <div className="text-2xl font-display mb-2">STREET STARS</div>
+              <div className="text-center md:text-left font-display mb-2">STREET STARS</div>
               <p className="text-white/40 text-xs">
                 Desde 2024 • São Paulo, BR
               </p>
             </div>
 
-            <div className="text-right">
+            <div className="text-2xl font-display mb-2 text-center md:text-right">
               <p className="text-white/40 text-sm">
                 © {new Date().getFullYear()}<br/>
                 Todos os direitos
