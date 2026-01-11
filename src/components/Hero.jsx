@@ -1,12 +1,11 @@
 import hero from '../assets/images/hero.jpg'
-import about from '../assets/images/about.jpg'
 
 export default function Hero() {
   return (
-    <section className="min-h-screen flex items-center justify-center text-center px-6 relative overflow-hidden">
+    <section className="min-h-screen flex items-center justify-center text-center px-6 relative overflow-hidden fixed-scroll-image">
       <img
-        src={about}
-        className="absolute inset-0 w-full h-full object-cover object-top opacity-3000"
+        src={hero}
+        className="absolute inset-0 w-full h-full object-cover object-top opacity-200"
       />
       <div className="absolute inset-0 bg-black/60" />
 

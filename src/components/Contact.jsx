@@ -27,7 +27,7 @@ export default function Contact() {
           
         <div className="border border-white/10 rounded-xl sm:rounded-2xl p-6 sm:p-8 hover:border-white/30 transition-all duration-500 group bg-gradient-to-br from-black to-gray-900">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
-              <FaInstagram className="text-pink-500" size={30} />
+              <FaInstagram className="text-pink-500" size={24} sm:size={30} />
               <div>
                 <h3 className="text-2xl font-display">Instagram</h3>
                 <p className="text-white/60">@_streetstars.co</p>
@@ -46,23 +46,23 @@ export default function Contact() {
             </a>
           </div>
 
-          <div className="border border-white/10 rounded-xl sm:rounded-2xl p-6 sm:p-8 hover:border-white/30 transition-all duration-500 bg-gradient-to-br from-gray-900 to-black">
+          <div className="border border-white/10 rounded-xl sm:rounded-2xl p-6 sm:p-8 hover:border-white/30 transition-all duration-500 bg-gradient-to-br from-gray-900 to-black group">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
-              <FaEnvelope className="text-pink-500" size={30} />
+              <FaEnvelope className="text-pink-500" size={24} sm:size={30} />
               <div>
                 <h3 className="text-2xl font-display">Email direto</h3>
                 <p className="text-white/60">Para parcerias, imprensa e dúvidas comerciais.</p>
               </div>
             </div>
             
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-2">
-                <code className="text-lg font-mono bg-black px-4 py-2 rounded border border-white/10">
+            <div className="mb-4 sm:mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                <code className="text-xs sm:text-sm lg:text-base font-mono bg-black px-3 py-2 rounded break-all border border-white/10">
                   streetstarsco@gmail.com
                 </code>
                 <button
                   onClick={copyEmail}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded border border-white/20 text-sm transition"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-sm bg-white/10 hover:bg-white/20 rounded border border-white/20 text-sm transition"
                 >
                   {copied ? '✓ Copiado' : 'Copiar'}
                 </button>

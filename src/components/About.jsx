@@ -1,4 +1,3 @@
-import about from '../assets/images/about.jpg'
 import aboutus from '../assets/images/aboutus.jpg'
 
 export default function About() {
