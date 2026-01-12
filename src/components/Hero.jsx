@@ -5,7 +5,9 @@ export default function Hero() {
     <section className="min-h-screen flex items-center justify-center text-center px-6 relative overflow-hidden fixed-scroll-image">
       <img
         src={hero}
-        className="absolute inset-0 w-full h-full object-cover object-top opacity-200"
+        className="absolute inset-0 w-full h-full object-cover object-cover opacity-200"
+        style={{objectPosition: '78% center', '@media (min-width: 640px)': { objectPosition: 'left center'}
+    }}
       />
       <div className="absolute inset-0 bg-black/60" />
 
