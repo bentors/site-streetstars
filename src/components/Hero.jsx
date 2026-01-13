@@ -7,8 +7,9 @@ export default function Hero() {
         src={hero}
         alt=''
         aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover object-cover opacity-80 object-[78%_center]"
+        className="absolute inset-0 w-full h-full object-cover object-[50%_65%] sm:object-[50%_50%] lg:object-[50%_22%]"
       />
+
       <div className="absolute inset-0 bg-black/60" />
 
       <div className="relative max-w-4xl animate-fadeUp">
