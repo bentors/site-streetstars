@@ -1,4 +1,23 @@
 import { collections } from '../data/collections'
+import { motion } from 'framer-motion'
+
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+}
+
+const cardVariant = {
+  hidden: { opacity: 0, y: 30 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: 'easeOut' }
+  }
+}
 
 export default function Collections() {
   return (
@@ -8,11 +27,13 @@ export default function Collections() {
           Coleções
         </h2>
 
-        <div className="grid md:grid-cols-3 gap-10">
+        <motion.div className="grid md:grid-cols-3 gap-10"
+          variants={container} initial="hidden" whileInView="show" viewport={{ once: true }}>
           {collections.map((item, index) => (
-            <div
+            <motion.div
               key={index}
-              className="group border border-white/10 overflow-hidden hover:border-white/30 transition-all duration-300 hover:translate-y-1"
+              variants={cardVariant}
+              className="group border border-white/10 overflow-hidden hover:border-white/30 transition-colors duration-300"
             >
 
               <div className="relative w-full aspect-square overflow-hidden">
@@ -38,9 +59,9 @@ export default function Collections() {
                   {item.description}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )

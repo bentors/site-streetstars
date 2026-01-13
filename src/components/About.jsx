@@ -1,26 +1,36 @@
 import aboutus from '../assets/images/aboutus.jpg'
+import { motion } from 'framer-motion'
 
 export default function About() {
   return (
-    <section id="about" className="py-32 px-6">
+    <section id="about" className="py-32 px-6 overflow-hidden">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 
         <div className='relative overflow-hidden animate-fadeUp'>
-          <img
+          <motion.img
             src={aboutus}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: 'easeOut' }}
+            viewport={{ once: true }}
             alt="Equipe Street Stars"
             className="w-full h-64 md:h-[420px] object-cover grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
           />
         </div>
 
-        <div>
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, ease: 'easeOut', delay: 0.15 }}
+          viewport={{ once: true }}
+        >
           <h2 className="text-4xl font-display mb-6">Nossa história</h2>
           <p className="text-white/70 leading-relaxed">
             A Street Stars surgiu da vontade de transformar vivências urbanas em vestuário.
             Inspirada pela rua, música e cultura street, representamos quem se expressa
             sem pedir permissão.
           </p>
-        </div>
+        </motion.div>
 
       </div>
     </section>

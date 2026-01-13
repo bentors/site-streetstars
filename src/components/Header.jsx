@@ -1,8 +1,16 @@
 import { useState } from 'react'
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import logo from '../assets/streetstars_logoprovisoria.jpeg'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const { scrollY } = useScroll()
+  const [scrolled, setScrolled] = useState(false)
+
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    setScrolled(latest > 40)
+})
+
   const links = [
     { label: 'Sobre', href: '#about' },
     { label: 'Coleções', href: '#collections' },
@@ -13,8 +21,15 @@ export default function Header() {
 
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-black/80 backdrop-blur border-b border-white/10">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <motion.header 
+      initial={{ y: -80 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500
+      ${scrolled 
+        ? 'bg-black/90 backdrop-blur-xl shadow-lg border-b border-white/10' 
+        : 'bg-black/40 backdrop-blur-sm'}`}>
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between transition-all duration-300">
         <a href="#top">
           <img
             src={logo}
@@ -63,6 +78,6 @@ export default function Header() {
           </nav>
         </div>
       )}
-    </header>
+    </motion.header>
   )
 }
