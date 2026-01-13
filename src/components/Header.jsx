@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import logo from '../assets/streetstars_logoprovisoria.jpeg'
+import { scrollToSection } from '../utils/scrollToSection'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
@@ -40,15 +41,16 @@ export default function Header() {
 
         <nav className="hidden md:flex gap-8 text-sm text-white/70">
           {links.map(link => (
-            <a
+            <button
               key={link.href}
-              href={link.href}
+              onClick={() => scrollToSection(link.href)}
               className="hover:text-white transition"
             >
               {link.label}
-            </a>
+            </button>
           ))}
         </nav>
+
 
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -66,14 +68,16 @@ export default function Header() {
         <div className="md:hidden bg-black/90 backdrop-blur border-t border-white/10 animate-slideDown">
           <nav className="px-6 py-4 flex flex-col gap-4 text-sm text-white/70">
             {links.map(link => (
-              <a
+              <button
                 key={link.href}
-                href={link.href}
-                className="hover:text-white transition"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  scrollToSection(link.href)
+                  setIsOpen(false)
+                }}
+                className="hover:text-white transition text-left"
               >
                 {link.label}
-              </a>
+              </button>
             ))}
           </nav>
         </div>
