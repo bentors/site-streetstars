@@ -1,15 +1,27 @@
 export default function Footer() {
+  const links = [
+    { label: 'Sobre', href: '#about' },
+    { label: 'Coleções', href: '#collections' },
+    { label: 'Manifesto', href: '#manifesto' },
+    { label: 'Contato', href: '#contact' },
+    { label: 'FAQ', href: '#' },
+    { label: 'Trocas', href: '#' },
+  ]
+
   return (
     <footer className="bg-black border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex flex-wrap justify-center gap-6 md:gap-12 mb-6">
-          <a href="#about" className="text-white/60 hover:text-white text-sm transition">Sobre</a>
-          <a href="#collections" className="text-white/60 hover:text-white text-sm transition">Coleções</a>
-          <a href="#manifesto" className="text-white/60 hover:text-white text-sm transition">Manifesto</a>
-          <a href="#contact" className="text-white/60 hover:text-white text-sm transition">Contato</a>
-          <a href="#" className="text-white/60 hover:text-white text-sm transition">FAQ</a>
-          <a href="#" className="text-white/60 hover:text-white text-sm transition">Trocas</a>
-        </div>
+        <nav className="flex flex-wrap justify-center gap-6 md:gap-12 mb-6">
+          {links.map(link => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-white/60 hover:text-white text-sm transition"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
       </div>
 
       <div className="border-t border-white/10 py-8">
@@ -24,9 +36,10 @@ export default function Footer() {
             </div>
 
             <div className="text-2xl font-display mb-2 text-center md:text-right">
-              <p className="text-white/40 text-sm">
-                © {new Date().getFullYear()}<br/>
-                Todos os direitos
+              <h3 className="text-white/40 text-sm"></h3>
+              <p className="text-white/40 text-xs">
+                © {new Date().getFullYear()} Street Stars<br/>
+                Todos os direitos reservados.
               </p>
             </div>
           </div>

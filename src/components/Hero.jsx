@@ -2,12 +2,12 @@ import hero from '../assets/images/hero.jpg'
 
 export default function Hero() {
   return (
-    <section className="min-h-screen flex items-center justify-center text-center px-6 relative overflow-hidden fixed-scroll-image">
+    <section className="min-h-screen flex items-center justify-center text-center px-6 relative overflow-hidden">
       <img
         src={hero}
-        className="absolute inset-0 w-full h-full object-cover object-cover opacity-200"
-        style={{objectPosition: '78% center', '@media (min-width: 640px)': { objectPosition: 'left center'}
-    }}
+        alt=''
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover object-cover opacity-80 object-[78%_center]"
       />
       <div className="absolute inset-0 bg-black/60" />
 

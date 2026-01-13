@@ -11,7 +11,7 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="py-16 sm:py-24 lg:py-32 px-4 sm:px-6 bg-neutral-950 overflow-hidden">
+    <section id="contact" className="relative py-16 sm:py-24 lg:py-32 px-4 sm:px-6 bg-neutral-950 overflow-hidden">
       
   <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent hidden sm:block"></div>      
       <div className="max-w-5xl mx-auto relative">
@@ -39,6 +39,7 @@ export default function Contact() {
             <a
               href="https://www.instagram.com/_streetstars.co/"
               target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
             >
               Seguir agora
@@ -62,7 +63,7 @@ export default function Contact() {
                 </code>
                 <button
                   onClick={copyEmail}
-                  className="px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-sm bg-white/10 hover:bg-white/20 rounded border border-white/20 text-sm transition"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 text-sm bg-white/10 hover:bg-white/20 rounded border border-white/20 text-sm transition"
                 >
                   {copied ? '✓ Copiado' : 'Copiar'}
                 </button>

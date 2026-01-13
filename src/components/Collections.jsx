@@ -12,7 +12,7 @@ export default function Collections() {
           {collections.map((item, index) => (
             <div
               key={index}
-              className="group border border-white/10 overflow-hidden hover:border-white/30 transition-colors duration-300"
+              className="group border border-white/10 overflow-hidden hover:border-white/30 transition-all duration-300 hover:translate-y-1"
             >
 
               <div className="relative w-full aspect-square overflow-hidden">
@@ -34,7 +34,7 @@ export default function Collections() {
                 <h3 className="font-display text-xl mb-2">
                   {item.title}
                 </h3>
-                <p className="text-white/60 text-sm">
+                <p className="text-white/60 text-sm leading-relaxed ">
                   {item.description}
                 </p>
               </div>

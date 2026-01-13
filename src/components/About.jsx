@@ -5,10 +5,13 @@ export default function About() {
     <section id="about" className="py-32 px-6">
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 
-        <img
-          src={aboutus}
-          className="w-full h-64 md:h-[420px] object-cover grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
-        />
+        <div className='relative overflow-hidden animate-fadeUp'>
+          <img
+            src={aboutus}
+            alt="Equipe Street Stars"
+            className="w-full h-64 md:h-[420px] object-cover grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
+          />
+        </div>
 
         <div>
           <h2 className="text-4xl font-display mb-6">Nossa história</h2>
