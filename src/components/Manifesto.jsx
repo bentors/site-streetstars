@@ -32,7 +32,7 @@ export default function Manifesto() {
   return (
     <section
       id="manifesto" 
-      className="py-32 px-6 text-center"
+      className="py-20 sm:py-28 lg:py-32 px-6 text-center"
       style={{ 
         backgroundImage: `url(${manifestoBg})`,
         backgroundSize: 'cover',
@@ -66,6 +66,7 @@ export default function Manifesto() {
             </span>
           </p>
         </motion.div>
+
       </motion.div>
     </section>
   )

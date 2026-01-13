@@ -21,19 +21,23 @@ const cardVariant = {
 
 export default function Collections() {
   return (
-    <section id="collections" className="py-32 px-6 bg-neutral-950">
+    <section id="collections" 
+      className="py-20 sm:py-28 lg:py-32 px-6 bg-neutral-950">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl font-display mb-16 text-center">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-display mb-16 text-center">
           Coleções
         </h2>
 
         <motion.div className="grid md:grid-cols-3 gap-10"
-          variants={container} initial="hidden" whileInView="show" viewport={{ once: true }}>
+          variants={container} 
+          initial="hidden" 
+          whileInView="show" 
+          viewport={{ once: true }}>
+
           {collections.map((item, index) => (
-            <motion.div
+            <motion.div className="group border border-white/10 overflow-hidden hover:border-white/30 transition-colors duration-300"
               key={index}
               variants={cardVariant}
-              className="group border border-white/10 overflow-hidden hover:border-white/30 transition-colors duration-300"
             >
 
               <div className="relative w-full aspect-square overflow-hidden">

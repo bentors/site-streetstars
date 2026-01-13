@@ -1,3 +1,5 @@
+import { scrollToSection } from '../utils/scrollToSection'
+
 export default function Footer() {
   const links = [
     { label: 'Sobre', href: '#about' },
@@ -13,13 +15,13 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-6 py-8">
         <nav className="flex flex-wrap justify-center gap-6 md:gap-12 mb-6">
           {links.map(link => (
-            <a
+            <button
               key={link.label}
-              href={link.href}
+              onClick={() => scrollToSection(link.href)}
               className="text-white/60 hover:text-white text-sm transition"
             >
               {link.label}
-            </a>
+            </button>
           ))}
         </nav>
       </div>

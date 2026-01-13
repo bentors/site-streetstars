@@ -1,5 +1,6 @@
 import hero from '../assets/images/hero.jpg'
 import { motion } from 'framer-motion'
+import { scrollToSection } from '../utils/scrollToSection'
 
 const container = {
   hidden: {},
@@ -52,22 +53,22 @@ export default function Hero() {
           STREET STARS
         </motion.p>
 
-        <motion.h1 variants={text} className="text-4xl sm:text-5xl md:text-7xl font-display font-bold mb-8">
+        <motion.h1 variants={text} className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-display font-bold mb-8">
           Estrelas nascem <br /> nas ruas
         </motion.h1>
 
-        <motion.p variants={text} className="text-white/70 max-w-2xl mx-auto mb-10">
+        <motion.p variants={text} className="text-sm sm:text-base md:text-lg text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
           A Street Stars nasce da rua, da cultura urbana e da expressão individual. <br/>
           Mais do que roupas, criamos identidade.
         </motion.p>
 
         <motion.div variants={text}>
-          <a
-            href="#collections"
-            className="px-8 py-3 bg-white text-black font-semibold hover:scale-105 transition rounded-md hover:scale-105 transition"
+          <button
+            onClick={() => scrollToSection('#collections')}
+            className="w-full sm:w-auto px-8 py-4 text-center text-base border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black transition-all"
           >
             Conheça as coleções
-          </a>
+          </button>
         </motion.div>
       </motion.div>
     </section>
