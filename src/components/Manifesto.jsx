@@ -32,28 +32,31 @@ export default function Manifesto() {
   return (
     <section
       id="manifesto" 
-      className="py-20 sm:py-28 lg:py-32 px-6 text-center"
+      className="min-h-screen flex items-center py-20 sm:py-28 lg:py-32 px-6 text-center"
       style={{ 
         backgroundImage: `url(${manifestoBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center 12%',
       }}
+      initial={{ backgroundPositionY: '20%' }}
+      whileInView={{ backgroundPositionY: '12%' }}
+      transition={{ duration: 1.5, ease: 'easeOut' }}
     >
 
-      <motion.div className="max-w-4xl mx-auto space-y-20"
+      <motion.div className="relative max-w-4xl mx-auto space-y-20"
         variants={container}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}>
 
         <div className="space-y-6 mb-24">
-          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-bold text-black/60 leading-tight">
+          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-semibold text-black/60 leading-tight">
             A rua é palco. 
           </motion.p>
           <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-bold text-black/80 leading-tight">
             O corpo é voz.
           </motion.p>
-          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-bold text-black leading-tight">
+          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black leading-tight">
             A roupa é mensagem.
           </motion.p>
         </div>
