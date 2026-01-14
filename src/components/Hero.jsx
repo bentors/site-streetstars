@@ -31,10 +31,11 @@ const image = {
 
 export default function Hero() {
   return (
-    <section className="min-h-screen relative overflow-hidden flex items-center text-center justify-center px-6">
-      <img
+    <section id="top"
+      className="min-h-screen relative overflow-hidden flex items-center text-center justify-center px-6">
+      <motion.img
         src={hero}
-        alt=''
+        alt=""
         aria-hidden="true"
         variants={image}
         initial="hidden"
@@ -42,11 +43,12 @@ export default function Hero() {
         className="absolute inset-0 w-full h-full object-cover object-[75%_65%] sm:object-[50%_50%] lg:object-[50%_22%]"
       />
 
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70" />
 
       <motion.div variants={container}
         initial="hidden"
         animate="show"
+        viewport={{ once: true }}
         className="relative max-w-4xl text-center"
       >
         <motion.p variants={text} className="text-xs tracking-[0.35em] text-white/50 mb-6">
@@ -65,7 +67,7 @@ export default function Hero() {
         <motion.div variants={text}>
           <button
             onClick={() => scrollToSection('#collections')}
-            className="w-full sm:w-auto px-8 py-4 text-center text-base border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black transition-all"
+            className="w-full sm:w-auto px-8 py-4 text-center text-base border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
             Conheça as coleções
           </button>
