@@ -38,6 +38,7 @@ export default function Manifesto() {
         src={manifestoBg}
         alt=""
         loading="lazy"
+        decoding='async'
         className="absolute inset-0 w-full h-full object-cover object-center lg:object-[50%_12%] z-0"
       />
 

@@ -85,7 +85,7 @@ useEffect(() => {
         </button>
 
 
-        <nav className="hidden md:flex gap-8 text-sm text-white/70 relative">
+        <nav aria-label="Primary" className="hidden md:flex gap-8 text-sm text-white/70 relative">
           {links.map(link => (
             <div key={link.href} className="relative">
               <button
@@ -135,7 +135,7 @@ useEffect(() => {
 
       {isOpen && (
         <div className="md:hidden bg-black/90 backdrop-blur border-t border-white/10 animate-slideDown">
-          <nav className="px-6 py-4 flex flex-col gap-4 text-sm text-white/70">
+          <nav aria-label="Mobile menu" className="px-6 py-4 flex flex-col gap-4 text-sm text-white/70">
             {links.map(link => (
               <button
                 onClick={() => {

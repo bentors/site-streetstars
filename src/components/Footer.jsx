@@ -13,7 +13,7 @@ export default function Footer() {
   return (
     <footer className="bg-black border-t border-white/10">
       <div className="max-w-6xl mx-auto px-6 py-8">
-        <nav className="flex flex-wrap justify-center gap-6 md:gap-12 mb-6">
+        <nav aria-label="Footer navigation" className="flex flex-wrap justify-center gap-6 md:gap-12 mb-6">
           {links.map(link => (
             <button
               key={link.href}

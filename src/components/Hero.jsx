@@ -37,6 +37,8 @@ export default function Hero() {
         src={hero}
         alt=""
         aria-hidden="true"
+        fetchPriority="high"
+        decoding="async"
         variants={image}
         initial="hidden"
         animate="show"  
@@ -66,6 +68,7 @@ export default function Hero() {
 
         <motion.div variants={text}>
           <button
+            aria-label='Conhecer coleções'
             onClick={() => scrollToSection('#collections')}
             className="w-full sm:w-auto px-8 py-4 text-center border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
           >
