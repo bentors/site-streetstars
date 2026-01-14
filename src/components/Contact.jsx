@@ -24,51 +24,55 @@ export default function Contact() {
           </div>
         </div>  
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-6 lg:gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-6 lg:gap-10">
           
-        <div className="border border-white/10 rounded-xl sm:rounded-2xl p-6 sm:p-8 hover:border-white/30 transition-all duration-500 group bg-gradient-to-br from-black to-gray-900">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
-            <FaInstagram className="text-pink-500" 
-              size={24} 
-              sm:size={30}
-            />
+        <div className="border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-white/30 transition-all duration-500 group bg-gradient-to-br from-black to-gray-900 flex flex-col">
+          <div className='flex-1'>
+            <div className="flex flex-col items-center sm:flex-row sm:items-center gap-3 sm:gap-6 mb-4 sm:mb-6 text-center sm:text-left">
+              <FaInstagram className="text-pink-500" 
+                size={24} 
+                sm:size={30}
+              />
 
-            <div>
-              <h3 className="text-2xl font-display">Instagram</h3>
-              <p className="text-white/60">@_streetstars.co</p>
+              <div>
+                <h3 className="text-2xl font-display">Instagram</h3>
+                <p className="text-white/60 text-md sm:text-base mb-4 sm:mb-6">@_streetstars.co</p>
+              </div>
             </div>
+
+            <p className="mt-8 text-white/70 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
+              Onde postamos daily fits, drops exclusivos e a cultura street em tempo real.
+            </p>
           </div>
 
-          <p className="text-white/70 mb-6">
-            Onde postamos daily fits, drops exclusivos e a cultura street em tempo real.
-          </p>
-            
           <a
             href="https://www.instagram.com/_streetstars.co/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
+            className="mt-4 w-full h-14 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
           >
             Seguir agora
             <span className="group-hover:translate-x-1 transition">→</span>
           </a>
         </div>
 
-        <div className="border border-white/10 rounded-xl sm:rounded-2xl p-6 sm:p-8 hover:border-white/30 transition-all duration-500 bg-gradient-to-br from-gray-900 to-black group">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
-            <FaEnvelope className="text-pink-500" 
-              size={24} 
-              sm:size={30} 
-            />
-            <div>
-              <h3 className="text-2xl font-display">Email direto</h3>
-              <p className="text-white/60">Para parcerias, imprensa e dúvidas comerciais.</p>
+        <div className="border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-white/30 transition-all duration-500 bg-gradient-to-br from-gray-900 to-black group flex flex-col">
+          <div className='flex-1'>
+            <div className="flex flex-col items-center sm:flex-row sm:items-center gap-3 sm:gap-6 mb-4 sm:mb-6 text-center sm:text-left">
+              <FaEnvelope className="text-pink-500" 
+                size={24} 
+                sm:size={30} 
+              />
+              <div>
+                <h3 className="text-2xl font-display">Email</h3>
+                <p className="text-white/70 text-sm sm:text-base mb-4 sm:mb-6">Para parcerias e dúvidas comerciais.</p>
+              </div>
             </div>
           </div>
             
           <div className="mb-4 sm:mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-              <code className="text-xs sm:text-sm lg:text-base font-mono bg-black px-3 py-2 rounded break-all border border-white/10">
+              <code className="text-xs sm:text-sm lg:text-base font-mono bg-black px-3 py-2 rounded whitespace-nowrap overflow-hidden text-ellipsis max-w-full break-normal border border-white/10">
                 streetstarsco@gmail.com
               </code>
               <button
@@ -82,7 +86,7 @@ export default function Contact() {
 
           <a
             href="mailto:streetstarsco@gmail.com"
-            className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
+            className="mt-4 w-full h-14 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
           >
             Abrir email
             <span className="group-hover:translate-x-1 transition">→</span>
