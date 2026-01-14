@@ -53,10 +53,10 @@ export default function Manifesto() {
           <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-semibold text-black/60 leading-tight">
             A rua é palco. 
           </motion.p>
-          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-bold text-black/80 leading-tight">
+          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-semibold text-black/80 leading-tight">
             O corpo é voz.
           </motion.p>
-          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-black leading-tight">
+          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-bold text-black leading-tight">
             A roupa é mensagem.
           </motion.p>
         </div>

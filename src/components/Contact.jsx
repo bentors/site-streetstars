@@ -10,6 +10,9 @@ export default function Contact() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const EMAIL = 'streetstarsco@gmail.com'
+
+
   return (
     <section id="contact" 
       className="relative py-20 sm:py-28 lg:py-32 px-4 sm:px-6 bg-neutral-950 overflow-hidden">
@@ -17,8 +20,7 @@ export default function Contact() {
       <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent hidden sm:block"></div>      
       <div className="max-w-5xl mx-auto relative">
         
-        <div className="text-center mb-12 sm:mb-16">
-          <br />
+        <div className="text-center mb-12 sm:mb-16 mt-8">
           <div className="flex items-center justify-center gap-3 mb-6">
             <span className="text-sm tracking-widest text-white/60 py-1">FALE COM A GENTE</span>
           </div>
@@ -30,7 +32,7 @@ export default function Contact() {
           <div className='flex-1'>
             <div className="flex flex-col items-center sm:flex-row sm:items-center gap-3 sm:gap-6 mb-4 sm:mb-6 text-center sm:text-left">
               <FaInstagram className="text-pink-500" 
-                size={24} 
+                size={28} 
                 sm:size={30}
               />
 
@@ -60,7 +62,7 @@ export default function Contact() {
           <div className='flex-1'>
             <div className="flex flex-col items-center sm:flex-row sm:items-center gap-3 sm:gap-6 mb-4 sm:mb-6 text-center sm:text-left">
               <FaEnvelope className="text-pink-500" 
-                size={24} 
+                size={28} 
                 sm:size={30} 
               />
               <div>
@@ -77,15 +79,16 @@ export default function Contact() {
               </code>
               <button
                 onClick={copyEmail}
+                aria-label='Copiar endereço de email'
                 className="px-4 sm:px-6 py-2.5 sm:py-3 text-sm bg-white/10 hover:bg-white/20 rounded border border-white/20 text-sm transition"
               >
-                {copied ? '✓ Copiado' : 'Copiar'}
+                {copied ? '✓ Copiado! ' : 'Copiar'}
               </button>
             </div>
           </div>
 
           <a
-            href="mailto:streetstarsco@gmail.com"
+            href={`mailto:${EMAIL}`}
             className="mt-4 w-full h-14 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
           >
             Abrir email
