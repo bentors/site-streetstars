@@ -31,7 +31,7 @@ export default function Collections() {
         </h2>
 
         <motion.div
-          className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 md:hidden"
+          className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 px-2 md:hidden touch-pan-x scrollbar-hide"
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -72,12 +72,12 @@ export default function Collections() {
 
 function CollectionCard({ item }) {
   return (
-    <div className="group h-full flex flex-col border border-white/10 overflow-hidden hover:border-white/30 transition-colors duration-300 bg-black">
+    <div className="group h-full flex flex-col border border-white/10 overflow-hidden bg-black transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] hover:border-white/30">
       <div className="relative w-full aspect-square overflow-hidden">
         <img
           src={item.image}
           alt={item.title}
-          className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:opacity-0 group-hover:scale-110"
+          className="relative w-full aspect-square overflow-hidden inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:opacity-0 group-hover:scale-[1.03]"
         />
 
         <img
