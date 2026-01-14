@@ -9,7 +9,9 @@ import './index.css'
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-black text-white font-sans overflow-x-hidden">
+    <div 
+      id="top"
+      className="min-h-screen bg-black text-white font-sans overflow-x-hidden">
       <Header />
 
       <main id="main-content">

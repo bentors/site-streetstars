@@ -1,4 +1,4 @@
-import { useState , useEffect , useRef } from 'react'
+import { useState , useEffect  } from 'react'
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import logo from '../assets/streetstars_logoprovisoria.jpeg'
 import { scrollToSection } from '../utils/scrollToSection'
@@ -7,7 +7,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const { scrollY } = useScroll()
   const [scrolled, setScrolled] = useState(false)
-  const [activeSection, setActiveSection] = useState('about')
+  const [activeSection, setActiveSection] = useState(null)
 
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
@@ -45,6 +45,23 @@ export default function Header() {
     { label: 'Shop', href: '#shop' },
 ]
 
+useEffect(() => {
+  if (isOpen) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+
+  return () => {
+    document.body.style.overflow = ''
+  }
+}, [isOpen])
+
+useEffect(() => {
+  if (isOpen && window.innerWidth >= 768) {
+    setIsOpen(false)
+  }
+}, [isOpen])
 
   return (
     <motion.header 
