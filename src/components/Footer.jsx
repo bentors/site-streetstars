@@ -16,9 +16,9 @@ export default function Footer() {
         <nav className="flex flex-wrap justify-center gap-6 md:gap-12 mb-6">
           {links.map(link => (
             <button
-              key={link.label}
+              key={link.href}
               onClick={() => scrollToSection(link.href)}
-              className="text-white/60 hover:text-white text-sm transition"
+              className="text-white/60 hover:text-white hover:translate-y-[1px] transition-all text-sm"
             >
               {link.label}
             </button>
@@ -38,7 +38,6 @@ export default function Footer() {
             </div>
 
             <div className="text-2xl font-display mb-2 text-center md:text-right">
-              <h3 className="text-white/40 text-sm"></h3>
               <p className="text-white/40 text-xs">
                 © {new Date().getFullYear()} Street Stars<br/>
                 Todos os direitos reservados.
