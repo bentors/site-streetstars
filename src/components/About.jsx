@@ -10,12 +10,14 @@ export default function About() {
         <div className='relative overflow-hidden'>
           <motion.img
             src={aboutus}
+            alt="Equipe Street Stars"
+            loading="lazy"
+            decoding="async"
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: 'easeOut' }}
             viewport={{ once: true }}
-            alt="Equipe Street Stars"
-            className="w-full h-64 sm:h-80 md:h-[420px] object-cover object-[75%_5%] sm:object-[48%_100%] grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
+            className="w-full h-64 md:h-[420px] object-cover object-[75%_5%] sm:object-[48%_100%] grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
           />
         </div>
 

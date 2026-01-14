@@ -31,7 +31,7 @@ export default function Collections() {
         </h2>
 
         <motion.div
-          className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 px-2 md:hidden touch-pan-x scrollbar-hide"
+          className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8 md:hidden scroll-smooth overscroll-x-contain"
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -41,7 +41,7 @@ export default function Collections() {
             <motion.div
               key={index}
               variants={cardVariant}
-              className="min-w-[85%] snap-center"
+              className="min-w-[85%] snap-center scroll-ml-6"
             >
               <CollectionCard item={item} />
             </motion.div>
@@ -72,22 +72,26 @@ export default function Collections() {
 
 function CollectionCard({ item }) {
   return (
-    <div className="group h-full flex flex-col border border-white/10 overflow-hidden bg-black transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] hover:border-white/30">
+    <div className="group h-full flex flex-col border border-white/10 bg-black overflow-hidden transition-all duration-500 ease-out hover:border-white/30 md:hover:s-translate-y-2 md:hover:shadow-2xl md:hover:shadow-black/50">
       <div className="relative w-full aspect-square overflow-hidden">
         <img
           src={item.image}
           alt={item.title}
-          className="relative w-full aspect-square overflow-hidden inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:opacity-0 group-hover:scale-[1.03]"
+          loading='lazy'
+          decoding='async'
+          className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:opacity-0 group-hover:scale-110"
         />
 
         <img
           src={item.imageHover}
           alt={`${item.title} - visão alternativa`}
+          loading='lazy'
+          decoding='async'
           className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-0 group-hover:opacity-100 scale-105 group-hover:scale-100"
         />
       </div>
 
-      <div className="p-6 flex flex-col flex-1">
+      <div className="p-6 flex flex-col flex-1 transition-transform duration-500 md:group-hover:-translate-y-1">
         <h3 className="font-display text-xl mb-2">
           {item.title}
         </h3>

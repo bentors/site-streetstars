@@ -67,7 +67,7 @@ export default function Hero() {
         <motion.div variants={text}>
           <button
             onClick={() => scrollToSection('#collections')}
-            className="w-full sm:w-auto px-8 py-4 text-center text-base border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.02] active:scale-[0.98] transition-all"
+            className="w-full sm:w-auto px-8 py-4 text-center border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
           >
             Conheça as coleções
           </button>

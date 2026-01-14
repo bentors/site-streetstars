@@ -32,42 +32,48 @@ export default function Manifesto() {
   return (
     <section
       id="manifesto" 
-      className="min-h-screen flex items-center py-20 sm:py-28 lg:py-32 px-6 text-center"
-      style={{ 
-        backgroundImage: `url(${manifestoBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center 12%',
-      }}
-      initial={{ backgroundPositionY: '20%' }}
-      whileInView={{ backgroundPositionY: '12%' }}
-      transition={{ duration: 1.5, ease: 'easeOut' }}
+      className="relative min-h-[100svh] py-20 sm:py-28 lg:py-32 px-6 overflow-hidden"
     >
+      <img
+        src={manifestoBg}
+        alt=""
+        loading="lazy"
+        className="absolute inset-0 w-full h-full object-cover object-center lg:object-[50%_12%] z-0"
+      />
 
-      <motion.div className="relative max-w-4xl mx-auto space-y-20"
+      <div className="absolute inset-0 bg-black/30"></div>
+
+      <motion.div className="relative max-w-4xl mx-auto space-y-20 text-center"
         variants={container}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true }}>
 
         <div className="space-y-6 mb-24">
-          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-semibold text-black/60 leading-tight">
+          <motion.p variants={line}
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white/70 leading-tight">
             A rua é palco. 
           </motion.p>
-          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-semibold text-black/80 leading-tight">
+          <motion.p variants={line} 
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white/85 leading-tight">
             O corpo é voz.
           </motion.p>
-          <motion.p variants={line} className="text-3xl sm:text-4xl md:text-5xl font-bold text-black leading-tight">
+          <motion.p variants={line} 
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
             A roupa é mensagem.
           </motion.p>
         </div>
           
-        <motion.div variants={box} className="bg-black/40 backdrop-blur-sm p-8 sm:p-10 rounded-2xl border border-white/10">
+        <motion.div variants={box} 
+          className="bg-black/40 backdrop-blur-sm p-8 sm:p-10 rounded-2xl border border-white/10">
+
           <p className="text-xl sm:text-2xl text-white/95 leading-relaxed">
             A Street Stars acredita que estilo é extensão da identidade. 
             <span className="block mt-4 text-white/80">
               Não seguimos padrões, criamos presença. Vestir Street Stars é viver a rua. Refletir momentos, ideias e vivências.
             </span>
           </p>
+
         </motion.div>
 
       </motion.div>

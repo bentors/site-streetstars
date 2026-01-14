@@ -51,7 +51,7 @@ export default function Contact() {
             href="https://www.instagram.com/_streetstars.co/"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 w-full h-14 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
+            className="mt-4 w-full h-14 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
           >
             Seguir agora
             <span className="group-hover:translate-x-1 transition">→</span>
