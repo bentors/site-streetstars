@@ -45,7 +45,7 @@ export default function Hero() {
         className="absolute inset-0 w-full h-full object-cover object-[75%_65%] sm:object-[50%_50%] lg:object-[50%_22%]"
       />
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-black/65" />
 
       <motion.div variants={container}
         initial="hidden"
@@ -72,7 +72,7 @@ export default function Hero() {
             onClick={() => scrollToSection('#collections')}
             className="w-full sm:w-auto px-8 py-4 text-center border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
           >
-            Conheça as coleções
+            Ver drops disponíveis
           </button>
         </motion.div>
       </motion.div>

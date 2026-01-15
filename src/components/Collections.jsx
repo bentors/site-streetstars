@@ -27,7 +27,7 @@ export default function Collections() {
     >
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-display mb-16 text-center">
-          Coleções
+          Drops
         </h2>
 
         <motion.div
