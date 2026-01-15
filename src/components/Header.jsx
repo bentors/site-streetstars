@@ -1,6 +1,6 @@
 import { useState , useEffect  } from 'react'
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
-import logo from '../assets/streetstars_logoprovisoria.jpeg'
+import logo from '../assets/images/streetstars_logoprovisoria.jpeg'
 import { scrollToSection } from '../utils/scrollToSection'
 
 export default function Header() {
@@ -92,7 +92,10 @@ useEffect(() => {
           <img
             src={logo}
             alt="Street Stars"
+            width={800}
+            height={300}
             className="h-8 w-auto object-contain"
+            fetchpriority="high"
           />
         </button>
 
