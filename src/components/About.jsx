@@ -31,7 +31,7 @@ export default function About() {
             Nossa história
           </h2>
           
-          <p className="text-white/70 leading-relaxed text-balance">
+          <p className="text-white/80 leading-relaxed text-balance">
             A Street Stars surgiu da vontade de transformar vivências urbanas em vestuário.
             Inspirada pela rua, música e cultura street, representamos quem se expressa
             sem pedir permissão.

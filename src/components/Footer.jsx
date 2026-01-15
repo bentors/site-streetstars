@@ -18,7 +18,7 @@ export default function Footer() {
             <button
               key={link.href}
               onClick={() => scrollToSection(link.href)}
-              className="text-white/60 hover:text-white hover:translate-y-[1px] transition-all text-sm"
+              className="text-white/70 hover:text-white hover:translate-y-[1px] transition-all text-sm"
             >
               {link.label}
             </button>
@@ -32,13 +32,13 @@ export default function Footer() {
             
             <div>
               <div className="text-center md:text-left font-display mb-2">STREET STARS</div>
-              <p className="text-white/40 text-xs">
+              <p className="text-white/50 text-xs">
                 Desde 2024 • São Paulo, BR
               </p>
             </div>
 
             <div className="text-2xl font-display mb-2 text-center md:text-right">
-              <p className="text-white/40 text-xs">
+              <p className="text-white/50 text-xs">
                 © {new Date().getFullYear()} Street Stars<br/>
                 Todos os direitos reservados.
               </p>
@@ -49,11 +49,11 @@ export default function Footer() {
 
       <div className="bg-black/50 py-4">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/30">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40">
             <div>
-              <a href="#" className="hover:text-white/60 transition">Política de Privacidade</a>
+              <a href="#" className="hover:text-white/70 transition">Política de Privacidade</a>
               <span className="mx-2">•</span>
-              <a href="#" className="hover:text-white/60 transition">Termos de Uso</a>
+              <a href="#" className="hover:text-white/70 transition">Termos de Uso</a>
             </div>
           </div>
         </div>

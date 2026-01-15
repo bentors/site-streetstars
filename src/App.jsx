@@ -24,13 +24,15 @@ export default function App() {
       className="min-h-screen bg-black text-white font-sans overflow-x-hidden">
       <Header />
 
-      <main id="main-content">
-        <Hero />
-        <About />
-        <Collections />
-        <Manifesto />
-        <Contact />
-      </main>
+      <Suspense fallback={null}>
+        <main id="main-content">
+          <Hero />
+          <About />
+          <Collections />
+          <Manifesto />
+          <Contact />
+        </main>
+      </Suspense>
 
       <Footer />
     </div>

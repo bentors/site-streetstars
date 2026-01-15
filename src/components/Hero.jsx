@@ -53,7 +53,7 @@ export default function Hero() {
         viewport={{ once: true }}
         className="relative max-w-4xl text-center"
       >
-        <motion.p variants={text} className="text-xs tracking-[0.35em] text-white/50 mb-6">
+        <motion.p variants={text} className="text-xs tracking-[0.35em] text-white/60 mb-6">
           STREET STARS
         </motion.p>
 
@@ -61,7 +61,7 @@ export default function Hero() {
           Estrelas nascem <br /> nas ruas
         </motion.h1>
 
-        <motion.p variants={text} className="text-sm sm:text-base md:text-lg text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
+        <motion.p variants={text} className="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
           A Street Stars nasce da rua, da cultura urbana e da expressão individual. <br/>
           Mais do que roupas, criamos identidade.
         </motion.p>

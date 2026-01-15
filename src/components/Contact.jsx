@@ -22,7 +22,7 @@ export default function Contact() {
         
         <div className="text-center mb-12 sm:mb-16 mt-8">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="text-sm tracking-widest text-white/60 py-1">FALE COM A GENTE</span>
+            <span className="text-sm tracking-widest text-white/70 py-1">FALE COM A GENTE</span>
           </div>
         </div>  
 
@@ -38,11 +38,11 @@ export default function Contact() {
 
               <div>
                 <h3 className="text-2xl font-display">Instagram</h3>
-                <p className="text-white/60 text-md sm:text-base mb-4 sm:mb-6">@_streetstars.co</p>
+                <p className="text-white/70 text-md sm:text-base mb-4 sm:mb-6">@_streetstars.co</p>
               </div>
             </div>
 
-            <p className="mt-8 text-white/70 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
+            <p className="mt-8 text-white/80 text-sm sm:text-base mb-4 sm:mb-6 leading-relaxed">
               Onde postamos daily fits, drops exclusivos e a cultura street em tempo real.
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function Contact() {
               />
               <div>
                 <h3 className="text-2xl font-display">Email</h3>
-                <p className="text-white/70 text-sm sm:text-base mb-4 sm:mb-6">Para parcerias e dúvidas comerciais.</p>
+                <p className="text-white/80 text-sm sm:text-base mb-4 sm:mb-6">Para parcerias e dúvidas comerciais.</p>
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@ export default function Contact() {
       </div>
 
       <div className="text-center mt-16 pt-8 border-t border-white/10">
-        <p className="text-white/50 italic">
+        <p className="text-white/60 italic">
           "Da rua pra rua. Sem intermediários."
         </p>
         </div>

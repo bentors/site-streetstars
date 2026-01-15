@@ -48,7 +48,7 @@ export default function Collections() {
           ))}
         </motion.div>
 
-        <p className="text-xs text-white/40 text-center mt-4 md:hidden">
+        <p className="text-xs text-white/50 text-center mt-4 md:hidden">
           Arraste para ver mais →
         </p>
 
@@ -95,7 +95,7 @@ function CollectionCard({ item }) {
         <h3 className="font-display text-xl mb-2">
           {item.title}
         </h3>
-        <p className="text-white/60 text-sm leading-relaxed flex-1">
+        <p className="text-white/70 text-sm leading-relaxed flex-1">
           {item.description}
         </p>
       </div>
