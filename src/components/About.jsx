@@ -11,6 +11,8 @@ export default function About() {
           <motion.img
             src={aboutus}
             alt="Equipe Street Stars"
+            width="800"
+            height="420"
             loading="lazy"
             decoding="async"
             initial={{ opacity: 0, y: 40 }}

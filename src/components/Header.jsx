@@ -15,26 +15,38 @@ export default function Header() {
   })
 
   useEffect(() => {
-  const sections = document.querySelectorAll('section[id]')
+  let observer
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id)
-        }
-      })
-    },
-    {
-      rootMargin: '-40% 0px -50% 0px',
-      threshold: 0
-    }
-  )
+  const initObserver = () => {
+    const sections = document.querySelectorAll('section[id]')
+    if (!sections.length) return
 
-  sections.forEach(section => observer.observe(section))
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            setActiveSection(`#${entry.target.id}`)
+          }
+        })
+      },
+      {
+        root: null,
+        rootMargin: '-40% 0px -50% 0px',
+        threshold: 0
+      }
+    )
 
-  return () => observer.disconnect()
-  }, [])
+    sections.forEach(section => observer.observe(section))
+  }
+
+  const timeout = setTimeout(initObserver, 100)
+
+  return () => {
+    clearTimeout(timeout)
+    observer?.disconnect()
+  }
+}, [])
+
 
 
   const links = [
@@ -94,7 +106,7 @@ useEffect(() => {
               >
                 {link.label}
 
-                {activeSection === link.href.substring(1) && (
+                {activeSection === link.href && (
                   <motion.span
                     layoutId="star-underline"
                     className="absolute -bottom-2 left-0 right-0 flex justify-center"

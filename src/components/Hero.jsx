@@ -39,6 +39,8 @@ export default function Hero() {
         aria-hidden="true"
         fetchPriority="high"
         decoding="async"
+        width="1200"
+        height="800"
         variants={image}
         initial="hidden"
         animate="show"  

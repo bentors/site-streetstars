@@ -77,6 +77,8 @@ function CollectionCard({ item }) {
         <img
           src={item.image}
           alt={item.title}
+          width="600"
+          height="750"
           loading='lazy'
           decoding='async'
           className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:opacity-0 group-hover:scale-110"
@@ -87,6 +89,8 @@ function CollectionCard({ item }) {
           alt={`${item.title} - visão alternativa`}
           loading='lazy'
           decoding='async'
+          width="600"
+          height="750"
           className="absolute inset-0 w-full h-full object-cover transition-all duration-500 opacity-0 group-hover:opacity-100 scale-105 group-hover:scale-100"
         />
       </div>
