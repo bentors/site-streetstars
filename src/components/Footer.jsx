@@ -60,17 +60,17 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="bg-black/50 py-4">
+      <div className="bg-black/70 py-4">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/50">
             <div>
               <a 
                 href="#" 
-                className="hover:text-white/70 transition">
+                className="hover:text-white/80 transition">
                   Política de Privacidade
               </a>
               <span className="mx-2">•</span>
-              <a href="#" className="hover:text-white/70 transition">Termos de Uso</a>
+              <a href="#" className="hover:text-white/80 transition">Termos de Uso</a>
             </div>
           </div>
         </div>
