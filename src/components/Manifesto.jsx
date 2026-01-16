@@ -77,6 +77,7 @@ export default function Manifesto() {
 
         </motion.div>
 
+        
       </motion.div>
     </section>
   )

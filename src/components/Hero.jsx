@@ -60,22 +60,25 @@ export default function Hero() {
         </motion.p>
 
         <motion.h1 variants={text} className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-display font-bold mb-8">
-          Estrelas nascem <br /> nas ruas
+          Estilo que nasce <br /> nas ruas
         </motion.h1>
 
         <motion.p variants={text} className="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
           A Street Stars nasce da rua, da cultura urbana e da expressão individual. <br/>
-          Mais do que roupas, criamos identidade.
+          Mais do que moda, criamos estrelas.
         </motion.p>
 
-        <motion.div variants={text}>
-          <button
-            aria-label='Conhecer coleções'
-            onClick={() => scrollToSection('#collections')}
-            className="w-full sm:w-auto px-8 py-4 text-center border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
+        <motion.div variants={text} className="flex flex-col items-center gap-2">
+          <a
+            href="https://streetstars.myshopify.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label='Ir para loja da Street Stars'
+            className="sm:w-auto px-8 py-4 text-center border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
           >
-            Ver drops disponíveis
-          </button>
+            Acessar loja oficial
+          </a>
+
         </motion.div>
       </motion.div>
     </section>
