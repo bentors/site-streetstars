@@ -55,7 +55,7 @@ export default function Shop() {
         </a>
 
         <p className="text-xs text-white/40 mt-4">
-          🛒 Loja oficial ★  Checkout seguro 🔒
+          🛒 Loja oficial ★ Envio nacional ★ Checkout seguro 🔒
         </p>
       </motion.div>
     </section>

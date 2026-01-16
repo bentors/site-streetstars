@@ -71,12 +71,19 @@ export default function Manifesto() {
           <p className="text-xl sm:text-2xl text-white/95 leading-relaxed">
             A Street Stars acredita que estilo é extensão da identidade. 
             <span className="block mt-4 text-white/80">
-              Não seguimos padrões, criamos presença. Vestir Street Stars é viver a rua. Refletir momentos, ideias e vivências.
+              Vestir Street Stars é viver a rua.
             </span>
           </p>
         </motion.div>
 
+
+
         <motion.div className="flex flex-col items-center gap-2">
+
+          <p className="text-xs text-white/70 py-2">
+            Pronto para se tornar uma estrela das ruas?
+          </p>
+
           <a
             href="https://streetstars.myshopify.com"
             target="_blank"
@@ -86,10 +93,6 @@ export default function Manifesto() {
           >
             Acessar loja oficial
           </a>
-
-        <p className="text-xs text-white/40 mt-4">
-          Pagamento seguro ★ Envio nacional
-        </p>
 
         </motion.div>
 
