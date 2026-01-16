@@ -28,7 +28,7 @@ export default function Contact() {
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-6 lg:gap-10">
           
-        <div className="border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-white/30 transition-all duration-500 group bg-gradient-to-br from-black to-gray-900 flex flex-col">
+        <div className="border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-white/30 transition-all duration-500 group bg-gradient-to-br from-black to-zinc-900 flex flex-col">
           <div className='flex-1'>
             <div className="flex flex-col items-center sm:flex-row sm:items-center gap-3 sm:gap-6 mb-4 sm:mb-6 text-center sm:text-left">
               <FaInstagram className="text-pink-500" 
@@ -58,7 +58,7 @@ export default function Contact() {
           </a>
         </div>
 
-        <div className="border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-white/30 transition-all duration-500 bg-gradient-to-br from-gray-900 to-black group flex flex-col">
+        <div className="border border-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:border-white/30 transition-all duration-500 bg-gradient-to-br from-zinc-900 to-black group flex flex-col">
           <div className='flex-1'>
             <div className="flex flex-col items-center sm:flex-row sm:items-center gap-3 sm:gap-6 mb-4 sm:mb-6 text-center sm:text-left">
               <FaEnvelope className="text-pink-500" 

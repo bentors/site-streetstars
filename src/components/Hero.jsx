@@ -79,6 +79,10 @@ export default function Hero() {
             Acessar loja oficial
           </a>
 
+        <p className="text-xs text-white/40 mt-4">
+          Loja oficial ★ Pagamento seguro ★ Envio nacional
+        </p>
+
         </motion.div>
       </motion.div>
     </section>

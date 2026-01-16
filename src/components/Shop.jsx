@@ -8,7 +8,7 @@ export default function Shop() {
   return (
     <section
       id="shop"
-      className="relative py-20 sm:py-28 px-6 bg-gradient-to-b from-zinc-900 via-zinc-800 to-black-900 text-center"
+      className="relative py-20 sm:py-28 px-6 bg-gradient-to-b from-zinc-800 to-black-900 text-center"
     >
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -55,7 +55,7 @@ export default function Shop() {
         </a>
 
         <p className="text-xs text-white/40 mt-4">
-          Loja oficial ★ Pagamento seguro ★ Envio nacional
+          Streetwear Nacional ★ Criado por quem vive a rua
         </p>
       </motion.div>
     </section>
