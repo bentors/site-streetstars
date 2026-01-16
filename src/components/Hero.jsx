@@ -76,7 +76,7 @@ export default function Hero() {
             aria-label='Ir para loja da Street Stars'
             className="sm:w-auto px-8 py-4 text-center border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
           >
-            Ver drops
+            Ver Itens
           </a>
 
         <p className="text-xs text-white/40 mt-4">
