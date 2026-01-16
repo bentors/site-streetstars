@@ -42,7 +42,7 @@ export default function Manifesto() {
         className="absolute inset-0 w-full h-full object-cover object-center lg:object-[50%_12%] z-0"
       />
 
-      <div className="absolute inset-0 bg-black/30"></div>
+      <div className="absolute inset-0 bg-black/40"></div>
 
       <motion.div className="relative max-w-4xl mx-auto space-y-20 text-center"
         variants={container}
@@ -74,9 +74,24 @@ export default function Manifesto() {
               Não seguimos padrões, criamos presença. Vestir Street Stars é viver a rua. Refletir momentos, ideias e vivências.
             </span>
           </p>
-
         </motion.div>
 
+        <motion.div className="flex flex-col items-center gap-2">
+          <a
+            href="https://streetstars.myshopify.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label='Ir para loja da Street Stars'
+            className="sm:w-auto px-8 py-4 text-center border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
+          >
+            Acessar loja oficial
+          </a>
+
+        <p className="text-xs text-white/40 mt-4">
+          Pagamento seguro ★ Envio nacional
+        </p>
+
+        </motion.div>
 
       </motion.div>
     </section>

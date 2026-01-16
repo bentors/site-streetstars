@@ -12,7 +12,7 @@ const container = {
   }
 }
 
-const text = {
+export const text = {
   hidden: { opacity: 0, y: 40 },
   show: {
     opacity: 1,
@@ -76,11 +76,11 @@ export default function Hero() {
             aria-label='Ir para loja da Street Stars'
             className="sm:w-auto px-8 py-4 text-center border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
           >
-            Acessar loja oficial
+            Ver drops
           </a>
 
         <p className="text-xs text-white/40 mt-4">
-          Loja oficial ★ Pagamento seguro ★ Envio nacional
+          Streetwear Nacional ★ Criado por quem vive a rua
         </p>
 
         </motion.div>

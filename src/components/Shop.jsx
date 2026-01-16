@@ -55,7 +55,7 @@ export default function Shop() {
         </a>
 
         <p className="text-xs text-white/40 mt-4">
-          Streetwear Nacional ★ Criado por quem vive a rua
+          🛒 Loja oficial ★  Checkout seguro 🔒
         </p>
       </motion.div>
     </section>
