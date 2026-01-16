@@ -35,7 +35,13 @@ export default function About() {
           
           <p className="text-white/80 leading-relaxed text-balance">
             A Street Stars surgiu da vontade de transformar vivências urbanas em estilo. 
+          </p>
+          <br />
+          <p className="text-white/80 leading-relaxed text-balance">
             Criada em 2024 por Felipe dos Santos e Bento Rangel a marca surge como uma identidade no streetwear nacional.
+          </p>
+          <br />
+          <p className="text-white/80 leading-relaxed text-balance">
             Inspirada pela rua, música e cultura street, representamos quem se expressa
             sem pedir permissão.
           </p>
