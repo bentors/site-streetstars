@@ -1,6 +1,6 @@
 import { useState , useEffect  } from 'react'
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
-import logo from '../assets/images/streetstars_logoprovisoria.jpeg'
+import logo from '../assets/images/streetstars_logoprovisoria.webp'
 import { scrollToSection } from '../utils/scrollToSection'
 
 export default function Header() {

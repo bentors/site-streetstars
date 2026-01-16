@@ -1,9 +1,9 @@
-import collection1 from '../assets/images/collection-1.jpg'
-import collection1Hover from '../assets/images/collection-1-hover.jpg'
-import collection2 from '../assets/images/collection-2.jpg'
-import collection2Hover from '../assets/images/collection-2-hover.jpg'
-import collection3 from '../assets/images/collection-3.jpg'
-import collection3Hover from '../assets/images/collection-3-hover.jpg'
+import collection1 from '../assets/images/collection-1.webp'
+import collection1Hover from '../assets/images/collection-1-hover.webp'
+import collection2 from '../assets/images/collection-2.webp'
+import collection2Hover from '../assets/images/collection-2-hover.webp'
+import collection3 from '../assets/images/collection-3.webp'
+import collection3Hover from '../assets/images/collection-3-hover.webp'
 
 export const collections = [
   {

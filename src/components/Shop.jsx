@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion'
-import look1 from '../assets/images/shop-1.jpg'
-import look2 from '../assets/images/shop-2.jpg'
-import look3 from '../assets/images/shop-3.jpg'
-import look4 from '../assets/images/shop-4.jpg'
+import look1 from '../assets/images/shop-1.webp'
+import look2 from '../assets/images/shop-2.webp'
+import look3 from '../assets/images/shop-3.webp'
+import look4 from '../assets/images/shop-4.webp'
 
 export default function Shop() {
   return (
@@ -47,7 +47,8 @@ export default function Shop() {
         <a
           href="https://streetstars.myshopify.com"
           target="_blank"
-          rel="noopener noreferqrer"
+          rel="noopener noreferrer"
+          aria-label='Ir para loja da Street Stars'
           className="inline-flex items-center justify-center px-10 py-4 border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 transition-all duration-300"
         >
           Ir para a loja

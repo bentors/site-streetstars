@@ -1,4 +1,4 @@
-import manifestoBg from '../assets/images/manifesto-bg.jpg'
+import manifestoBg from '../assets/images/manifesto-bg.webp'
 import { motion } from 'framer-motion'
 
 const container = {
@@ -77,7 +77,7 @@ export default function Manifesto() {
 
         </motion.div>
 
-        
+
       </motion.div>
     </section>
   )
