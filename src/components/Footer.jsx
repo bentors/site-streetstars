@@ -2,9 +2,10 @@ import { scrollToSection } from '../utils/scrollToSection'
 
 export default function Footer() {
   const links = [
-    { label: 'Sobre', href: '#about' },
+    { label: 'Onde comprar', href: '#shop' },
     { label: 'Coleções', href: '#collections' },
     { label: 'Manifesto', href: '#manifesto' },
+    { label: 'Quem somos', href: '#about' },
     { label: 'Contato', href: '#contact' },
     { label: 'FAQ', href: '#' },
     { label: 'Trocas', href: '#' },

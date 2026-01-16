@@ -23,7 +23,7 @@ export default function Collections() {
   return (
     <section
       id="collections"
-      className="py-20 sm:py-28 lg:py-32 px-6 bg-neutral-950"
+      className="py-20 sm:py-28 lg:py-32 px-6 bg-black"
     >
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-display mb-16 text-center">

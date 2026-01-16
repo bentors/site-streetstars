@@ -51,9 +51,9 @@ export default function Header() {
 
   const links = [
     { label: 'Onde comprar', href: '#shop' },
-    { label: 'Sobre', href: '#about' },
     { label: 'Coleções', href: '#collections' },
     { label: 'Manifesto', href: '#manifesto' },
+    { label: 'Quem somos', href: '#about' },
     { label: 'Contato', href: '#contact' },
 ]
 

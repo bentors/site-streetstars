@@ -21,9 +21,9 @@ export default function App() {
       <main id="main-content">
         <Hero />
         <Shop />
-        <About />
         <Collections />
         <Manifesto />
+        <About />
         <Contact />
       </main>
 
