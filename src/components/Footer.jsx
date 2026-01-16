@@ -1,14 +1,15 @@
+import { label } from 'framer-motion/client'
 import { scrollToSection } from '../utils/scrollToSection'
 
 export default function Footer() {
   const links = [
+    { label: 'Início', href: '#top' },
     { label: 'Onde comprar', href: '#shop' },
     { label: 'Coleções', href: '#collections' },
     { label: 'Manifesto', href: '#manifesto' },
     { label: 'Quem somos', href: '#about' },
     { label: 'Contato', href: '#contact' },
     { label: 'FAQ', href: '#' },
-    { label: 'Trocas', href: '#' },
   ]
 
   return (
@@ -32,14 +33,25 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             
             <div>
-              <div className="text-center md:text-left font-display mb-2">STREET STARS</div>
-              <p className="text-white/50 text-xs">
+              <a
+                href="https://streetstars.myshopify.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-display mb-2 inline-block hover:text-white transition"
+              >
+                STREET STARS
+              </a>
+
+              <p 
+                className="text-white/50 text-xs">
                 Desde 2024 • São Paulo, BR
               </p>
             </div>
 
-            <div className="text-2xl font-display mb-2 text-center md:text-right">
-              <p className="text-white/50 text-xs">
+            <div 
+              className="text-2xl font-display mb-2 text-center md:text-right">
+              <p 
+                className="text-white/50 text-xs">
                 © {new Date().getFullYear()} Street Stars<br/>
                 Todos os direitos reservados.
               </p>
@@ -52,7 +64,11 @@ export default function Footer() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40">
             <div>
-              <a href="#" className="hover:text-white/70 transition">Política de Privacidade</a>
+              <a 
+                href="#" 
+                className="hover:text-white/70 transition">
+                  Política de Privacidade
+              </a>
               <span className="mx-2">•</span>
               <a href="#" className="hover:text-white/70 transition">Termos de Uso</a>
             </div>

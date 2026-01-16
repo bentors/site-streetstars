@@ -3,12 +3,28 @@ import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import logo from '../assets/images/streetstars_logoprovisoria.webp'
 import { scrollToSection } from '../utils/scrollToSection'
 
-export default function Header() {
+export default function Header({ setOverlayActive }) {
   const [isOpen, setIsOpen] = useState(false)
   const { scrollY } = useScroll()
   const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState(null)
 
+  function toggleMenu() {
+    setIsOpen(prev => {
+      const next = !prev
+      setOverlayActive(next)
+      return next
+  })
+  }
+
+  function closeMenu() {
+    setIsOpen(false)
+    setOverlayActive(false)
+  }
+
+  function handleNavigation() {
+    closeMenu()
+  }
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setScrolled(latest > 40)
@@ -129,7 +145,7 @@ useEffect(() => {
 
 
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggleMenu}
           aria-label='Abrir Menu'
           aria-expanded={isOpen}
           className="md:hidden text-white/70 hover:text-white"
