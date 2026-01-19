@@ -56,7 +56,7 @@ export default function Hero() {
           STREET STARS
         </motion.p>
 
-        <motion.h1 variants={text} className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tighter uppercase">
+        <motion.h1 variants={text} className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tighter uppercase">
           Estrelas nascem <br /> nas ruas
         </motion.h1>
 
