@@ -1,186 +1,138 @@
-import { useState , useEffect  } from 'react'
-import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion'
 import logo from '../assets/images/streetstars_logoprovisoria.webp'
 import { scrollToSection } from '../utils/scrollToSection'
 
+const LINKS = [
+  { label: 'Shop', href: '#shop' },
+  { label: 'Coleções', href: '#collections' },
+  { label: 'Manifesto', href: '#manifesto' },
+  { label: 'Quem somos', href: '#about' },
+  { label: 'Contato', href: '#contact' },
+]
+
 export default function Header({ setOverlayActive }) {
   const [isOpen, setIsOpen] = useState(false)
-  const { scrollY } = useScroll()
   const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState(null)
+  const { scrollY } = useScroll()
 
-  function toggleMenu() {
-    setIsOpen(prev => {
-      const next = !prev
-      setOverlayActive(next)
-      return next
-  })
-  }
-
-  function closeMenu() {
-    setIsOpen(false)
-    setOverlayActive(false)
-  }
-
-  function handleNavigation() {
-    closeMenu()
-  }
+  const cartCount = 0 
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     setScrolled(latest > 40)
   })
 
   useEffect(() => {
-  let observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(`#${entry.target.id}`)
+        }
+      })
+    }, { rootMargin: '-40% 0px -50% 0px' })
 
-  const initObserver = () => {
-    const sections = document.querySelectorAll('section[id]')
-    if (!sections.length) return
+    const timer = setTimeout(() => {
+      document.querySelectorAll('section[id]').forEach(section => observer.observe(section))
+    }, 1000)
 
-    observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setActiveSection(`#${entry.target.id}`)
-          }
-        })
-      },
-      {
-        root: null,
-        rootMargin: '-40% 0px -50% 0px',
-        threshold: 0
-      }
-    )
-
-    sections.forEach(section => observer.observe(section))
-  }
-
-  const timeout = setTimeout(initObserver, 100)
-
-  return () => {
-    clearTimeout(timeout)
-    observer?.disconnect()
-  }
-}, [])
-
-
-
-  const links = [
-    { label: 'Onde comprar', href: '#shop' },
-    { label: 'Coleções', href: '#collections' },
-    { label: 'Manifesto', href: '#manifesto' },
-    { label: 'Quem somos', href: '#about' },
-    { label: 'Contato', href: '#contact' },
-]
-
-useEffect(() => {
-  if (isOpen) {
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = ''
-  }
-
-  return () => {
-    document.body.style.overflow = ''
-  }
-}, [isOpen])
-
-useEffect(() => {
-  if (isOpen && window.innerWidth >= 768) {
-    setIsOpen(false)
-  }
-}, [isOpen])
+    return () => {
+      clearTimeout(timer)
+      observer.disconnect()
+    }
+  }, [])
 
   return (
     <motion.header 
       initial={{ y: -80 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-500
       ${scrolled 
-        ? 'bg-black/90 backdrop-blur-xl shadow-lg border-b border-white/10' 
-        : 'bg-black/40 backdrop-blur-sm'}`}>
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between transition-all duration-300">
-        <button
-          onClick={() => scrollToSection('#top')}
-          aria-label="Voltar ao topo"
-        >
+        ? 'bg-black shadow-xl border-b border-white/10'
+        : 'bg-black/40 backdrop-blur-sm'}`}
+    >
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        
+        <button onClick={() => scrollToSection('#top')}>
           <img
             src={logo}
             alt="Street Stars"
-            width={800}
-            height={300}
-            className="h-8 w-auto object-contain"
-            fetchpriority="high"
+            className="h-8 w-auto object-contain hover:opacity-80 transition"
           />
         </button>
 
-
-        <nav aria-label="Primary" className="hidden md:flex gap-8 text-sm text-white/80 relative">
-          {links.map(link => (
-            <div key={link.href} className="relative">
-              <button
-                onClick={() => scrollToSection(link.href)}
-                className="relative hover:text-white transition"
-              >
-                {link.label}
-
-                {activeSection === link.href && (
-                  <motion.span
-                    layoutId="star-underline"
-                    className="absolute -bottom-2 left-0 right-0 flex justify-center"
-                  >
-                    <span className="flex items-center gap-1">
-                      <span className="w-4 h-[1.5px] bg-white/80" />
-                      <span className="text-white text-xs">★</span>
-                      <span className="w-4 h-[1.5px] bg-white/80" />
-                    </span>
-                  </motion.span>
-                )}
-              </button>
-            </div>
+        <nav className="hidden md:flex items-center gap-8">
+          {LINKS.map(link => (
+            <button
+              key={link.href}
+              onClick={() => scrollToSection(link.href)}
+              className={`relative text-xs uppercase tracking-widest transition-colors
+                ${activeSection === link.href ? 'text-white' : 'text-white/60 hover:text-white'}`}
+            >
+              {link.label}
+              {activeSection === link.href && (
+                <motion.span
+                  layoutId="star-underline"
+                  className="absolute -bottom-3 left-0 right-0 flex justify-center text-[10px]"
+                >
+                  -★-
+                </motion.span>
+              )}
+            </button>
           ))}
         </nav>
 
+        <div className="flex items-center gap-5">
+          <button className="relative p-1 text-white/80 hover:text-white transition">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </button>
 
-
-        <button
-          onClick={toggleMenu}
-          aria-label='Abrir Menu'
-          aria-expanded={isOpen}
-          className="md:hidden text-white/70 hover:text-white"
-        >
-          <svg className="w-6 h-6" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
+          <button
+            onClick={() => { setIsOpen(!isOpen); setOverlayActive(!isOpen); }}
+            className="md:hidden text-white/80"
           >
-            <path strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-            />
-          </svg>
-        </button>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} 
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {isOpen && (
-        <div className="md:hidden bg-black/90 backdrop-blur border-t border-white/10 animate-slideDown">
-          <nav aria-label="Mobile menu" className="px-6 py-4 flex flex-col gap-4 text-sm text-white/80">
-            {links.map(link => (
-              <button
-                onClick={() => {
-                  scrollToSection(link.href)
-                  setIsOpen(false)
-                }}
-                className="text-left hover:text-white transition"
-              >
-                {link.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 overflow-hidden"
+          >
+            <nav className="flex flex-col p-6 gap-5">
+              {LINKS.map(link => (
+                <button
+                  key={link.href}
+                  onClick={() => { 
+                    scrollToSection(link.href); 
+                    setIsOpen(false); 
+                    setOverlayActive(false); 
+                  }}
+                  className="text-left text-sm uppercase tracking-[0.2em] text-white/70 hover:text-white"
+                >
+                  {link.label}
+                </button>
+              ))}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   )
 }
