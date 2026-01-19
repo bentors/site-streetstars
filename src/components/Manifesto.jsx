@@ -1,11 +1,29 @@
-import manifestoBg from '../assets/images/manifesto-bg.webp'
-import { motion } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import manifestoBg from '../assets/images/manifesto-bg.webp' 
 
 const container = {
   hidden: {},
   show: {
-    transition: {
-      staggerChildren: 0.2
+    transition: { staggerChildren: 0.4 }
+  }
+}
+
+const textReveal = {
+  hidden: { 
+    opacity: 0, 
+    y: 50,
+    color: 'rgba(255, 255, 255, 0)',
+    WebkitTextStroke: '1px rgba(255, 255, 255, 0.5)'
+  },
+  show: {
+    opacity: 1, 
+    y: 0,
+    color: 'rgba(255, 255, 255, 1)',
+    WebkitTextStroke: '0px rgba(255, 255, 255, 0)',
+    transition: { 
+      duration: 1.2, 
+      ease: [0.22, 1, 0.36, 1]
     }
   }
 }
@@ -23,80 +41,106 @@ const box = {
   hidden: { opacity: 0, y: 30 },
   show: {
     opacity: 1,
-    y: 0,
-    transition: { duration: 0.9, ease: 'easeOut', delay: 0.2 }
+    y: 1,
+    transition: { duration: 0.9, ease: 'easeOut', delay: 0.6 }
   }
 }
 
 export default function Manifesto() {
+  const containerRef = useRef(null)
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  })
+
+  const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"])
+
   return (
     <section
       id="manifesto" 
-      className="relative min-h-[100svh] py-20 sm:py-28 lg:py-32 px-6 overflow-hidden"
+      ref={containerRef}
+      className="relative min-h-screen py-32 px-6 overflow-hidden flex items-center justify-center bg-black"
     >
-      <img
-        src={manifestoBg}
-        alt=""
-        loading="lazy"
-        decoding='async'
-        className="absolute inset-0 w-full h-full object-cover object-center lg:object-[50%_12%] z-0"
-      />
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <motion.div style={{ y }} className="w-full h-[120%] -top-[01%] relative">
+          <img
+            src={manifestoBg}
+            alt="Manifesto Background"
+            loading="lazy"
+            className="w-full h-full object-cover contrast-125 opacity-50" 
+          />
+        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+      </div>
 
-      <div className="absolute inset-0 bg-black/40"></div>
+      <div className="absolute top-0 left-0 w-full overflow-hidden py-4 border-b border-white/10 bg-black/20 backdrop-blur-sm z-20">
+        <motion.div 
+          className="flex whitespace-nowrap text-[10px] md:text-xs uppercase tracking-[0.4em] font-bold text-white/60"
+          animate={{ x: [0, -1000] }}
+          transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
+        >
+          {Array(8).fill("Street Stars ★ Manifesto").map((item, i) => (
+            <span key={i} className="mx-6">{item}</span>
+          ))}
+        </motion.div>
+      </div>
 
-      <motion.div className="relative max-w-4xl mx-auto space-y-20 text-center"
+      <motion.div 
+        className="relative z-10 max-w-4xl mx-auto space-y-20 text-center mt-10"
         variants={container}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true }}>
+        viewport={{ once: true, margin: "-50px" }}
+      >
 
-        <div className="space-y-6 mb-24">
+        <div className="space-y-4 md:space-y-6 mb-24 mix-blend-screen">
           <motion.p variants={line}
-            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white/70 leading-tight">
+            className="text-3xl sm:text-4xl md:text-6xl font-black text-white/60 tracking-tighter leading-none italic uppercase">
             A rua é palco. 
           </motion.p>
           <motion.p variants={line} 
-            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white/85 leading-tight">
+            className="text-3xl sm:text-4xl md:text-6xl font-black text-white/80 tracking-tighter leading-none italic uppercase">
             O corpo é voz.
           </motion.p>
           <motion.p variants={line} 
-            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
+            className="text-3xl sm:text-4xl md:text-6xl font-black text-white tracking-tighter leading-none italic uppercase">
             A roupa é mensagem.
           </motion.p>
         </div>
           
         <motion.div variants={box} 
-          className="bg-black/40 backdrop-blur-sm p-8 sm:p-10 rounded-2xl border border-white/10">
-
-          <p className="text-xl sm:text-2xl text-white/95 leading-relaxed">
+          className="bg-black/40 backdrop-blur-md p-8 sm:p-12 rounded-md border border-white/10 max-w-2xl mx-auto"
+        >
+          <p className="text-lg sm:text-xl text-white/90 leading-relaxed font-light">
             A Street Stars acredita que estilo é extensão da identidade. 
-            <span className="block mt-4 text-white/80">
+            Não seguimos tendências, criamos movimentos. 
+            <span className="block mt-4 text-white font-bold uppercase tracking-widest text-sm md:text-base">
               Vestir Street Stars é viver a rua.
             </span>
           </p>
         </motion.div>
 
-
-
-        <motion.div className="flex flex-col items-center gap-2">
-
-          <p className="text-[8px] text-white/40 uppercase tracking-[0.2em]">
+        <motion.div variants={box} className="flex flex-col items-center gap-4 mt-12">
+          <p className="text-[10px] text-white/50 uppercase tracking-[0.3em]">
             Pronto para se tornar uma estrela das ruas?
           </p>
 
-          <a
-            href="https://streetstars.myshopify.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label='Ir para loja da Street Stars'
-            className="group relative px-10 py-4 overflow-hidden rounded-full sm:w-auto text-center border border-white text-white font-semibold hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
+          <button
+            onClick={() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })}
+            className="group relative px-10 py-4 overflow-hidden rounded-full sm:w-auto text-center border border-white text-white font-bold uppercase tracking-[0.1em] text-xs hover:bg-white hover:text-black transition-all duration-300"
           >
-            Acessar loja oficial
-          </a>
-
+            Acessar Shop
+          </button>
         </motion.div>
 
       </motion.div>
+
+      <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:block">
+         <div className="writing-vertical-rl text-[10px] uppercase tracking-[0.4em] text-white/20 font-bold rotate-180">
+            Est. 2024 — São Paulo — Brasil
+         </div>
+      </div>
     </section>
   )
 }

@@ -3,48 +3,62 @@ import { motion } from 'framer-motion'
 
 export default function About() {
   return (
-    <section id="about" 
-      className="py-20 sm:py-28 lg:py-32 px-6 overflow-hidden">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+    <section id="about" className="py-24 sm:py-32 bg-[#050505] text-white relative overflow-hidden">
 
-        <div className='relative overflow-hidden'>
-          <motion.img
-            src={aboutus}
-            alt="Equipe Street Stars"
-            width="800"
-            height="420"
-            loading="lazy"
-            decoding="async"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: 'easeOut' }}
+      <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-white/5 hidden lg:block"></div>
+
+      <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+
+        <div className='relative'>
+          <div className="absolute top-4 -left-4 w-full h-full border border-white/20 hidden md:block z-0"></div>
+          
+          <motion.div
+            className="relative z-10 overflow-hidden bg-zinc-900"
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
             viewport={{ once: true }}
-            className="w-full h-64 md:h-[420px] object-cover object-[75%_5%] sm:object-[48%_100%] grayscale hover:grayscale-0 transition-all duration-1000 ease-in-out"
-          />
+          >
+            <motion.img
+              src={aboutus}
+              alt="Equipe Street Stars - Felipe e Bento"
+              loading="lazy"
+              className="w-full h-[400px] md:h-[550px] object-cover grayscale hover:grayscale-0 hover:scale-105 transition-all duration-1000 ease-in-out"
+            />
+          </motion.div>
         </div>
 
         <motion.div 
-          initial={{ opacity: 0, y: -40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: 'easeOut', delay: 0.15 }}
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
           viewport={{ once: true }}
+          className="flex flex-col justify-center"
         >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-display mb-6">
-            Nossa história
+          <h2 className="text-5xl sm:text-6xl md:text-7xl font-black uppercase italic tracking-tighter leading-[0.9] mb-8">
+            Quem <br/>
+            <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Somos</span>
           </h2>
           
-          <p className="text-white/80 leading-relaxed text-balance">
-            A Street Stars surgiu da vontade de transformar vivências urbanas em estilo. 
-          </p>
-          <br />
-          <p className="text-white/80 leading-relaxed text-balance">
-            Criada em 2024 por Felipe dos Santos e Bento Rangel a marca surge como uma identidade no streetwear nacional.
-          </p>
-          <br />
-          <p className="text-white/80 leading-relaxed text-balance">
-            Inspirada pela rua, música e cultura street, representamos quem se expressa
-            sem pedir permissão.
-          </p>
+          <div className="space-y-6 text-base md:text-lg text-white/60 font-light leading-relaxed text-justify">
+            <p>
+              A <strong className="text-white font-bold">Street Stars</strong> surgiu da vontade de transformar vivências urbanas em estilo, sendo um verdadeiro laboratório de cultura.
+            </p>
+            <p>
+              Fundada em 2024 por <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors cursor-default">Felipe dos Santos</span> e <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors cursor-default">Bento Rangel</span>, a marca nasceu para preencher uma identidade no streetwear nacional.
+            </p>
+            <p>
+              Inspirada pela arquitetura das ruas, pela batida da música e pela estética noturna, representamos quem se expressa sem pedir permissão.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 mt-12 pt-8 border-t border-white/10">
+            <div>
+              <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">Fundação</h4>
+              <p className="font-mono text-sm text-white">São Paulo, 2024</p>
+            </div>
+          </div>
+
         </motion.div>
 
       </div>
