@@ -43,6 +43,7 @@ export default function ProductPage() {
       <div className="max-w-7xl mx-auto px-6 mb-4">
           <button 
               onClick={() => navigate(-1)}
+              aria-label='Voltar para a página anterior'
               className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-colors"
           >
               <span className="group-hover:-translate-x-1 transition-transform">←</span>
@@ -91,6 +92,7 @@ export default function ProductPage() {
           <div className="hidden lg:group-hover:flex absolute inset-0 items-center justify-between px-4 pointer-events-none">
              <button 
                 className="pointer-events-auto p-2 bg-black/20 backdrop-blur-sm hover:bg-black/50 text-white rounded-full transition"
+                aria-label='Voltar para a imagem anterior'
                 onClick={() => {
                    if(sliderRef.current) sliderRef.current.scrollLeft -= sliderRef.current.offsetWidth
                 }}
@@ -99,6 +101,7 @@ export default function ProductPage() {
              </button>
              <button 
                 className="pointer-events-auto p-2 bg-black/20 backdrop-blur-sm hover:bg-black/50 text-white rounded-full transition"
+                aria-label='Avançar para a próxima imagem'
                 onClick={() => {
                    if(sliderRef.current) sliderRef.current.scrollLeft += sliderRef.current.offsetWidth
                 }}
@@ -149,6 +152,7 @@ export default function ProductPage() {
                 {product.measurements && (
                   <button 
                     onClick={() => setShowSizeGuide(true)}
+                    aria-label=''
                     className="text-[10px] underline text-white/40 hover:text-white transition-colors"
                   >
                     Guia de Medidas
@@ -160,6 +164,7 @@ export default function ProductPage() {
                 {product.sizes.map(size => (
                   <button
                     key={size}
+                    aria-label={`Selecionar tamanho ${size}`}
                     onClick={() => setSelectedSize(size)}
                     className={`w-12 h-12 border flex items-center justify-center text-xs font-bold transition-all
                       ${selectedSize === size 
@@ -175,6 +180,7 @@ export default function ProductPage() {
 
             <button
               onClick={handleAdd}
+              aria-label=''
               disabled={!selectedSize}
               className={`w-full py-5 font-bold uppercase tracking-[0.2em] transition-all
                 ${selectedSize 
@@ -222,6 +228,7 @@ export default function ProductPage() {
           <div className="relative bg-[#0F0F0F] border border-white/10 p-6 md:p-8 max-w-lg w-full shadow-2xl overflow-hidden">
             <button 
               onClick={() => setShowSizeGuide(false)} 
+              aria-label=''
               className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors text-lg"
             >
               ✕
