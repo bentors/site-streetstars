@@ -80,7 +80,7 @@ export default function Manifesto() {
 
         <motion.div className="flex flex-col items-center gap-2">
 
-          <p className="text-xs text-white/70 py-2">
+          <p className="text-[8px] text-white/40 uppercase tracking-[0.2em]">
             Pronto para se tornar uma estrela das ruas?
           </p>
 
@@ -89,7 +89,7 @@ export default function Manifesto() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label='Ir para loja da Street Stars'
-            className="sm:w-auto px-8 py-4 text-center border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
+            className="group relative px-10 py-4 overflow-hidden rounded-full sm:w-auto text-center border border-white text-white font-semibold hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
           >
             Acessar loja oficial
           </a>

@@ -49,12 +49,12 @@ export default function Shop() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label='Ir para loja da Street Stars'
-          className="inline-flex items-center justify-center px-10 py-4 border-2 border-white text-white font-semibold rounded-md hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 transition-all duration-300"
+          className="group relative px-10 py-4 overflow-hidden rounded-full sm:w-auto text-center border border-white text-white font-semibold hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
         >
           Ir para a loja
         </a>
 
-        <p className="text-xs text-white/40 mt-4">
+        <p className="text-[8px] text-white/30 tracking-[0.2em] mt-8">
           🛒 Loja oficial ★ Envio nacional ★ Checkout seguro 🔒
         </p>
       </motion.div>
