@@ -50,6 +50,7 @@ export default function Contact() {
           <a
             href="https://www.instagram.com/_streetstars.co/"
             target="_blank"
+            aria-label="Seguir Street Stars no Instagram"
             rel="noopener noreferrer"
             className="mt-4 w-full h-14 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95 duration-300 transition-all"
           >
@@ -89,6 +90,7 @@ export default function Contact() {
 
           <a
             href={`mailto:${EMAIL}`}
+            aria-label='Enviar email para a Street Stars'
             className="mt-4 w-full h-14 flex items-center justify-center gap-2 px-6 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
           >
             Abrir email

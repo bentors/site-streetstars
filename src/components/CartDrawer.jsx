@@ -56,6 +56,7 @@ export default function CartDrawer() {
               <h2 className="text-xl font-display uppercase tracking-wider">Sua Sacola ({cartItems.length})</h2>
               <button 
                 onClick={() => setIsCartOpen(false)}
+                alt="Fechar carrinho"
                 className="p-2 hover:bg-white/10 rounded-full transition-colors"
               >
                 <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -71,6 +72,7 @@ export default function CartDrawer() {
                   <p className="uppercase tracking-widest text-xs">Sua sacola está vazia</p>
                   <button 
                     onClick={() => setIsCartOpen(false)}
+                    alt="Voltar a comprar"
                     className="text-white border-b border-white pb-1 text-xs uppercase"
                   >
                     Voltar a comprar
@@ -100,12 +102,13 @@ export default function CartDrawer() {
 
                       <div className="flex justify-between items-end mt-2">
                         <div className="flex items-center gap-3 bg-black/40 px-2 py-1 rounded border border-white/10">
-                          <button onClick={() => removeFromCart(item.id, item.size)} className="text-white/50 hover:text-white">-</button>
+                          <button onClick={() => removeFromCart(item.id, item.size)} alt="Remover item" className="text-white/50 hover:text-white">-</button>
                           <span className="text-xs font-mono">{item.quantity}</span>
                           <span className="text-white/20 text-[10px]">UN</span>
                         </div>
                         <button 
                           onClick={() => removeFromCart(item.id, item.size)}
+                          alt="Remover item"
                           className="text-[10px] underline text-white/40 hover:text-red-400 transition-colors"
                         >
                           Remover
@@ -127,6 +130,7 @@ export default function CartDrawer() {
                 
                 <button
                   onClick={handleCheckout}
+                  alt="Finalizar pedido via WhatsApp"
                   className="w-full py-4 bg-white text-black font-bold uppercase tracking-[0.2em] hover:bg-zinc-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
                   Finalizar Pedido 

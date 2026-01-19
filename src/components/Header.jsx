@@ -110,6 +110,7 @@ export default function Header({ setOverlayActive }) {
           {LINKS.map(link => (
             <button
               key={link.href}
+              aria-label={`Navegar para ${link.label}`}
               onClick={() => handleNavClick(link.href)}
               className={`relative text-xs uppercase tracking-widest transition-colors
                 ${activeSection === link.href ? 'text-white' : 'text-white/60 hover:text-white'}`}
@@ -132,6 +133,7 @@ export default function Header({ setOverlayActive }) {
         <div className="flex items-center gap-5">
           <button 
             onClick={() => setIsCartOpen(true)} 
+            aria-label="Abrir carrinho de compras"
             className="relative p-1 text-white/80 hover:text-white transition"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,6 +155,7 @@ export default function Header({ setOverlayActive }) {
 
           <button
             onClick={() => { setIsOpen(!isOpen); setOverlayActive(!isOpen); }}
+            aria-label="Menu"
             className="md:hidden text-white/80"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,6 +179,7 @@ export default function Header({ setOverlayActive }) {
               {LINKS.map(link => (
                 <button
                   key={link.href}
+                  aria-label={`Navegar para ${link.label}`}
                   onClick={() => handleNavClick(link.href)}
                   className="text-left text-sm uppercase tracking-[0.2em] text-white/70 hover:text-white"
                 >

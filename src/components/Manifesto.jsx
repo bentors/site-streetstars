@@ -128,6 +128,7 @@ export default function Manifesto() {
 
           <button
             onClick={() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })}
+            aria-label='Ir para loja da Street Stars'
             className="group relative px-10 py-4 overflow-hidden rounded-full sm:w-auto text-center border border-white text-white font-bold uppercase tracking-[0.1em] text-xs hover:bg-white hover:text-black transition-all duration-300"
           >
             Acessar Shop

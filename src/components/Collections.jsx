@@ -54,6 +54,7 @@ export default function Collections() {
           {collections.map((item, index) => (
             <motion.div
               key={index}
+              alt={`Coleção ${item.title}`}
               variants={itemVariant}
               className="min-w-[85%] sm:min-w-[45%] md:min-w-0 snap-center"
             >

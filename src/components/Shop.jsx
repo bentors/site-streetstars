@@ -32,6 +32,7 @@ export default function Shop() {
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
+                aria-label={`Filtrar produtos por categoria ${cat}`}
                 onClick={() => setFilter(cat)}
                 className={`text-[11px] uppercase tracking-[0.2em] transition-all relative py-1
                   ${filter === cat ? 'text-white font-bold' : 'text-white/40 hover:text-white'}

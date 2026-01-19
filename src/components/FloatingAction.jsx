@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { FaWhatsapp, FaShoppingBag, FaTimes } from 'react-icons/fa'
+import { scrollToSection } from '../utils/scrollToSection'
 
 export default function FloatingAction({ setOverlayActive }) {
   const [open, setOpen] = useState(false)
@@ -64,6 +65,7 @@ export default function FloatingAction({ setOverlayActive }) {
           <a
             href="https://wa.me/5511999942500"
             target="_blank"
+            aria-label="Falar no WhatsApp"
             rel="noopener noreferrer"
             className="flex items-center gap-3 px-4 py-3 rounded-full bg-green-500 text-black text-sm font-semibold shadow-lg hover:scale-105 transition"
           >
@@ -71,15 +73,15 @@ export default function FloatingAction({ setOverlayActive }) {
             Falar no WhatsApp
           </a>
 
-          <a
-            href="https://streetstars.myshopify.com"
-            target="_blank"
+          <button
+            onClick={() => scrollToSection('#shop')}
+            aria-label='Comprar com a Street Stars'
             rel="noopener noreferrer"
             className="flex items-center gap-3 px-4 py-3 rounded-full bg-white text-black text-sm font-semibold shadow-lg hover:scale-105 transition"
           >
             <FaShoppingBag />
             Ir para a loja
-          </a>
+          </button>
         </>
       )}
 
