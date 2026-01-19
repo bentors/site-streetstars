@@ -15,7 +15,15 @@ export const PRODUCTS = [
     sizes: ['P', 'M', 'G', 'GG'] ,
     description: "A T-Shirt Star foi criada para quem vive a noite. Com modelagem oversized exclusiva, ela oferece caimento estruturado que não cola no corpo. A estampa traseira carrega o DNA da marca em silk-screen de alta densidade.",
     details: ["Malha Heavyweight 260g (Alta gramatura)", "100% Algodão Sustentável", "Gola canelada de 3cm (Não deforma)", "Pré-encolhida (Não encolhe na lavagem)", "Feito no Brasil"],
-    gallery: [look1, look2, look1]
+    gallery: [look1, look2, look1],
+    measurements: {
+      columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
+      rows: [
+        { size: "P", values: ["56 cm", "74 cm", "22 cm"] },
+        { size: "M", values: ["58 cm", "76 cm", "23 cm"] },
+        { size: "G", values: ["60 cm", "78 cm", "24 cm"] },
+        { size: "GG", values: ["64 cm", "82 cm", "25 cm"] },]
+    }
   },
   { 
     id: 2, 
@@ -26,7 +34,15 @@ export const PRODUCTS = [
     sizes: ['P', 'M', 'G', 'GG'],
     description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
     details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
-    gallery: [look2, look3]
+    gallery: [look2, look3, look2],
+    measurements: {
+      columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
+      rows: [
+        { size: "P", values: ["56 cm", "74 cm", "22 cm"] },
+        { size: "M", values: ["58 cm", "76 cm", "23 cm"] },
+        { size: "G", values: ["60 cm", "78 cm", "24 cm"] },
+        { size: "GG", values: ["64 cm", "82 cm", "25 cm"] },]
+    }
   },
   { 
     id: 3, 
@@ -37,7 +53,15 @@ export const PRODUCTS = [
     sizes: ['P', 'M', 'G'],
     description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
     details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
-    gallery: [look2, look3] 
+    gallery: [look2, look3],
+    measurements: {
+      columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
+      rows: [
+        { size: "P", values: ["56 cm", "74 cm", "22 cm"] },
+        { size: "M", values: ["58 cm", "76 cm", "23 cm"] },
+        { size: "G", values: ["60 cm", "78 cm", "24 cm"] },
+        { size: "GG", values: ["64 cm", "82 cm", "25 cm"] },]
+    }
   },
   { 
     id: 4, 
@@ -59,6 +83,14 @@ export const PRODUCTS = [
     sizes: ['P', 'M', 'G', 'GG'],
     description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
     details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
-    gallery: [look2, look3] 
+    gallery: [look2, look3],
+    measurements: {
+      columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
+      rows: [ 
+        { size: "P", values: ["56 cm", "74 cm", "22 cm"] },
+        { size: "M", values: ["58 cm", "76 cm", "23 cm"] },
+        { size: "G", values: ["60 cm", "78 cm", "24 cm"] },
+        { size: "GG", values: ["64 cm", "82 cm", "25 cm"] },]
+    }
   },
 ]

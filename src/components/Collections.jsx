@@ -24,7 +24,7 @@ export default function Collections() {
   return (
     <section
       id="collections"
-      className="py-24 bg-black text-white overflow-hidden"
+      className="py-24 bg-neutral-950 text-white overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-6">
 

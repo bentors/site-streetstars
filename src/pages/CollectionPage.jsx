@@ -51,7 +51,7 @@ export default function CollectionPage() {
       <div className="max-w-7xl mx-auto px-6 py-24">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
            
-           <div className="aspect-[3/4] bg-zinc-900 overflow-hidden rounded-sm sticky top-32">
+           <div className="aspect-[3/4] bg-zinc-900 overflow-hidden rounded-sm md:sticky md:top-32">
              <img 
                src={collection.imageHover} 
                alt="Detalhe da coleção"
@@ -59,7 +59,7 @@ export default function CollectionPage() {
              />
            </div>
            
-           <div className="flex flex-col gap-8 md:p-12 border border-white/10 bg-zinc-900/10">
+           <div className="flex flex-col gap-8 p-6 md:p-12 border border-white/10 bg-zinc-900/10">
               <div>
                 <h3 className="text-3xl font-display uppercase italic mb-4">O Conceito</h3>
                 <p className="text-white/80 text-sm leading-loose text-justify whitespace-pre-line">
