@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { useCart } from '../context/CartContext.jsx'
 import { PRODUCTS } from '../data/products.js'
 
 export default function ProductPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const { addToCart, setIsCartOpen } = useCart()
   const [selectedSize, setSelectedSize] = useState(null)
   
   const product = PRODUCTS.find(p => p.id === parseInt(id))
-
-  const navigate = useNavigate()
 
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [id])
 
   if (!product) return <div className="h-screen flex items-center justify-center text-white">Produto não encontrado</div>
+
+  const images = product.gallery || [product.img, product.img]
 
   const handleAdd = () => {
     if(!selectedSize) return alert('Selecione um tamanho')
@@ -27,28 +27,29 @@ export default function ProductPage() {
 
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-20">
-        <div className="max-w-7xl mx-auto px-6 mb-8">
-            <button 
-                onClick={() => navigate(-1)}
-                className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-colors"
-            >
-                <span className="group-hover:-translate-x-1 transition-transform">←</span>
-                Voltar
-            </button>
-        </div>
+
+      <div className="max-w-7xl mx-auto px-6 mb-8">
+          <button 
+              onClick={() => navigate(-1)}
+              className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-colors"
+          >
+              <span className="group-hover:-translate-x-1 transition-transform">←</span>
+              Voltar
+          </button>
+      </div>
+
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12">
-        
+
         <div className="space-y-4">
           <div className="aspect-[4/5] bg-zinc-900 w-full overflow-hidden">
-             <img src={product.img} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+             <img src={images[0]} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="aspect-square bg-zinc-900 overflow-hidden">
-                <img src={product.img} className="w-full h-full object-cover opacity-50 hover:opacity-100 transition-opacity" />
-            </div>
-            <div className="aspect-square bg-zinc-900 overflow-hidden">
-                <img src={product.img} className="w-full h-full object-cover opacity-50 hover:opacity-100 transition-opacity" />
-            </div>
+            {images.slice(1).map((img, i) => (
+                <div key={i} className="aspect-square bg-zinc-900 overflow-hidden">
+                    <img src={img} className="w-full h-full object-cover opacity-60 hover:opacity-100 transition-opacity" />
+                </div>
+            ))}
           </div>
         </div>
 
@@ -70,10 +71,21 @@ export default function ProductPage() {
             </div>
 
             <div className="border-t border-white/10 pt-6">
+              <h3 className="text-xs font-bold uppercase tracking-widest mb-2 text-white/90">Sobre</h3>
               <p className="text-sm text-white/70 leading-relaxed font-light">
-                Desenvolvida com modelagem boxy exclusiva Street Stars. Malha heavyweight 260g (alta gramatura) com toque peletizado. Estampa em silk-screen de alta densidade. A peça ideal para compor o kit noturno.
+                {product.description || "Descrição do produto indisponível."}
               </p>
             </div>
+
+            {product.details && (
+                <div className="py-2">
+                    <ul className="list-disc list-inside space-y-1">
+                        {product.details.map((detail, i) => (
+                            <li key={i} className="text-xs text-white/60">{detail}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
             <div className="py-6">
               <div className="flex justify-between mb-3">
@@ -121,4 +133,4 @@ export default function ProductPage() {
       </div>
     </div>
   )
-}
+}   

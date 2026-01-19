@@ -12,7 +12,10 @@ export const PRODUCTS = [
     category: "CAMISETAS", 
     price: 149.90, 
     img: look1, 
-    sizes: ['P', 'M', 'G', 'GG'] 
+    sizes: ['P', 'M', 'G', 'GG'] ,
+    description: "A T-Shirt Star foi criada para quem vive a noite. Com modelagem oversized exclusiva, ela oferece caimento estruturado que não cola no corpo. A estampa traseira carrega o DNA da marca em silk-screen de alta densidade.",
+    details: ["Malha Heavyweight 260g (Alta gramatura)", "100% Algodão Sustentável", "Gola canelada de 3cm (Não deforma)", "Pré-encolhida (Não encolhe na lavagem)", "Feito no Brasil"],
+    gallery: [look1, look2, look1]
   },
   { 
     id: 2, 
@@ -20,7 +23,10 @@ export const PRODUCTS = [
     category: "MOLETONS", 
     price: 329.90, 
     img: look2, 
-    sizes: ['P', 'M', 'G', 'GG'] 
+    sizes: ['P', 'M', 'G', 'GG'],
+    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
+    details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
+    gallery: [look2, look3]
   },
   { 
     id: 3, 
@@ -28,7 +34,10 @@ export const PRODUCTS = [
     category: "CONJUNTOS", 
     price: 489.90, 
     img: look3, 
-    sizes: ['P', 'M', 'G'] 
+    sizes: ['P', 'M', 'G'],
+    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
+    details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
+    gallery: [look2, look3] 
   },
   { 
     id: 4, 
@@ -36,7 +45,10 @@ export const PRODUCTS = [
     category: "BONÉS", 
     price: 119.90, 
     img: look4, 
-    sizes: ['UN'] 
+    sizes: ['UN'],
+    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
+    details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
+    gallery: [look2, look3] 
   },
   { 
     id: 5, 
@@ -44,6 +56,9 @@ export const PRODUCTS = [
     category: "CAMISETAS", 
     price: 149.90, 
     img: look1, 
-    sizes: ['P', 'M', 'G', 'GG'] 
+    sizes: ['P', 'M', 'G', 'GG'],
+    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
+    details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
+    gallery: [look2, look3] 
   },
 ]
