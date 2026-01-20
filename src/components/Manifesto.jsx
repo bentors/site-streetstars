@@ -66,7 +66,7 @@ export default function Manifesto() {
         <motion.div style={{ y }} className="w-full h-[120%] -top-[01%] relative">
           <img
             src={manifestoBg}
-            alt=" "
+            alt="Manifesto background"
             loading="lazy"
             className="w-full h-full object-cover contrast-125 opacity-50" 
           />

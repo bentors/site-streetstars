@@ -54,7 +54,7 @@ export default function About() {
 
           <div className="grid grid-cols-2 gap-6 mt-12 pt-8 border-t border-white/10">
             <div>
-              <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">Fundação</h4>
+              <h3 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">Fundação</h3>
               <p className="font-mono text-sm text-white">São Paulo, 2024</p>
             </div>
           </div>
