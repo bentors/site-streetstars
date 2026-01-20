@@ -70,6 +70,7 @@ export default function FloatingAction({ setOverlayActive }) {
               exit={{ opacity: 0, y: 20, scale: 0.8 }}
               transition={{ duration: 0.2 }}
               href="https://wa.me/5511999999999"
+              aria-label='Falar no WhatsApp'
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-5 py-3 rounded-full bg-[#25D366] text-white text-sm font-bold shadow-xl hover:brightness-110 transition-all origin-bottom-right"
@@ -84,6 +85,7 @@ export default function FloatingAction({ setOverlayActive }) {
               exit={{ opacity: 0, y: 20, scale: 0.8 }}
               transition={{ duration: 0.2, delay: 0.05 }}
               onClick={handleScrollToShop}
+              aria-label='Ver a loja'
               className="flex items-center gap-3 px-5 py-3 rounded-full bg-white text-black text-sm font-bold shadow-xl hover:bg-zinc-200 transition-all origin-bottom-right"
             >
               <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>

@@ -56,7 +56,7 @@ export default function CartDrawer() {
               <h2 className="text-xl font-display uppercase tracking-wider">Sua Sacola ({cartItems.length})</h2>
               <button 
                 onClick={() => setIsCartOpen(false)}
-                alt="Fechar carrinho"
+                aria-label="Fechar carrinho"
                 className="p-2 hover:bg-white/10 rounded-full transition-colors"
               >
                 <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -72,7 +72,7 @@ export default function CartDrawer() {
                   <p className="uppercase tracking-widest text-xs">Sua sacola está vazia</p>
                   <button 
                     onClick={() => setIsCartOpen(false)}
-                    alt="Voltar a comprar"
+                    aria-label="Voltar a comprar"
                     className="text-white border-b border-white pb-1 text-xs uppercase"
                   >
                     Voltar a comprar
@@ -108,7 +108,7 @@ export default function CartDrawer() {
                         </div>
                         <button 
                           onClick={() => removeFromCart(item.id, item.size)}
-                          alt="Remover item"
+                          aria-label="Remover item"
                           className="text-[10px] underline text-white/40 hover:text-red-400 transition-colors"
                         >
                           Remover
@@ -130,7 +130,7 @@ export default function CartDrawer() {
                 
                 <button
                   onClick={handleCheckout}
-                  alt="Finalizar pedido via WhatsApp"
+                  aria-label="Finalizar pedido via WhatsApp"
                   className="w-full py-4 bg-white text-black font-bold uppercase tracking-[0.2em] hover:bg-zinc-200 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 >
                   Finalizar Pedido 

@@ -46,11 +46,11 @@ export default function Footer() {
           <div className="md:col-span-2">
             <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-white/90">Menu</h4>
             <ul className="space-y-3 text-xs text-white/50">
-              <li><button onClick={() => scrollTo('top')} className="hover:text-white transition-colors">Início</button></li>
-              <li><button onClick={() => scrollTo('shop')} className="hover:text-white transition-colors">Shop</button></li>
-              <li><button onClick={() => scrollTo('collections')} className="hover:text-white transition-colors">Coleções</button></li>
-              <li><button onClick={() => scrollTo('manifesto')} className="hover:text-white transition-colors">Manifesto</button></li>
-              <li><button onClick={() => scrollTo('about')} className="hover:text-white transition-colors">Quem Somos</button></li>
+              <li><button aria-label='Ir para Início' onClick={() => scrollTo('top')} className="hover:text-white transition-colors">Início</button></li>
+              <li><button aria-label='Ir para Shop' onClick={() => scrollTo('shop')} className="hover:text-white transition-colors">Shop</button></li>
+              <li><button aria-label='Ir para Coleções' onClick={() => scrollTo('collections')} className="hover:text-white transition-colors">Coleções</button></li>
+              <li><button aria-label='Ir para Manifesto' onClick={() => scrollTo('manifesto')} className="hover:text-white transition-colors">Manifesto</button></li>
+              <li><button aria-label='Ir para História' onClick={() => scrollTo('about')} className="hover:text-white transition-colors">Quem Somos</button></li>
             </ul>
           </div>
 

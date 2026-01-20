@@ -76,7 +76,7 @@ export default function Collections() {
 function CollectionCard({ item, index }) {
   return (
     <div className="group relative cursor-pointer block">
-      <Link to={`/collection/${index}`} className="block group relative cursor-pointer">
+      <Link to={`/collection/${index}`} aria-label='Ir para coleção' className="block group relative cursor-pointer">
         <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/5">
 
           <img

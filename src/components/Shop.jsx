@@ -84,6 +84,7 @@ export default function Shop() {
                         {product.sizes.map(size => (
                           <button 
                             key={size}
+                            aria-label='Adicionar tamanho ao carrinho'
                             onClick={(e) => {
                               e.preventDefault()
                               addToCart(product, size)
