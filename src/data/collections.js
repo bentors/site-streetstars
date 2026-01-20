@@ -1,16 +1,7 @@
-import collection1 from '../assets/images/collection-1.webp'
-import collection1Hover from '../assets/images/collection-1-hover.webp'
-import collection2 from '../assets/images/collection-2.webp'
-import collection2Hover from '../assets/images/collection-2-hover.webp'
-import collection3 from '../assets/images/collection-3.webp'
-import collection3Hover from '../assets/images/collection-3-hover.webp'
-
-
-// import c1_gal1 from '../assets/images/galeria-c1-01.webp'
-// import c1_gal2 from '../assets/images/galeria-c1-02.webp'
+import { images } from './images'
 
 export const collections = [
-    {
+  {
     id: 0,
     title: 'The stars is every unique',
     shortDescription: 'Peças atemporais, minimalistas e versáteis, onde as estrelas movem as ruas.',
@@ -18,51 +9,41 @@ export const collections = [
     credits: {
       photo: "Rafael Souza",
       direction: "Beatriz M.",
-      styling: "Street Team",},
-    image: collection2,
-    imageHover: collection2Hover,
-    gallery: [
-      collection2Hover,
-      collection3,
-      "c1_gal1",
-      "c1_gal2"
-    ]
-  },  
-    {
+      styling: "Street Team",
+    },
+    // ID 0 = Coleção 1
+    image: images.c1.main,
+    imageHover: images.c1.hover,
+    gallery: images.c1.gallery
+  },
+  {
     id: 1,
     title: 'Mais amor, menos recalque',
-    shortDescription:'Inspirada no funk e na cultura de periferia, para quem leva essa essência no peito.',
-    fullDescription: "A coleção 'Mais Amor, Menos Recalque' é uma celebração da autenticidade e da resistência das comunidades periféricas. Cada peça é um manifesto de amor-próprio e solidariedade, refletindo a energia vibrante do funk e a riqueza cultural que nasce nas ruas.",
+    shortDescription: 'Inspirada no funk e na cultura de periferia, para quem leva essa essência no peito.',
+    fullDescription: "A coleção 'Mais Amor, Menos Recalque' é uma celebração da autenticidade e da resistência das comunidades periféricas. Cada peça é um manifesto de amor-próprio e solidariedade.",
     credits: {
       photo: "Rafael Souza",
       direction: "Beatriz M.",
-      styling: "Street Team",},
-    image: collection1,
-    imageHover: collection1Hover,
-    gallery: [
-    "url_foto_1.jpg",
-    "url_foto_2.jpg",
-    "url_foto_3.jpg",
-    "url_foto_4.jpg",
-  ]
+      styling: "Street Team",
+    },
+    // ID 1 = Coleção 2
+    image: images.c2.main,
+    imageHover: images.c2.hover,
+    gallery: images.c2.gallery
   },
   {
     id: 2,
     title: 'New drop in construction',
-    shortDescription:'Lançamentos exclusivos em quantidades limitadas, feitos para quem busca diferenciação.',
+    shortDescription: 'Lançamentos exclusivos em quantidades limitadas, feitos para quem busca diferenciação.',
     fullDescription: "A coleção 'New Drop in Construction' apresenta peças exclusivas e limitadas, criadas para quem busca originalidade e estilo único.",
     credits: {
       photo: "Rafael Souza",
       direction: "Beatriz M.",
-      styling: "Street Team",},
-    image: collection3,
-    imageHover: collection3Hover,
-    gallery: [
-    "url_foto_1.jpg",
-    "url_foto_2.jpg",
-    "url_foto_3.jpg",
-    "url_foto_4.jpg",
-  ]
+      styling: "Street Team",
+    },
+    // ID 2 = Coleção 3
+    image: images.c3.main,
+    imageHover: images.c3.hover,
+    gallery: images.c3.gallery
   },
 ]
-

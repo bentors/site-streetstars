@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { collections } from '../data/collections.js' 
 
-// Ícones simples para o Lightbox (fechar)
 const CloseIcon = () => (
   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
 )
@@ -12,23 +11,20 @@ export default function CollectionPage() {
   const { id } = useParams()
   const collectionIndex = parseInt(id)
   const collection = collections[collectionIndex]
-  
-  // Estado para o Lightbox (qual imagem está aberta?)
+
   const [selectedImage, setSelectedImage] = useState(null)
 
   useEffect(() => { 
     window.scrollTo(0, 0) 
   }, [id])
 
-  if (!collection) return null // ou seu componente de erro
+  if (!collection) return null
 
-  // Fallback: Se não tiver galeria no data, usa a imagem principal repetida para testar
   const galleryImages = collection.gallery || [collection.image, collection.imageHover, collection.image, collection.imageHover].filter(Boolean)
 
   return (
     <main className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
-      
-      {/* --- LIGHTBOX (MODAL DE ZOOM) --- */}
+
       <AnimatePresence>
         {selectedImage && (
           <motion.div 
@@ -54,11 +50,9 @@ export default function CollectionPage() {
 
 
       <div className="max-w-7xl mx-auto px-6 pt-28 md:pt-40 pb-20">
-        
-        {/* PARTE 1: INTRODUÇÃO (Layout Split com Sticky) */}
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start mb-24">
           
-          {/* Coluna Imagem Capa */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -73,14 +67,12 @@ export default function CollectionPage() {
             </div>
           </motion.div>
 
-          {/* Coluna Texto */}
           <motion.div 
             className="lg:col-span-7 flex flex-col justify-center"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            {/* Navegação */}
             <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-6">
               <Link to="/" state={{ scrollTo: 'collections' }} className="group inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors">
                 <span className="group-hover:-translate-x-1 transition-transform">←</span> Voltar para Coleções
@@ -101,21 +93,6 @@ export default function CollectionPage() {
                </div>
             </div>
 
-            {/* Ficha Técnica Reduzida */}
-            <div className="bg-zinc-900/30 border border-white/10 p-6 mb-12 backdrop-blur-sm">
-              <div className="grid grid-cols-2 gap-4">
-                 <div>
-                    <h4 className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Ano</h4>
-                    <p className="text-sm font-mono">2024</p>
-                 </div>
-                 <div>
-                    <h4 className="text-[9px] uppercase tracking-widest text-white/40 mb-1">Peças</h4>
-                    <p className="text-sm font-mono">{galleryImages.length + 1} Looks</p>
-                 </div>
-              </div>
-            </div>
-
-            {/* Botão Shop */}
             <Link to="/" state={{ scrollTo: 'shop' }} className="group relative w-full md:w-auto py-5 px-8 border border-white text-center overflow-hidden transition-all hover:bg-white inline-block">
                <span className="relative z-10 text-xs font-black uppercase tracking-[0.25em] text-white group-hover:text-black transition-colors">Ver Peças Disponíveis</span>
                <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"/>
@@ -123,8 +100,6 @@ export default function CollectionPage() {
           </motion.div>
         </div>
 
-
-        {/* PARTE 2: A GALERIA (MASONRY GRID) */}
         <div className="border-t border-white/10 pt-20">
           <div className="flex items-center gap-4 mb-12">
              <h3 className="text-2xl font-black uppercase italic tracking-tighter">Lookbook</h3>
@@ -140,8 +115,6 @@ export default function CollectionPage() {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true, margin: "-50px" }}
                 onClick={() => setSelectedImage(img)}
-                // Classes para variar o tamanho (Editorial Look)
-                // O 2º item de cada linha (index % 3 === 1) pode ser diferente, ou aleatório
                 className={`
                   relative group cursor-zoom-in overflow-hidden bg-zinc-900 border border-white/5
                   ${index % 3 === 0 ? 'md:row-span-2 aspect-[3/4]' : 'aspect-square'}
@@ -153,8 +126,7 @@ export default function CollectionPage() {
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale group-hover:grayscale-0" 
                 />
-                
-                {/* Overlay Hover */}
+
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors duration-500" />
                 
                 <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
