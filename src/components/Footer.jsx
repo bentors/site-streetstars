@@ -31,7 +31,7 @@ export default function Footer() {
             </button>
             
             <p className="text-white/50 text-xs leading-relaxed max-w-xs font-light">
-              Elevando o streetwear nacional. Peças exclusivas, modelagem boxy e identidade visual única.
+              Criando estrelas. Street Stars.
               <br/>
               Est. 2024 — São Paulo.
             </p>
