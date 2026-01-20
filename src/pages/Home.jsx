@@ -3,7 +3,6 @@ import Shop from '../components/Shop'
 import Collections from '../components/Collections'
 import Manifesto from '../components/Manifesto'
 import About from '../components/About'
-import Contact from '../components/Contact'
 import { Suspense } from 'react'
 
 export default function Home() {
@@ -14,7 +13,6 @@ export default function Home() {
       <Collections />
       <Manifesto />
       <About />
-      <Contact />
     </main>
   )
 }

@@ -9,7 +9,7 @@ const LINKS = [
   { label: 'Coleções', href: '#collections' },
   { label: 'Manifesto', href: '#manifesto' },
   { label: 'Quem somos', href: '#about' },
-  { label: 'Contato', href: '#contact' },
+  { label: 'Contato', href: '#footer' },
 ]
 
 export default function Header({ setOverlayActive }) {
@@ -25,10 +25,21 @@ export default function Header({ setOverlayActive }) {
   const isHome = location.pathname === '/'
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
+    // Fundo do Header
     if (!isHome) {
       setScrolled(true)
     } else {
       setScrolled(latest > 40)
+    }
+
+    if (isHome) {
+      const layoutHeight = document.documentElement.scrollHeight
+      const clientHeight = document.documentElement.clientHeight
+      const scrollPos = latest + clientHeight
+
+      if (layoutHeight - scrollPos < 100) {
+         setActiveSection('#footer')
+      }
     }
   })
 
@@ -53,13 +64,17 @@ export default function Header({ setOverlayActive }) {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          setActiveSection(`#${entry.target.id}`)
+          const isBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100
+          
+          if (!isBottom || entry.target.id === 'footer') {
+            setActiveSection(`#${entry.target.id}`)
+          }
         }
       })
     }, observerOptions)
 
     const timer = setTimeout(() => {
-      const sections = document.querySelectorAll('section[id]')
+      const sections = document.querySelectorAll('section[id], footer[id]')
       sections.forEach(section => observer.observe(section))
     }, 500)
 
