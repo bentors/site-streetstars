@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
@@ -16,6 +16,8 @@ export default function Header({ setOverlayActive }) {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState(null)
+
+  const isNavigating = useRef(false)
   
   const { scrollY } = useScroll()
   const { setIsCartOpen, cartCount } = useCart()
@@ -25,12 +27,13 @@ export default function Header({ setOverlayActive }) {
   const isHome = location.pathname === '/'
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
-    // Fundo do Header
     if (!isHome) {
       setScrolled(true)
     } else {
       setScrolled(latest > 40)
     }
+
+    if (isNavigating.current) return
 
     if (isHome) {
       const layoutHeight = document.documentElement.scrollHeight
@@ -62,6 +65,7 @@ export default function Header({ setOverlayActive }) {
     }
 
     const observer = new IntersectionObserver((entries) => {
+      if (isNavigating.current) return
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const isBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100
@@ -87,7 +91,12 @@ export default function Header({ setOverlayActive }) {
   const handleNavClick = (href) => {
     setIsOpen(false)
     setOverlayActive(false)
+    isNavigating.current = true
     setActiveSection(href)
+
+    setTimeout(() => {
+      isNavigating.current = false
+    }, 1000)
 
     if (isHome) {
       const element = document.querySelector(href)
