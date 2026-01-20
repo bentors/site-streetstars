@@ -60,6 +60,7 @@ export default function Footer() {
             <div className="flex flex-col gap-4">
               <a 
                 href="https://www.instagram.com/_streetstars.co/"
+                aria-label='Ir para o Instagram da Street Stars'
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-3 p-3 border border-white/10 hover:border-white/30 bg-zinc-900/30 hover:bg-zinc-900 transition-all rounded-sm"
@@ -73,6 +74,7 @@ export default function Footer() {
 
               <button 
                 onClick={copyEmail}
+                aria-label='Copiar Email'
                 className="group flex items-center gap-3 p-3 border border-white/10 hover:border-white/30 bg-zinc-900/30 hover:bg-zinc-900 transition-all rounded-sm text-left"
               >
                 {copied ? (
