@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 import { PRODUCTS } from '../data/products.js'
 
@@ -7,6 +7,10 @@ export default function ProductPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { addToCart, setIsCartOpen } = useCart()
+
+  const handleBack = () => {
+    navigate('/', { state: { scrollTo: 'shop' } })
+  }
 
   const [selectedSize, setSelectedSize] = useState(null)
   const [showSizeGuide, setShowSizeGuide] = useState(false)
@@ -42,7 +46,7 @@ export default function ProductPage() {
       
       <div className="max-w-7xl mx-auto px-6 mb-4">
           <button 
-              onClick={() => navigate(-1)}
+              onClick={handleBack}
               aria-label='Voltar para a página anterior'
               className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-colors"
           >

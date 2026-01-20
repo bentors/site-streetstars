@@ -1,4 +1,5 @@
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
 import Hero from '../components/Hero'
 
@@ -14,6 +15,22 @@ const LoadingSection = () => (
 )
 
 export default function Home() {
+    const location = useLocation()
+
+    useEffect(() => {
+    if (location.state?.scrollTo) {
+      const sectionId = location.state.scrollTo
+      setTimeout(() => {
+        const element = document.getElementById(sectionId)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+        }
+      }, 300)
+    } else {
+      window.scrollTo(0, 0)
+    }
+  }, [location])
+
   return (
     <main id="main-content" className="bg-black min-h-screen">
 

@@ -32,7 +32,7 @@ export default function CollectionPage() {
         
         <div className="absolute bottom-0 left-0 p-6 md:p-16 w-full max-w-5xl">
            <div className="flex items-center gap-4 mb-6">
-             <Link to="/" className="text-[10px] uppercase tracking-widest hover:text-white/70 transition-colors">← Voltar</Link>
+             <Link to="/" state={{scrollTo: 'collections'}} className="text-[10px] uppercase tracking-widest hover:text-white/70 transition-colors">← Voltar</Link>
              <span className="text-[10px] border border-white/30 px-3 py-1 uppercase tracking-widest backdrop-blur-md">
                Editorial Exclusivo
              </span>

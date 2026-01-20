@@ -1,3 +1,4 @@
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { collections } from '../data/collections.js'
 import { Link } from 'react-router-dom' 
@@ -21,6 +22,35 @@ const itemVariant = {
 }
 
 export default function Collections() {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const scrollRef = useRef(null)
+
+const handleScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+
+      if (scrollLeft + clientWidth >= scrollWidth - 10) {
+        setCurrentIndex(collections.length - 1);
+        return;
+      }
+
+      const index = Math.round(scrollLeft / (clientWidth * 0.85)); 
+
+      setCurrentIndex(Math.min(index, collections.length - 1));
+    }
+  }
+
+  const scrollToItem = (index) => {
+    if (scrollRef.current) {
+      const cardWidth = scrollRef.current.firstChild.offsetWidth + 16;
+      
+      scrollRef.current.scrollTo({
+        left: index * cardWidth,
+        behavior: 'smooth'
+      })
+    }
+  }
+
   return (
     <section
       id="collections"
@@ -34,13 +64,17 @@ export default function Collections() {
             <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Archive</span>
           </h2>
           
-          <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] max-w-xs md:text-right">
-            Explore nossas campanhas e editoriais passados. <br/>
-            A história da Street Stars através das lentes.
-          </p>
+          <div className="flex flex-col items-end gap-2">
+            <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] max-w-xs text-right">
+              Explore nossas campanhas passadas. <br/>
+              A história da Street Stars através das lentes.
+            </p>
+          </div>
         </div>
 
         <motion.div
+          ref={scrollRef}
+          onScroll={handleScroll}
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -50,11 +84,11 @@ export default function Collections() {
             md:grid md:grid-cols-3 md:gap-8 md:overflow-visible md:pb-0 md:mx-0 md:px-0
             scrollbar-hide
           "
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} 
         >
           {collections.map((item, index) => (
             <motion.div
               key={index}
-              alt={`Coleção ${item.title}`}
               variants={itemVariant}
               className="min-w-[85%] sm:min-w-[45%] md:min-w-0 snap-center"
             >
@@ -63,11 +97,21 @@ export default function Collections() {
           ))}
         </motion.div>
 
-        <div className="md:hidden flex justify-center mt-4 gap-1">
-          <div className="w-1 h-1 bg-white rounded-full animate-pulse" />
-          <div className="w-1 h-1 bg-white/20 rounded-full" />
-          <div className="w-1 h-1 bg-white/20 rounded-full" />
+        <div className="md:hidden flex justify-center mt-2 gap-2">
+          {collections.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => scrollToItem(index)}
+              className={`h-1.5 rounded-full transition-all duration-500 ease-out
+                ${currentIndex === index 
+                  ? 'w-8 bg-white'
+                  : 'w-1.5 bg-white/20 hover:bg-white/40'
+                }`}
+              aria-label={`Ir para coleção ${index + 1}`}
+            />
+          ))}
         </div>
+
       </div>
     </section>
   )
@@ -75,9 +119,9 @@ export default function Collections() {
 
 function CollectionCard({ item, index }) {
   return (
-    <div className="group relative cursor-pointer block">
-      <Link to={`/collection/${index}`} aria-label='Ir para coleção' className="block group relative cursor-pointer">
-        <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/5">
+    <div className="group relative cursor-pointer block h-full">
+      <Link to={`/collection/${index}`} aria-label='Ir para coleção' className="block group relative cursor-pointer h-full">
+        <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/5 h-full">
 
           <img
             src={item.image}
@@ -86,12 +130,14 @@ function CollectionCard({ item, index }) {
             className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:opacity-0"
           />
 
-          <img
-            src={item.imageHover}
-            alt={item.title}
-            loading='lazy'
-            className="absolute inset-0 w-full h-full object-cover opacity-0 scale-110 transition-all duration-700 group-hover:opacity-100 group-hover:scale-100"
-          />
+          {item.imageHover && (
+            <img
+              src={item.imageHover}
+              alt={`${item.title} hover`}
+              loading='lazy'
+              className="absolute inset-0 w-full h-full object-cover opacity-0 scale-110 transition-all duration-700 group-hover:opacity-100 group-hover:scale-100"
+            />
+          )}
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
 
@@ -101,11 +147,11 @@ function CollectionCard({ item, index }) {
               <span className="text-[9px] border border-white/30 px-2 py-1 uppercase tracking-widest bg-black/30 backdrop-blur-sm">
                 Drop 0{index + 1}
               </span>
-              <span className="text-[18px]">↗</span>
+              <span className="text-[18px] opacity-50 group-hover:opacity-100 transition-opacity">↗</span>
             </div>
 
             <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-              <h3 className="font-display text-2xl uppercase italic leading-none mb-2">
+              <h3 className="font-display text-2xl uppercase italic leading-none mb-2 text-white">
                 {item.title}
               </h3>
 

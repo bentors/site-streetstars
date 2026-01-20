@@ -18,6 +18,8 @@ export default function Header({ setOverlayActive }) {
   const [activeSection, setActiveSection] = useState(null)
 
   const isNavigating = useRef(false)
+
+  const headerRef = useRef(null)
   
   const { scrollY } = useScroll()
   const { setIsCartOpen, cartCount } = useCart()
@@ -25,6 +27,37 @@ export default function Header({ setOverlayActive }) {
   const location = useLocation()
   const navigate = useNavigate()
   const isHome = location.pathname === '/'
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleClickOutside = (event) => {
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setIsOpen(false)
+        if (setOverlayActive) setOverlayActive(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('touchstart', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('touchstart', handleClickOutside)
+    }
+  }, [isOpen, setOverlayActive])
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     if (!isHome) {
@@ -69,7 +102,6 @@ export default function Header({ setOverlayActive }) {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const isBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100
-          
           if (!isBottom || entry.target.id === 'footer') {
             setActiveSection(`#${entry.target.id}`)
           }
@@ -89,34 +121,41 @@ export default function Header({ setOverlayActive }) {
   }, [isHome])
 
   const handleNavClick = (href) => {
-    setIsOpen(false)
-    setOverlayActive(false)
-    isNavigating.current = true
     setActiveSection(href)
+    setIsOpen(false)
+    if (setOverlayActive) setOverlayActive(false)
+    isNavigating.current = true
 
-    setTimeout(() => {
-      isNavigating.current = false
-    }, 1000)
-
-    if (isHome) {
+  const scrollToTarget = () => {
       const element = document.querySelector(href)
-      if (element) element.scrollIntoView({ behavior: 'smooth' })
+      if (element) {
+        const y = element.getBoundingClientRect().top + window.scrollY - 80
+        window.scrollTo({ top: y, behavior: 'smooth' })
+      }
+    }
+
+  if (isHome) {
+      setTimeout(() => {
+        scrollToTarget()
+        setTimeout(() => { isNavigating.current = false }, 1000)
+      }, 100)
     } else {
       navigate('/')
       setTimeout(() => {
-        const element = document.querySelector(href)
-        if (element) element.scrollIntoView({ behavior: 'smooth' })
-      }, 100)
+        scrollToTarget()
+        setTimeout(() => { isNavigating.current = false }, 1000)
+      }, 300)
     }
   }
 
   return (
     <motion.header 
+      ref={headerRef}
       initial={{ y: -80 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: 'easeOut' }}
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-500
-      ${scrolled 
+      ${scrolled || isOpen
         ? 'bg-black shadow-xl border-b border-white/10' 
         : 'bg-transparent py-5'}`}
     >
@@ -178,12 +217,12 @@ export default function Header({ setOverlayActive }) {
           </button>
 
           <button
-            onClick={() => { setIsOpen(!isOpen); setOverlayActive(!isOpen); }}
+            onClick={() => { const newState = !isOpen; setIsOpen(newState); if(setOverlayActive) setOverlayActive(newState); }}
             aria-label="Menu"
             className="md:hidden text-white/80"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                 d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} 
               />
             </svg>
@@ -205,7 +244,8 @@ export default function Header({ setOverlayActive }) {
                   key={link.href}
                   aria-label={`Navegar para ${link.label}`}
                   onClick={() => handleNavClick(link.href)}
-                  className="text-left text-sm uppercase tracking-[0.2em] text-white/70 hover:text-white"
+                  className={`text-left text-sm uppercase tracking-[0.2em] transition-colors py-2 border-b border-white/5
+                    ${activeSection === link.href ? 'text-white font-bold pl-2' : 'text-white/60 hover:text-white'}`}
                 >
                   {link.label}
                 </button>
