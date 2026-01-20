@@ -5,6 +5,10 @@ import collection2Hover from '../assets/images/collection-2-hover.webp'
 import collection3 from '../assets/images/collection-3.webp'
 import collection3Hover from '../assets/images/collection-3-hover.webp'
 
+
+// import c1_gal1 from '../assets/images/galeria-c1-01.webp'
+// import c1_gal2 from '../assets/images/galeria-c1-02.webp'
+
 export const collections = [
     {
     id: 0,
@@ -17,6 +21,12 @@ export const collections = [
       styling: "Street Team",},
     image: collection2,
     imageHover: collection2Hover,
+    gallery: [
+      collection2Hover,
+      collection3,
+      "c1_gal1",
+      "c1_gal2"
+    ]
   },  
     {
     id: 1,
@@ -29,6 +39,12 @@ export const collections = [
       styling: "Street Team",},
     image: collection1,
     imageHover: collection1Hover,
+    gallery: [
+    "url_foto_1.jpg",
+    "url_foto_2.jpg",
+    "url_foto_3.jpg",
+    "url_foto_4.jpg",
+  ]
   },
   {
     id: 2,
@@ -41,5 +57,12 @@ export const collections = [
       styling: "Street Team",},
     image: collection3,
     imageHover: collection3Hover,
+    gallery: [
+    "url_foto_1.jpg",
+    "url_foto_2.jpg",
+    "url_foto_3.jpg",
+    "url_foto_4.jpg",
+  ]
   },
 ]
+

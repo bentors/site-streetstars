@@ -1,6 +1,5 @@
 import { useState, lazy, Suspense } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
 
 import Overlay from './components/Overlay'
 import Header from './components/Header'
@@ -9,9 +8,15 @@ import Footer from './components/Footer'
 import CartDrawer from './components/CartDrawer'
 import ScrollToTop from './utils/ScrollToTop'
 
-import Home from './pages/Home'
-import ProductPage from './pages/ProductPage'
-import CollectionPage from './pages/CollectionPage'
+const Home = lazy(() => import('./pages/Home'))
+const ProductPage = lazy(() => import('./pages/ProductPage'))
+const CollectionPage = lazy(() => import('./pages/CollectionPage'))
+
+const PageLoader = () => (
+  <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+  </div>
+)
 
 export default function App() {
   const [overlayActive, setOverlayActive] = useState(false)
@@ -25,13 +30,14 @@ export default function App() {
       <Header setOverlayActive={setOverlayActive} />
       <CartDrawer />
       
-      <AnimatePresence mode='wait'>
-        <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<Home />} />
-          <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="/collection/:id" element={<CollectionPage />} />
-        </Routes>
-      </AnimatePresence>
+      <Suspense fallback={<PageLoader />}>
+
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<Home />} />
+            <Route path="/product/:id" element={<ProductPage />} />
+            <Route path="/collection/:id" element={<CollectionPage />} />
+          </Routes>
+      </Suspense>
 
       <FloatingAction setOverlayActive={setOverlayActive} />
       <Footer />

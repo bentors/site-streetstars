@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import Hero from '../components/Hero'
 
@@ -16,16 +16,24 @@ const LoadingSection = () => (
 
 export default function Home() {
     const location = useLocation()
+    const navigate = useNavigate()
 
     useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+    
     if (location.state?.scrollTo) {
       const sectionId = location.state.scrollTo
       setTimeout(() => {
         const element = document.getElementById(sectionId)
+        
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' })
+
+          window.history.replaceState({}, document.title)
         }
-      }, 300)
+      }, 500)
     } else {
       window.scrollTo(0, 0)
     }
