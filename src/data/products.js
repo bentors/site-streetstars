@@ -1,7 +1,5 @@
-import look1 from '../assets/images/shop-1.webp'
-import look2 from '../assets/images/shop-2.webp'
-import look3 from '../assets/images/shop-3.webp'
-import look4 from '../assets/images/shop-4.webp'
+// src/data/products.js
+import { productAssets } from './images'
 
 export const CATEGORIES = ["TODOS", "CAMISETAS", "MOLETONS", "BONÉS", "CONJUNTOS"]
 
@@ -11,11 +9,11 @@ export const PRODUCTS = [
     name: "T-Shirt Oversized 'Arabic Logo'", 
     category: "CAMISETAS", 
     price: 149.90, 
-    img: look1, 
+    img: productAssets.p1.main, 
+    gallery: productAssets.p1.gallery,
     sizes: ['P', 'M', 'G', 'GG'] ,
-    description: "A T-Shirt Star foi criada para quem vive a noite. Com modelagem oversized exclusiva, ela oferece caimento estruturado que não cola no corpo. A estampa traseira carrega o DNA da marca em silk-screen de alta densidade.",
-    details: ["Malha Heavyweight 260g (Alta gramatura)", "100% Algodão Sustentável", "Gola canelada de 3cm (Não deforma)", "Pré-encolhida (Não encolhe na lavagem)", "Feito no Brasil"],
-    gallery: [look1, look2, look1],
+    description: "A T-Shirt Star foi criada para quem vive a noite. Com modelagem oversized exclusiva, ela oferece caimento estruturado.",
+    details: ["Malha Heavyweight 260g", "100% Algodão", "Gola canelada 3cm", "Pré-encolhida", "Feito no Brasil"],
     measurements: {
       columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
       rows: [
@@ -30,11 +28,11 @@ export const PRODUCTS = [
     name: "Hoodie Boxy 'Arabic Logo'", 
     category: "MOLETONS", 
     price: 279.90, 
-    img: look2, 
+    img: productAssets.p2.main, 
+    gallery: productAssets.p2.gallery,
     sizes: ['P', 'M', 'G', 'GG'],
-    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
+    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas.",
     details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
-    gallery: [look2, look3, look2],
     measurements: {
       columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
       rows: [
@@ -46,21 +44,21 @@ export const PRODUCTS = [
   },
   { 
     id: 3, 
-    name: "Hoddie Regular 'Big Arabic Logo'", 
+    name: "Hoodie Regular 'Big Arabic Logo'", 
     category: "MOLETONS", 
     price: 299.90, 
-    img: look3, 
+    img: productAssets.p3.main, 
+    gallery: productAssets.p3.gallery,
     sizes: ['P', 'M', 'G', 'GG'],
-    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
-    details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
-    gallery: [look2, look3],
+    description: "Modelagem regular fit, perfeita para o dia a dia, com a estampa clássica em destaque.",
+    details: ["Moletom 2 cabos", "Cordão ajustável", "Estampa Silk Premium"],
     measurements: {
       columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
       rows: [
-        { size: "P", values: ["56 cm", "74 cm", "22 cm"] },
-        { size: "M", values: ["58 cm", "76 cm", "23 cm"] },
-        { size: "G", values: ["60 cm", "78 cm", "24 cm"] },
-        { size: "GG", values: ["64 cm", "82 cm", "25 cm"] },]
+        { size: "P", values: ["54 cm", "72 cm", "64 cm"] },
+        { size: "M", values: ["56 cm", "74 cm", "65 cm"] },
+        { size: "G", values: ["58 cm", "76 cm", "66 cm"] },
+        { size: "GG", values: ["60 cm", "78 cm", "67 cm"] },]
     }
   },
   { 
@@ -68,29 +66,29 @@ export const PRODUCTS = [
     name: "Trucker Cap 'Arabic Logo'", 
     category: "BONÉS", 
     price: 129.90, 
-    img: look4, 
+    img: productAssets.p4.main, 
+    gallery: productAssets.p4.gallery,
     sizes: ['UN'],
-    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
-    details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
-    gallery: [look2, look3] 
+    description: "Boné estilo Trucker com tela respirável e ajuste snapback. Logo bordado em alta definição.",
+    details: ["Aba curva", "Fecho Snapback ajustável", "Bordado 3D"],
   },
   { 
     id: 5, 
     name: "T-Shirt Regular 'MAMR'", 
     category: "CAMISETAS", 
     price: 149.90, 
-    img: look1, 
+    img: productAssets.p5.main, 
+    gallery: productAssets.p5.gallery,
     sizes: ['P', 'M', 'G', 'GG'],
-    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
-    details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
-    gallery: [look2, look3],
+    description: "Camiseta com corte regular e estampa 'Mais Amor Menos Recalque'. Essencial e direta.",
+    details: ["Algodão fio 30.1 penteado", "Toque macio", "Estampa digital"],
     measurements: {
       columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
       rows: [ 
-        { size: "P", values: ["56 cm", "74 cm", "22 cm"] },
-        { size: "M", values: ["58 cm", "76 cm", "23 cm"] },
-        { size: "G", values: ["60 cm", "78 cm", "24 cm"] },
-        { size: "GG", values: ["64 cm", "82 cm", "25 cm"] },]
+        { size: "P", values: ["52 cm", "70 cm", "20 cm"] },
+        { size: "M", values: ["54 cm", "72 cm", "21 cm"] },
+        { size: "G", values: ["56 cm", "74 cm", "22 cm"] },
+        { size: "GG", values: ["60 cm", "78 cm", "23 cm"] },]
     }
   },
   { 
@@ -98,10 +96,10 @@ export const PRODUCTS = [
     name: "Beanie 'SS Logo'", 
     category: "BONÉS", 
     price: 99.90, 
-    img: look4, 
+    img: productAssets.p6.main, 
+    gallery: productAssets.p6.gallery,
     sizes: ['UN'],
-    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
-    details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
-    gallery: [look2, look3] 
+    description: "Touca canelada com dobra (cuff) e patch bordado. Estilo worker para dias frios.",
+    details: ["Lã acrílica antialérgica", "Tamanho único flexível", "Etiqueta bordada"],
   },
 ]

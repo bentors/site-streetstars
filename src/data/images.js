@@ -19,6 +19,30 @@ import c3_gal2 from '../assets/images/collections/c3/galeria-02.webp'
 import c3_gal3 from '../assets/images/collections/c3/galeria-03.webp'
 import c3_gal4 from '../assets/images/collections/c3/galeria-04.webp'
 
+import p1_main from '../assets/images/shop/p1/main.webp'
+import p1_g1 from '../assets/images/shop/p1/gal1.webp'
+import p1_g2 from '../assets/images/shop/p1/gal2.webp'
+
+import p2_main from '../assets/images/shop/p2/main.webp'
+import p2_g1 from '../assets/images/shop/p2/gal1.webp'
+import p2_g2 from '../assets/images/shop/p2/gal2.webp'
+
+import p3_main from '../assets/images/shop/p3/main.webp'
+import p3_g1 from '../assets/images/shop/p3/gal1.webp'
+import p3_g2 from '../assets/images/shop/p3/gal2.webp'
+
+import p4_main from '../assets/images/shop/p4/main.webp'
+import p4_g1 from '../assets/images/shop/p4/gal1.webp'
+import p4_g2 from '../assets/images/shop/p4/gal2.webp'
+
+import p5_main from '../assets/images/shop/p5/main.webp'
+import p5_g1 from '../assets/images/shop/p5/gal1.webp'
+import p5_g2 from '../assets/images/shop/p5/gal2.webp'
+
+import p6_main from '../assets/images/shop/p6/main.webp'
+import p6_g1 from '../assets/images/shop/p6/gal1.webp'
+import p6_g2 from '../assets/images/shop/p6/gal2.webp'
+
 export const images = {
   c1: {
     main: c1_main,
@@ -34,5 +58,32 @@ export const images = {
     main: c3_main,
     hover: c3_hover,
     gallery: [c3_hover, c3_gal1, c3_gal2, c3_gal3, c3_gal4]
+  }
+}
+
+export const productAssets = {
+  p1: {
+    main: p1_main,
+    gallery: [p1_main, p1_g1, p1_g2]
+  },
+  p2: {
+    main: p2_main,
+    gallery: [p2_main, p2_g1, p2_g2]
+  },
+  p3: {
+    main: p3_main,
+    gallery: [p3_main, p3_g1, p3_g2]
+  },
+  p4: {
+    main: p4_main,
+    gallery: [p4_main, p4_g1, p4_g2]
+  },
+  p5: {
+    main: p5_main,
+    gallery: [p5_main, p5_g1, p5_g2]
+  },
+  p6: {
+    main: p6_main,
+    gallery: [p6_main, p6_g1, p6_g2]
   }
 }

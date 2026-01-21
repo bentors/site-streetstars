@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 import { PRODUCTS } from '../data/products.js'
 
@@ -29,7 +29,7 @@ export default function ProductPage() {
   const handleScroll = () => {
     if (sliderRef.current) {
       const scrollPosition = sliderRef.current.scrollLeft
-      const width = sliderRef.current.offsetWidth
+      const width = sliderRef.current.clientWidth
       const index = Math.round(scrollPosition / width)
       setCurrentImageIndex(index)
     }
@@ -56,16 +56,19 @@ export default function ProductPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 lg:items-center">
-        
-        <div className="relative group w-full">
+        <div className="relative group w-full min-w-0"> 
           <div 
             ref={sliderRef}
             onScroll={handleScroll}
-            className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth scrollbar-hide aspect-[4/5] lg:aspect-auto lg:h-[80vh] w-full bg-zinc-900"
+            className="flex w-full overflow-x-auto snap-x snap-mandatory snap-always scroll-smooth scrollbar-hide aspect-[4/5] lg:aspect-auto lg:h-[98vh] bg-zinc-900"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {images.map((img, i) => (
-                <div key={i} className="min-w-full h-full snap-center relative flex items-center justify-center bg-[#050505]">
+                <div 
+                    key={i} 
+                    className="snap-start relative flex items-center justify-center bg-[#050505] overflow-hidden"
+                    style={{ flex: '0 0 100%' }}
+                >
                     <img 
                       src={img} 
                       alt={`${product.name} - view ${i + 1}`}
@@ -82,12 +85,12 @@ export default function ProductPage() {
                 onClick={() => {
                   if(sliderRef.current) {
                     sliderRef.current.scrollTo({
-                      left: i * sliderRef.current.offsetWidth,
+                      left: i * sliderRef.current.clientWidth,
                       behavior: 'smooth'
                     })
                   }
                 }}
-                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm
                   ${currentImageIndex === i ? 'bg-white scale-125' : 'bg-white/30 hover:bg-white/60'}`}
               />
             ))}
@@ -98,7 +101,7 @@ export default function ProductPage() {
                 className="pointer-events-auto p-2 bg-black/20 backdrop-blur-sm hover:bg-black/50 text-white rounded-full transition"
                 aria-label='Voltar para a imagem anterior'
                 onClick={() => {
-                   if(sliderRef.current) sliderRef.current.scrollLeft -= sliderRef.current.offsetWidth
+                   if(sliderRef.current) sliderRef.current.scrollLeft -= sliderRef.current.clientWidth
                 }}
              >
                ←
@@ -107,7 +110,7 @@ export default function ProductPage() {
                 className="pointer-events-auto p-2 bg-black/20 backdrop-blur-sm hover:bg-black/50 text-white rounded-full transition"
                 aria-label='Avançar para a próxima imagem'
                 onClick={() => {
-                   if(sliderRef.current) sliderRef.current.scrollLeft += sliderRef.current.offsetWidth
+                   if(sliderRef.current) sliderRef.current.scrollLeft += sliderRef.current.clientWidth
                 }}
              >
                →
@@ -115,7 +118,7 @@ export default function ProductPage() {
           </div>
         </div>
 
-        <div className="h-full flex flex-col justify-center py-4 lg:py-0"> 
+        <div className="h-full flex flex-col justify-center py-4 lg:py-0 min-w-0">
           <div className="flex flex-col gap-6">
 
             <div className="text-[10px] uppercase tracking-widest text-white/40">
@@ -202,7 +205,8 @@ export default function ProductPage() {
             </div>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-6 mt-20 border-t border-white/10 pt-16">
+
+        <div className="max-w-7xl mx-auto px-6 mt-20 border-t border-white/10 pt-16 lg:col-span-2 w-full">
             <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-8">
                 Complete o <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Kit</span>
             </h3>
