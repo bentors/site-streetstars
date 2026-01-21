@@ -198,7 +198,7 @@ export default function ProductPage() {
             <div className="flex items-center justify-center gap-2 mt-2 text-[10px] text-white/40 uppercase tracking-widest">
                <span>🔒 Compra Segura</span>
                <span>•</span>
-               <span>Envio em 24h</span>
+               <span>Entrega para todo o Brasil 🇧🇷</span>
             </div>
           </div>
         </div>

@@ -23,7 +23,8 @@ export default function CollectionPage() {
   const galleryImages = collection.gallery || [collection.image, collection.imageHover, collection.image, collection.imageHover].filter(Boolean)
 
   return (
-    <main className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
+
+    <main className="min-h-screen bg-black text-white selection:bg-white selection:text-black overflow-x-hidden">
 
       <AnimatePresence>
         {selectedImage && (
@@ -48,18 +49,17 @@ export default function CollectionPage() {
         )}
       </AnimatePresence>
 
-
       <div className="max-w-7xl mx-auto px-6 pt-28 md:pt-40 pb-20">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-start mb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 xl:gap-24 mb-24 w-full">
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="lg:col-span-5 lg:sticky lg:top-32"
+            className="lg:col-span-6"
           >
-            <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/10">
+            <div className="relative aspect-[3/4] md:aspect-[16/9] lg:aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/10">
               <img src={collection.image} alt={collection.title} className="w-full h-full object-cover" />
               <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 border border-white/10">
                 <span className="text-[10px] uppercase tracking-widest text-white/90">Capa do Editorial</span>
@@ -68,7 +68,7 @@ export default function CollectionPage() {
           </motion.div>
 
           <motion.div 
-            className="lg:col-span-7 flex flex-col justify-center"
+            className="lg:col-span-6 flex flex-col justify-start h-full"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -80,12 +80,12 @@ export default function CollectionPage() {
               <span className="text-[10px] uppercase tracking-widest text-white/30 hidden sm:block">Drop 0{collectionIndex + 1}</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase italic tracking-tighter leading-[0.9] mb-8 text-white">
+            <h1 className="text-4xl md:text-6xl font-black uppercase italic tracking-tighter leading-[0.9] mb-8 text-white">
               {collection.title}
             </h1>
 
-            <div className="space-y-6 mb-12">
-               <p className="text-lg md:text-xl text-white/90 font-light leading-relaxed border-l-2 border-white pl-6">
+            <div className="space-y-6 mb-12 justify-center">
+               <p className="text-sm md:text-xl text-white/90 font-light leading-relaxed border-l-2 border-white pl-6">
                  {collection.shortDescription || collection.description}
                </p>
                <div className="text-white/60 text-sm leading-loose text-justify whitespace-pre-line font-light">
@@ -93,10 +93,12 @@ export default function CollectionPage() {
                </div>
             </div>
 
-            <Link to="/" state={{ scrollTo: 'shop' }} className="group relative w-full md:w-auto py-5 px-8 border border-white text-center overflow-hidden transition-all hover:bg-white inline-block">
-               <span className="relative z-10 text-xs font-black uppercase tracking-[0.25em] text-white group-hover:text-black transition-colors">Ver Peças Disponíveis</span>
-               <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"/>
-            </Link>
+            <div className="mt-auto">
+              <Link to="/" state={{ scrollTo: 'shop' }} className="group relative w-full py-5 px-8 border border-white text-center overflow-hidden transition-all hover:bg-white block">
+                <span className="relative z-10 text-xs font-black uppercase tracking-[0.25em] text-white group-hover:text-black transition-colors">Ver Peças Disponíveis</span>
+                <div className="absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"/>
+              </Link>
+            </div>
           </motion.div>
         </div>
 
@@ -106,7 +108,7 @@ export default function CollectionPage() {
              <div className="h-px flex-1 bg-white/20"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 w-full">
             {galleryImages.map((img, index) => (
               <motion.div
                 key={index}

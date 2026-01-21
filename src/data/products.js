@@ -8,7 +8,7 @@ export const CATEGORIES = ["TODOS", "CAMISETAS", "MOLETONS", "BONÉS", "CONJUNTO
 export const PRODUCTS = [
   { 
     id: 1, 
-    name: "T-Shirt Oversized 'Star'", 
+    name: "T-Shirt Oversized 'Arabic Logo'", 
     category: "CAMISETAS", 
     price: 149.90, 
     img: look1, 
@@ -27,9 +27,9 @@ export const PRODUCTS = [
   },
   { 
     id: 2, 
-    name: "Hoodie Boxy Black", 
+    name: "Hoodie Boxy 'Arabic Logo'", 
     category: "MOLETONS", 
-    price: 329.90, 
+    price: 279.90, 
     img: look2, 
     sizes: ['P', 'M', 'G', 'GG'],
     description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
@@ -46,11 +46,11 @@ export const PRODUCTS = [
   },
   { 
     id: 3, 
-    name: "Conjunto Tracksuit", 
-    category: "CONJUNTOS", 
-    price: 489.90, 
+    name: "Hoddie Regular 'Big Arabic Logo'", 
+    category: "MOLETONS", 
+    price: 299.90, 
     img: look3, 
-    sizes: ['P', 'M', 'G'],
+    sizes: ['P', 'M', 'G', 'GG'],
     description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
     details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
     gallery: [look2, look3],
@@ -65,9 +65,9 @@ export const PRODUCTS = [
   },
   { 
     id: 4, 
-    name: "Boné Dad Hat", 
+    name: "Trucker Cap 'Arabic Logo'", 
     category: "BONÉS", 
-    price: 119.90, 
+    price: 129.90, 
     img: look4, 
     sizes: ['UN'],
     description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
@@ -76,7 +76,7 @@ export const PRODUCTS = [
   },
   { 
     id: 5, 
-    name: "T-Shirt Oversized 'Arabic'", 
+    name: "T-Shirt Regular 'MAMR'", 
     category: "CAMISETAS", 
     price: 149.90, 
     img: look1, 
@@ -92,5 +92,16 @@ export const PRODUCTS = [
         { size: "G", values: ["60 cm", "78 cm", "24 cm"] },
         { size: "GG", values: ["64 cm", "82 cm", "25 cm"] },]
     }
+  },
+  { 
+    id: 6, 
+    name: "Beanie 'SS Logo'", 
+    category: "BONÉS", 
+    price: 99.90, 
+    img: look4, 
+    sizes: ['UN'],
+    description: "O Hoodie definitivo. Modelagem quadrada (boxy) que fica na altura da cintura, ideal para compor camadas. Capuz duplo estruturado.",
+    details: ["Moletom 3 cabos peluciado", "Punhos alongados", "Bolso canguru embutido"],
+    gallery: [look2, look3] 
   },
 ]

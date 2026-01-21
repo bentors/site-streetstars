@@ -22,7 +22,7 @@ const textReveal = {
     color: 'rgba(255, 255, 255, 1)',
     WebkitTextStroke: '0px rgba(255, 255, 255, 0)',
     transition: { 
-      duration: 1.2, 
+      duration: 1.0, 
       ease: [0.22, 1, 0.36, 1]
     }
   }
@@ -42,7 +42,7 @@ const box = {
   show: {
     opacity: 1,
     y: 1,
-    transition: { duration: 0.9, ease: 'easeOut', delay: 0.6 }
+    transition: { duration: 0.8, ease: 'easeOut', delay: 0.6 }
   }
 }
 
@@ -80,7 +80,7 @@ export default function Manifesto() {
           animate={{ x: [0, -1000] }}
           transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
         >
-          {Array(8).fill("Street Stars ★ Manifesto").map((item, i) => (
+          {Array(8).fill("Street Stars ★ Be a star").map((item, i) => (
             <span key={i} className="mx-6">{item}</span>
           ))}
         </motion.div>

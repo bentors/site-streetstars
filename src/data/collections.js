@@ -4,12 +4,12 @@ export const collections = [
   {
     id: 0,
     title: 'The stars is every unique',
-    shortDescription: 'Peças atemporais, minimalistas e versáteis, onde as estrelas movem as ruas.',
-    fullDescription: "Midnight Chaos é um estudo sobre a desordem organizada das metrópoles. Quando o sol cai, a cidade muda de cor, de som e de ritmo. Esta coleção captura a essência de quem encontra paz no barulho da madrugada.",
+    shortDescription: 'Peças atemporais e minimalistas, onde as estrelas movem as ruas.',
+    fullDescription: "'The star is every unique' foi o primeiro lançamento da Street Stars, lançado em fevereiro de 2024. O drop que trouxe a marca ao mundo e é marca registrada até hoje. Essa coleção traz a essência de quem encontra paz no barulho da madrugada, a luz das estrelas.",
     credits: {
-      photo: "Rafael Souza",
-      direction: "Beatriz M.",
-      styling: "Street Team",
+      photo: "@jotc.films",
+      direction: "@eyyale, @amarijd_, @rybkaue",
+      styling: "Street Stars",
     },
     // ID 0 = Coleção 1
     image: images.c1.main,
@@ -19,12 +19,12 @@ export const collections = [
   {
     id: 1,
     title: 'Mais amor, menos recalque',
-    shortDescription: 'Inspirada no funk e na cultura de periferia, para quem leva essa essência no peito.',
-    fullDescription: "A coleção 'Mais Amor, Menos Recalque' é uma celebração da autenticidade e da resistência das comunidades periféricas. Cada peça é um manifesto de amor-próprio e solidariedade.",
+    shortDescription: 'Inspirada na cultura de periferia, para quem leva essa essência no peito.',
+    fullDescription: "'Mais amor, Menos recalque' é a coleção que reforça a resistência das favelas, a cultura do funk e a autenticidade da Street Stars. Lançada em 2025, com o nosso logo arabic e frases marcantes para a cultura das ruas, esse foi o segundo lançamento da Street Stars.",
     credits: {
-      photo: "Rafael Souza",
-      direction: "Beatriz M.",
-      styling: "Street Team",
+      photo: "@stk.zip, @berna_thephotographer, @trajano.jpg",
+      direction: "@kvanh4z, @bentorxngel",
+      styling: "Street Stars",
     },
     // ID 1 = Coleção 2
     image: images.c2.main,

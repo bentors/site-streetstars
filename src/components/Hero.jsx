@@ -52,7 +52,7 @@ export default function Hero() {
         animate="show"
         className="relative max-w-4xl z-10 text-center"
       >
-        <motion.p variants={text} className="text-xs tracking-[0.35em] text-white/60 mb-6">
+        <motion.p variants={text} className="text-xs lg:text-xl tracking-[0.35em] text-white/60 mb-6">
           STREET STARS
         </motion.p>
 
