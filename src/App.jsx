@@ -8,7 +8,7 @@ import Footer from './components/Footer'
 import CartDrawer from './components/CartDrawer'
 import ScrollToTop from './utils/ScrollToTop'
 
-const Home = lazy(() => import('./pages/Home'))
+import Home from './pages/Home'
 const ProductPage = lazy(() => import('./pages/ProductPage'))
 const CollectionPage = lazy(() => import('./pages/CollectionPage'))
 const NotFound = lazy(() => import('./pages/NotFound'))

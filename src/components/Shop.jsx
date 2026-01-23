@@ -35,7 +35,7 @@ export default function Shop() {
                 aria-label={`Filtrar produtos por categoria ${cat}`}
                 onClick={() => setFilter(cat)}
                 className={`text-[11px] uppercase tracking-[0.2em] transition-all relative py-1
-                  ${filter === cat ? 'text-white font-bold' : 'text-white/40 hover:text-white'}
+                  ${filter === cat ? 'text-white font-bold' : 'text-white/60 hover:text-white'}
                 `}
               >
                 {cat}
@@ -104,7 +104,7 @@ export default function Shop() {
                     </h3>
                     <div className="flex items-center gap-2">
                       <p className="text-sm text-white/90">R$ {product.price.toFixed(2)}</p>
-                      <span className="text-[10px] text-white/30 uppercase tracking-wider">
+                      <span className="text-[10px] text-white/40 uppercase tracking-wider">
                         Em até 6x
                       </span>
                     </div>

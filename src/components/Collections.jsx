@@ -65,7 +65,7 @@ const handleScroll = () => {
           </h2>
           
           <div className="flex flex-col items-end gap-2">
-            <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] max-w-xs text-right">
+            <p className="text-white/50 text-[10px] uppercase tracking-[0.2em] max-w-xs text-right">
               Nossos drops, nossa história. <br/>
               Explore cada coleção que já lançamos.
             </p>
