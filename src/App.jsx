@@ -11,6 +11,7 @@ import ScrollToTop from './utils/ScrollToTop'
 const Home = lazy(() => import('./pages/Home'))
 const ProductPage = lazy(() => import('./pages/ProductPage'))
 const CollectionPage = lazy(() => import('./pages/CollectionPage'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 const PageLoader = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/product/:id" element={<ProductPage />} />
             <Route path="/collection/:id" element={<CollectionPage />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
       </Suspense>
 

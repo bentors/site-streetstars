@@ -5,8 +5,7 @@ import logo from '../assets/images/streetstars_logoprovisoria.webp'
 export default function Footer() {
   const currentYear = new Date().getFullYear()
   const [copied, setCopied] = useState(false)
-  
-  // DADOS DE CONTATO
+
   const EMAIL = 'streetstarsco@gmail.com'
   const WHATSAPP_NUMBER = '5511999999999'
 
@@ -45,7 +44,6 @@ export default function Footer() {
         
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
 
-          {/* COLUNA 1: LOGO E FRASE */}
           <div className="md:col-span-4 space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
             <button onClick={() => handleNavigation('top')} className="block">
               <img src={logo} alt="Street Stars" className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity" />
@@ -64,13 +62,11 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* COLUNA 2: CONTATO (Instagram, Whats, Email) */}
           <div className="md:col-span-3 flex flex-col items-center md:items-start text-center md:text-left">
             <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-white/90">Contato</h4>
             
             <div className="flex flex-col gap-4 w-full max-w-sm"> 
-              
-              {/* INSTAGRAM */}
+
               <a 
                 href="https://www.instagram.com/_streetstars.co/"
                 target="_blank"
@@ -84,7 +80,6 @@ export default function Footer() {
                 </div>
               </a>
 
-              {/* WHATSAPP */}
               <a 
                 href={`https://wa.me/${WHATSAPP_NUMBER}`}
                 target="_blank"
@@ -98,7 +93,6 @@ export default function Footer() {
                 </div>
               </a>
 
-              {/* EMAIL */}
               <button 
                 onClick={copyEmail}
                 aria-label='Copiar Email'
@@ -118,7 +112,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* COLUNA 3: MENU */}
           <div className="md:col-span-2 flex flex-col items-center md:items-start text-center md:text-left">
             <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-white/90">Menu</h4>
             <ul className="space-y-3 text-xs text-white/50 w-full">
@@ -130,7 +123,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* COLUNA 4: LEGAL */}
           <div className="md:col-span-3 flex flex-col items-center md:items-start text-center md:text-left">
              <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-white/90">Legal</h4>
              <ul className="space-y-3 text-xs text-white/50 w-full">
@@ -142,7 +134,6 @@ export default function Footer() {
 
         </div>
 
-        {/* BOTTOM: DIREITOS & PAGAMENTO */}
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] text-white/30 uppercase tracking-widest text-center md:text-left">
             © {currentYear} Street Stars. Todos os direitos reservados.
