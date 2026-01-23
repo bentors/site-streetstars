@@ -20,7 +20,7 @@ export default function Shop() {
         <div className="flex flex-col xl:flex-row xl:items-end justify-between mb-16 gap-10 border-b border-white/10 pb-8">
           <div className="max-w-2xl">
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase italic tracking-tighter leading-[0.9]">
-              Se torne uma <br/>
+              Seja uma <br/>
               <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Estrela das Ruas</span>
             </h2>
             <p className="mt-4 text-sm text-white/50 tracking-widest uppercase">

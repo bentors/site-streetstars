@@ -91,7 +91,7 @@ export default function Manifesto() {
         variants={container}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, margin: "-50px" }}
+        viewport={{ once: true, amount: "0.3" }}
       >
 
         <div className="space-y-4 md:space-y-6 mb-24 mix-blend-screen">
@@ -116,7 +116,7 @@ export default function Manifesto() {
             A Street Stars acredita que estilo é extensão da identidade. 
             Não seguimos tendências, criamos movimentos. 
             <span className="block mt-4 text-white font-bold uppercase tracking-widest text-sm md:text-base">
-              Vestir Street Stars é viver a rua.
+              Vestir Street Stars é viver a rua. Ser a estrela.
             </span>
           </p>
         </motion.div>

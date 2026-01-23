@@ -62,7 +62,7 @@ export default function Hero() {
 
         <motion.p variants={text} className="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
           A Street Stars nasce da rua, da cultura urbana e da expressão individual. <br className='hidden sm:block'/>
-          Mais do que moda, criamos estrelas.
+          Mais do que moda, vestimos estrelas.
         </motion.p>
 
         <motion.div variants={text} className="flex flex-col items-center gap-6">
@@ -75,7 +75,7 @@ export default function Hero() {
           </button>
 
         <p className="text-[8px] text-white/30 tracking-[0.2em]">
-          Streetwear Nacional ★ Criado por quem vive a rua
+          ★ Feito por quem vive a rua ★
         </p>
 
         </motion.div>

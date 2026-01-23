@@ -42,13 +42,13 @@ export default function About() {
           
           <div className="space-y-6 text-base md:text-lg text-white/60 font-light leading-relaxed text-justify">
             <p>
-              A <strong className="text-white font-bold">Street Stars</strong> surgiu da vontade de transformar vivências urbanas em estilo, sendo um verdadeiro laboratório de cultura.
+              A <strong className="text-white font-bold">Street Stars</strong> nasceu da rua. Da vontade de transformar vivência urbana em estilo, em identidade, em movimento.
             </p>
             <p>
-              Fundada em 2024 por <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors cursor-default">Felipe dos Santos</span> e <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors cursor-default">Bento Rangel</span>, a marca nasceu para preencher uma identidade no streetwear nacional.
+              Fundada em 2024 por <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors cursor-default">Felipe dos Santos</span> e <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors cursor-default">Bento Rangel</span>, a marca nasceu para ocupar seu espaço no streetwear nacional.
             </p>
             <p>
-              Inspirada pela arquitetura das ruas, pela batida da música e pela estética noturna, representamos quem se expressa sem pedir permissão.
+              Inspirada pela arquitetura das ruas, pela batida da música e pela estética noturna, a gente representa quem se expressa sem pedir permissão.
             </p>
           </div>
 
@@ -56,6 +56,10 @@ export default function About() {
             <div>
               <h3 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">Fundação</h3>
               <p className="font-mono text-sm text-white">São Paulo, 2024</p>
+            </div>
+            <div>
+               <h3 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">Missão</h3>
+               <p className="font-mono text-sm text-white">Criar estrelas, mudar a moda</p>
             </div>
           </div>
 

@@ -66,8 +66,8 @@ const handleScroll = () => {
           
           <div className="flex flex-col items-end gap-2">
             <p className="text-white/40 text-[10px] uppercase tracking-[0.2em] max-w-xs text-right">
-              Explore nossas campanhas passadas. <br/>
-              A história da Street Stars através das lentes.
+              Nossos drops, nossa história. <br/>
+              Explore cada coleção que já lançamos.
             </p>
           </div>
         </div>
