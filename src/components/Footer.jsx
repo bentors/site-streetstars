@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import logo from '../assets/images/streetstars_logoprovisoria.webp'
+import logo from '../assets/images/logo.png'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -46,11 +46,11 @@ export default function Footer() {
 
           <div className="md:col-span-4 space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
             <button onClick={() => handleNavigation('top')} className="block">
-              <img src={logo} alt="Street Stars" className="h-8 w-auto opacity-90 hover:opacity-100 transition-opacity" />
+              <img src={logo} alt="Street Stars" className="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity" />
             </button>
             
             <p className="text-white/50 text-xs leading-relaxed max-w-xs font-light">
-              Criando estrelas. Street Stars.
+              Street Stars.
               <br/>
               Est. 2024 — São Paulo.
             </p>
@@ -138,12 +138,6 @@ export default function Footer() {
           <p className="text-[10px] text-white/40 uppercase tracking-widest text-center md:text-left">
             © {currentYear} Street Stars. Todos os direitos reservados.
           </p>
-          
-          <div className="flex gap-2">
-             <PaymentBadge>PIX</PaymentBadge>
-             <PaymentBadge>VISA</PaymentBadge>
-             <PaymentBadge>MASTER</PaymentBadge>
-          </div>
         </div>
 
       </div>

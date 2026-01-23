@@ -89,7 +89,15 @@ export default function CollectionPage() {
                  {collection.shortDescription || collection.description}
                </p>
                <div className="text-white/60 text-sm leading-loose text-justify whitespace-pre-line font-light">
-                 {collection.fullDescription || collection.description}
+                  {Array.isArray(collection.fullDescription) ? (
+                    collection.fullDescription.map((paragraph, index) => (
+                      <p key={index}>
+                        {paragraph}
+                      </p>
+                    ))
+                  ) : (
+                    <p>{collection.fullDescription}</p>
+                  )}
                </div>
             </div>
 
@@ -126,7 +134,7 @@ export default function CollectionPage() {
                   src={img} 
                   alt={`Look ${index + 1}`} 
                   loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale group-hover:grayscale-0" 
+                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 md:grayscale group-hover:grayscale-0" 
                 />
 
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-colors duration-500" />

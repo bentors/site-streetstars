@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
-import logo from '../assets/images/streetstars_logoprovisoria.webp'
+import logo from '../assets/images/logo.png'
 
 const LINKS = [
   { label: 'Shop', href: '#shop' },
@@ -166,7 +166,7 @@ export default function Header({ setOverlayActive }) {
             <img
               src={logo}
               alt="Street Stars"
-              className="h-6 md:h-8 w-auto object-contain hover:opacity-80 transition"
+              className="h-8 md:h-12 w-auto object-contain hover:opacity-80 transition"
             />
           </button>
 

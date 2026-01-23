@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import manifestoBg from '../assets/images/manifesto-bg.webp' 
+import manifestoBgDesktop from '../assets/images/manifesto-bg.webp'
+import manifestoBgMobile from '../assets/images/manifesto-bg-mobile.webp'
 
 const container = {
   hidden: {},
@@ -65,10 +66,16 @@ export default function Manifesto() {
       <div className="absolute inset-0 z-0 overflow-hidden">
         <motion.div style={{ y }} className="w-full h-[120%] -top-[01%] relative">
           <img
-            src={manifestoBg}
+            src={manifestoBgMobile}
             alt="Manifesto background"
             loading="lazy"
-            className="w-full h-full object-cover contrast-125 opacity-50" 
+            className="block md:hidden w-full h-full object-cover  object-[60%_center] contrast-125 opacity-50" 
+          />
+          <img
+            src={manifestoBgDesktop}
+            alt="Manifesto background"
+            loading="lazy"
+            className="hidden md:block w-full h-full object-cover contrast-125 opacity-50" 
           />
         </motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>

@@ -42,7 +42,7 @@ export default function Hero() {
         variants={image}
         initial="hidden"
         animate="show"  
-        className="absolute inset-0 w-full h-full object-cover opacity-90 object-[75%_65%] sm:object-[50%_50%] lg:object-[50%_22%]"
+        className="absolute inset-0 w-full h-full object-cover opacity-90 object-[55%_65%] sm:object-[50%_20%] lg:object-[50%_18%]"
       />
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-black/65" />
