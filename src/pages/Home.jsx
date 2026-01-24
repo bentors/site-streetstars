@@ -8,32 +8,34 @@ const Collections = lazy(() => import('../components/Collections'))
 const Manifesto = lazy(() => import('../components/Manifesto'))
 const About = lazy(() => import('../components/About'))
 
-const LoadingSection = () => (
-  <div className="h-[50vh] w-full flex items-center justify-center bg-black">
-    <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+const SectionLoader = () => (
+  <div className="w-full py-24 flex items-center justify-center opacity-20">
+    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
   </div>
 )
 
 export default function Home() {
-    const location = useLocation()
-    const navigate = useNavigate()
+  const location = useLocation()
 
-    useEffect(() => {
+  useEffect(() => {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual'
     }
-    
+
     if (location.state?.scrollTo) {
       const sectionId = location.state.scrollTo
-      setTimeout(() => {
+
+      const attemptScroll = (attempts = 0) => {
         const element = document.getElementById(sectionId)
-        
         if (element) {
           element.scrollIntoView({ behavior: 'smooth' })
-
           window.history.replaceState({}, document.title)
+        } else if (attempts < 5) {
+          setTimeout(() => attemptScroll(attempts + 1), 300)
         }
-      }, 500)
+      }
+
+      attemptScroll()
     } else {
       window.scrollTo(0, 0)
     }
@@ -44,19 +46,19 @@ export default function Home() {
 
       <Hero />
 
-      <Suspense fallback={<LoadingSection />}>
+      <Suspense fallback={<SectionLoader />}>
         <Shop />
       </Suspense>
 
-      <Suspense fallback={<LoadingSection />}>
+      <Suspense fallback={<SectionLoader />}>
         <Collections />
       </Suspense>
 
-      <Suspense fallback={<LoadingSection />}>
+      <Suspense fallback={<SectionLoader />}>
         <Manifesto />
       </Suspense>
 
-      <Suspense fallback={<LoadingSection />}>
+      <Suspense fallback={<SectionLoader />}>
         <About />
       </Suspense>
 

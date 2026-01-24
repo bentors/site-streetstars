@@ -3,15 +3,15 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 
 import Overlay from './components/Overlay'
 import Header from './components/Header'
+import CartDrawer from './components/CartDrawer' 
+import ScrollToTop from './utils/ScrollToTop' 
 import FloatingAction from './components/FloatingAction'
-import Footer from './components/Footer'
-import CartDrawer from './components/CartDrawer'
-import ScrollToTop from './utils/ScrollToTop'
-
 import Home from './pages/Home'
+
 const ProductPage = lazy(() => import('./pages/ProductPage'))
 const CollectionPage = lazy(() => import('./pages/CollectionPage'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+const Footer = lazy(() => import('./components/Footer'))
 
 const PageLoader = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
@@ -42,7 +42,9 @@ export default function App() {
       </Suspense>
 
       <FloatingAction setOverlayActive={setOverlayActive} />
-      <Footer />
+      <Suspense fallback={<div className="h-20 bg-black" />}>
+        <Footer />
+      </Suspense>
     </div>
   )
 }
