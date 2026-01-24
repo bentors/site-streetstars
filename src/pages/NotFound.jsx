@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 export default function NotFound() {
   return (
     <div className="h-screen bg-black text-white flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
-      {/* Background Noise/Gradient */}
       <div className="absolute inset-0 bg-zinc-900/20" />
       
       <motion.h1 

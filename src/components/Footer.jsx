@@ -46,7 +46,7 @@ export default function Footer() {
 
           <div className="md:col-span-4 space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
             <button onClick={() => handleNavigation('top')} className="block">
-              <img src={logo} alt="Street Stars" className="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity" />
+              <img src={logo} width={300} height={169} alt="Street Stars" className="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity" />
             </button>
             
             <p className="text-white/50 text-xs leading-relaxed max-w-xs font-light">

@@ -166,8 +166,8 @@ export default function Header({ setOverlayActive }) {
             <img
               src={logo}
               alt="Street Stars"
-              width={2560}
-              height={1440}
+              width={300}
+              height={169}
               className="h-8 md:h-12 w-auto object-contain hover:opacity-80 transition"
             />
           </button>
@@ -221,7 +221,6 @@ export default function Header({ setOverlayActive }) {
 
             <button
               onClick={() => { const newState = !isOpen; setIsOpen(newState); 
-                // if(setOverlayActive) setOverlayActive(newState)
                 ; }}
               aria-label="Menu"
               className="md:hidden text-white/80"
@@ -268,9 +267,7 @@ export default function Header({ setOverlayActive }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            // onClick fecha o menu se clicar fora
             onClick={() => setIsOpen(false)}
-            // AQUI ESTÁ O BLUR QUE VOCÊ QUER: backdrop-blur-sm
             className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
           />
         )}

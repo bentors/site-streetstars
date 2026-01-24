@@ -9,18 +9,14 @@ export default function FloatingAction({ setOverlayActive }) {
   function toggle() {
     setOpen(prev => {
       const next = !prev
-      // Removi a dependência do overlay global para evitar conflitos de Z-Index
-      // if (setOverlayActive) setOverlayActive(next) 
       return next
     })
   }
 
   function close() {
     setOpen(false)
-    // if (setOverlayActive) setOverlayActive(false)
   }
 
-  // Aparecer apenas após rolar 500px
   useEffect(() => {
     const onScroll = () => {
       setVisible(window.scrollY > 500)
@@ -29,7 +25,6 @@ export default function FloatingAction({ setOverlayActive }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Fechar ao clicar fora (Mantido por segurança, mas o Overlay já faz isso)
   useEffect(() => {
     if (!open) return
     function handleClickOutside(event) {
@@ -57,33 +52,26 @@ export default function FloatingAction({ setOverlayActive }) {
 
   return (
     <>
-      {/* 1. OVERLAY (MÁSCARA) 
-          Z-Index 90: Fica acima de tudo no site, mas abaixo do botão (100)
-      */}
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={close} // Clicar no fundo fecha
+            onClick={close}
             className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
           />
         )}
       </AnimatePresence>
 
-      {/* 2. CONTAINER DOS BOTÕES 
-          Z-Index 100: Garante que fique acima do overlay
-      */}
       <div 
         ref={containerRef}
-        className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4 pointer-events-none" // pointer-events-none para a caixa vazia não bloquear cliques
+        className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4 pointer-events-none"
       >
         <AnimatePresence>
           {open && (
-            <div className="flex flex-col items-end gap-3 pointer-events-auto"> {/* pointer-events-auto reativa cliques nos botões */}
-              
-              {/* Botão WhatsApp */}
+            <div className="flex flex-col items-end gap-3 pointer-events-auto">
+
               <motion.a
                 initial={{ opacity: 0, y: 20, scale: 0.8 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -98,7 +86,6 @@ export default function FloatingAction({ setOverlayActive }) {
                 WhatsApp
               </motion.a>
 
-              {/* Botão Ir para Loja */}
               <motion.button
                 initial={{ opacity: 0, y: 20, scale: 0.8 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -114,7 +101,6 @@ export default function FloatingAction({ setOverlayActive }) {
           )}
         </AnimatePresence>
 
-        {/* Botão Principal (Toggle) */}
         <motion.button
           onClick={toggle}
           whileHover={{ scale: 1.05 }}
