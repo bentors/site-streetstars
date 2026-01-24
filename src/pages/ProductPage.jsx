@@ -183,7 +183,12 @@ export default function ProductPage() {
                   </button>
                 ))}
               </div>
+
             </div>
+
+              <p className="text-[10px] mt-10 text-white/50 tracking-[0.3em]">
+                Pronto pra brilhar?
+              </p>
 
             <button
               onClick={handleAdd}
