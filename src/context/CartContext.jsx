@@ -14,40 +14,44 @@ export function CartProvider({ children }) {
     localStorage.setItem('streetstars_cart', JSON.stringify(cartItems))
   }, [cartItems])
 
-  const addToCart = (product, size) => {
+  const addToCart = (product, size, color) => {
     setCartItems(prev => {
-      const existingItem = prev.find(item => item.id === product.id && item.size === size)
+      const existingItem = prev.find(item => 
+        item.id === product.id && 
+        item.size === size && 
+        item.color === color
+      )
 
       if (existingItem) {
         return prev.map(item => 
-          item.id === product.id && item.size === size
+          item.id === product.id && item.size === size && item.color === color
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       }
 
-      return [...prev, { ...product, size, quantity: 1 }]
+      return [...prev, { ...product, size, color, quantity: 1 }]
     })
     setIsCartOpen(true)
   }
 
-  const updateQuantity = (id, size, newQuantity) => {
+  const updateQuantity = (id, size, color, newQuantity) => {
     if (newQuantity < 1) {
-      removeFromCart(id, size)
+      removeFromCart(id, size, color)
       return
     }
 
     setCartItems(prev => 
       prev.map(item => 
-        item.id === id && item.size === size
+        item.id === id && item.size === size && item.color === color
           ? { ...item, quantity: newQuantity }
           : item
       )
     )
   }
 
-  const removeFromCart = (id, size) => {
-    setCartItems(prev => prev.filter(item => !(item.id === id && item.size === size)))
+  const removeFromCart = (id, size, color) => {
+    setCartItems(prev => prev.filter(item => !(item.id === id && item.size === size && item.color === color)))
   }
 
   const clearCart = () => setCartItems([])

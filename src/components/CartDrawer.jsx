@@ -27,7 +27,8 @@ export default function CartDrawer() {
     
     let message = `*NOVO PEDIDO - STREET STARS* ⭐\n\n`
     cartItems.forEach(item => {
-      message += `▪️ ${item.quantity}x ${item.name} | Tam: ${item.size}\n`
+      const colorText = item.color ? ` | Cor: ${item.color}` : ''
+      message += `▪️ ${item.quantity}x ${item.name}\n   Size: ${item.size}${colorText}\n`
     })
     message += `\n*Total: R$ ${cartTotal.toFixed(2)}*\n`
     message += `\nOlá! Gostaria de finalizar a compra e combinar o pagamento.`
@@ -85,7 +86,7 @@ export default function CartDrawer() {
                 cartItems.map((item) => (
                   <motion.div 
                     layout
-                    key={`${item.id}-${item.size}`}
+                    key={`${item.id}-${item.size}-${item.color}`}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex gap-4 group"
@@ -109,30 +110,39 @@ export default function CartDrawer() {
                             {item.name}
                           </Link>
                           <button 
-                            onClick={() => removeFromCart(item.id, item.size)}
+                            onClick={() => removeFromCart(item.id, item.size, item.color)}
                             className="text-white/30 hover:text-red-500 transition-colors"
                             title="Remover item"
                           >
                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                           </button>
                         </div>
-                        <p className="text-[10px] text-white/50 mt-1 uppercase">
-                          Tamanho: <span className="text-white font-bold">{item.size}</span>
-                        </p>
+
+                        <div className="flex flex-col gap-1 mt-1">
+                            <p className="text-[10px] text-white/50 uppercase">
+                              Tamanho: <span className="text-white font-bold">{item.size}</span>
+                            </p>
+                            {item.color && (
+                                <p className="text-[10px] text-white/50 uppercase">
+                                  Cor: <span className="text-white font-bold">{item.color}</span>
+                                </p>
+                            )}
+                        </div>
+
                       </div>
 
                       <div className="flex justify-between items-end mt-3">
 
                         <div className="flex items-center border border-white/10 rounded-sm">
                           <button 
-                            onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.id, item.size, item.color, item.quantity - 1)}
                             className="px-2 py-1 text-white/50 hover:text-white hover:bg-white/10 transition-colors"
                           >
                             -
                           </button>
                           <span className="px-2 text-xs font-mono min-w-[1.5rem] text-center">{item.quantity}</span>
                           <button 
-                            onClick={() => updateQuantity(item.id, item.size, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.id, item.size, item.color, item.quantity + 1)}
                             className="px-2 py-1 text-white/50 hover:text-white hover:bg-white/10 transition-colors"
                           >
                             +

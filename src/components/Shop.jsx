@@ -1,13 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useCart } from '../context/CartContext'
 
 import { PRODUCTS, CATEGORIES } from '../data/products'
 
 export default function Shop() {
   const [filter, setFilter] = useState("TODOS")
-  const { addToCart } = useCart()
 
   const filteredProducts = filter === "TODOS" 
     ? PRODUCTS 
@@ -74,28 +72,6 @@ export default function Shop() {
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" 
                     />
-                    
-                    <div className="hidden lg:flex absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex-col items-center justify-center p-4">
-                      <span className="text-[9px] tracking-[0.2em] text-white/80 mb-4 uppercase font-bold">
-                        Escolha seu tamanho
-                      </span>
-                      
-                      <div className="flex flex-wrap justify-center gap-2 w-full max-w-[160px]">
-                        {product.sizes.map(size => (
-                          <button 
-                            key={size}
-                            aria-label='Adicionar tamanho ao carrinho'
-                            onClick={(e) => {
-                              e.preventDefault()
-                              addToCart(product, size)
-                            }}
-                            className="w-10 h-10 border border-white/30 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold hover:bg-white hover:text-black hover:scale-110 active:scale-95 transition-all uppercase flex items-center justify-center"
-                          >
-                            {size}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1">
