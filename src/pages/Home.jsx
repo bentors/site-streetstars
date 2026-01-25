@@ -48,17 +48,8 @@ export default function Home() {
 
       <Suspense fallback={<SectionLoader />}>
         <Shop />
-      </Suspense>
-
-      <Suspense fallback={<SectionLoader />}>
         <Collections />
-      </Suspense>
-
-      <Suspense fallback={<SectionLoader />}>
         <Manifesto />
-      </Suspense>
-
-      <Suspense fallback={<SectionLoader />}>
         <About />
       </Suspense>
 

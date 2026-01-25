@@ -2,9 +2,9 @@ import { useState, lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { initGA, logPageView } from './utils/analytics'
 
-import Overlay from './components/Overlay'
+const Overlay = lazy(() => import('./components/Overlay'))
 import Header from './components/Header'
-import CartDrawer from './components/CartDrawer' 
+const CartDrawer = lazy(() => import('./components/CartDrawer'))
 import ScrollToTop from './utils/ScrollToTop' 
 import FloatingAction from './components/FloatingAction'
 import Home from './pages/Home'
@@ -37,9 +37,15 @@ export default function App() {
     <div className="min-h-screen bg-black text-white font-sans selection:bg-white selection:text-black">
 
       <ScrollToTop />
-      <Overlay active={overlayActive} onClick={() => setOverlayActive(false)} />
+      <Suspense fallback={null}>
+        <Overlay active={overlayActive} onClick={() => setOverlayActive(false)} />
+      </Suspense>
+
       <Header setOverlayActive={setOverlayActive} />
-      <CartDrawer />
+      
+      <Suspense fallback={null}>
+        <CartDrawer />
+      </Suspense>
       
       <Suspense fallback={<PageLoader />}>
 
