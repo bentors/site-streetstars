@@ -135,7 +135,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-[10px] text-white/40 uppercase tracking-widest text-center md:text-left">
+          <p className="text-[11px] text-white/50 uppercase tracking-widest text-center md:text-left">
             © {currentYear} Street Stars. Todos os direitos reservados.
           </p>
         </div>
