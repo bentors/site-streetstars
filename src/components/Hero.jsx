@@ -60,7 +60,7 @@ export default function Hero() {
           Estrelas nascem <br /> nas ruas
         </motion.h1>
 
-        <motion.p variants={text} className="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+        <motion.p variants={text} className="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed font-light font-display:swap">
           A Street Stars nasce da rua, da cultura urbana e da expressão individual. <br className='hidden sm:block'/>
           Mais do que moda, vestimos estrelas.
         </motion.p>
