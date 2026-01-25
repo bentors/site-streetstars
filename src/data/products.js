@@ -13,6 +13,11 @@ export const PRODUCTS = [
     sizes: ['P', 'M', 'G', 'GG'] ,
     description: "Camiseta boxy com o logo árabe que define a Street Stars. Modelagem ampla com ombros caídos e costura deslocada, o fit clássico do streetwear. Bordado em alta definição no centralizado no peito.",
     details: ["Modelagem oversized", "100% Algodão fio 20.1 penteado", "Gramatura: 220g/m²", "Gola ribana canelada 3cm", "Bordado premium"],
+    colors: [
+      { name: 'Preto', hex: '#000000', img: productAssets.p1.main }, 
+      { name: 'Off-White', hex: '#F5F5F0', img: productAssets.p1.gallery[0] || productAssets.p1.main },
+      { name: 'Stone Gray', hex: '#4A4A4A', img: productAssets.p1.gallery[1] || productAssets.p1.main }
+    ],
     measurements: {
       columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
       rows: [
@@ -32,6 +37,11 @@ export const PRODUCTS = [
     sizes: ['P', 'M', 'G', 'GG'],
     description: "O moletom definitivo. Modelagem boxy quadrada, ideal pra compor camadas. Moletom 3 cabos peluciado com acabamento interno macio e bolso canguru embutido.",
     details: ["Modelagem boxy", "Moletom 3 cabos peluciado", "Gramatura: 400g/m²", "Bolso canguru embutido", "Bordado premium"],
+    colors: [
+      { name: 'Preto', hex: '#000000', img: productAssets.p2.main },
+      { name: 'Chumbo', hex: '#333333', img: productAssets.p2.gallery[0] || productAssets.p2.main },
+      { name: 'Navy Blue', hex: '#1a237e', img: productAssets.p2.gallery[1] || productAssets.p2.main }
+    ],
     measurements: {
       columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
       rows: [
@@ -51,6 +61,11 @@ export const PRODUCTS = [
     sizes: ['P', 'M', 'G', 'GG'],
     description: "Modelagem regular fit, perfeita pro dia a dia. Moletom 3 cabos com estampa bordada premium nas costas, o logo árabe em destaque máximo. Conforto e presença.",
     details: ["Modelagem regular", "Moletom 3 cabos", "Gramatura: 400g/m²", "Bordado Premium frontal e traseiro"],
+    colors: [
+      { name: 'Preto', hex: '#000000', img: productAssets.p3.main },
+      { name: 'Marrom', hex: '#5D4037', img: productAssets.p3.gallery[0] || productAssets.p3.main },
+      { name: 'Olive', hex: '#556B2F', img: productAssets.p3.gallery[1] || productAssets.p3.main }
+    ],
     measurements: {
       columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
       rows: [
@@ -70,6 +85,11 @@ export const PRODUCTS = [
     sizes: ['UN'],
     description: "Boné estilo trucker com tela respirável e ajuste snapback. Logo bordado em alta definição, destaque garantido.",
     details: ["Aba curva", "Fecho Snapback ajustável", "Frente em tecido acolchoado", "Traseira em mesh", "Bordado em alta definição"],
+    colors: [
+      { name: 'All Black', hex: '#000000', img: productAssets.p4.main },
+      { name: 'Black/White', hex: '#ffffff', img: productAssets.p4.gallery[0] || productAssets.p4.main },
+      { name: 'Red', hex: '#D32F2F', img: productAssets.p4.gallery[1] || productAssets.p4.main }
+    ],
   },
   { 
     id: 5, 
@@ -81,6 +101,11 @@ export const PRODUCTS = [
     sizes: ['P', 'M', 'G', 'GG'],
     description: "Camiseta com corte regular e estampa 'Mais Amor Menos Recalque'. Essencial e direta. Da coleção que celebra o funk e a cultura de periferia.",
     details: ["Modelagem regular", "Algodão fio 20.1 penteado", "Toque macio", "Estampa digital", "Pespontos reforçados"],
+    colors: [
+      { name: 'Branco', hex: '#FFFFFF', img: productAssets.p5.main },
+      { name: 'Preto', hex: '#000000', img: productAssets.p5.gallery[0] || productAssets.p5.main },
+      { name: 'Rosa Choque', hex: '#E91E63', img: productAssets.p5.gallery[1] || productAssets.p5.main }
+    ],
     measurements: {
       columns: ["Tamanho", "Largura", "Comprimento", "Manga"],
       rows: [ 
@@ -100,5 +125,10 @@ export const PRODUCTS = [
     sizes: ['UN'],
     description: "Touca canelada com patch bordado. Estilo worker pra dias frios. Lã sintética acrílica antialérgica de alta qualidade.",
     details: ["Lã acrílica antialérgica", "Tamanho único flexível", "Etiqueta bordada", "(Canelada sem dobras)"],
+    colors: [
+      { name: 'Preto', hex: '#000000', img: productAssets.p6.main },
+      { name: 'Laranja', hex: '#FF5722', img: productAssets.p6.gallery[0] || productAssets.p6.main },
+      { name: 'Cinza Mescla', hex: '#9E9E9E', img: productAssets.p6.gallery[1] || productAssets.p6.main }
+    ],
   },
 ]

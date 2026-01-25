@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
-import { PRODUCTS } from '../data/products.js'
+import { PRODUCTS } from '../data/products.js' 
 
 export default function ProductPage() {
   const { id } = useParams()
@@ -13,6 +13,7 @@ export default function ProductPage() {
   }
 
   const [selectedSize, setSelectedSize] = useState(null)
+  const [selectedColor, setSelectedColor] = useState(null)
   const [showSizeGuide, setShowSizeGuide] = useState(false)
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -20,11 +21,28 @@ export default function ProductPage() {
 
   const product = PRODUCTS.find(p => p.id === parseInt(id))
 
-  useEffect(() => { window.scrollTo(0, 0) }, [id])
+  useEffect(() => { 
+    window.scrollTo(0, 0)
+    setSelectedSize(null)
+    setSelectedColor(null)
+  }, [id])
 
   if (!product) return <div className="h-screen flex items-center justify-center text-white">Produto não encontrado</div>
 
   const images = product.gallery || [product.img, product.img]
+
+  useEffect(() => {
+    if (selectedColor && selectedColor.img && sliderRef.current) {
+      const colorImgIndex = images.findIndex(img => img === selectedColor.img)
+      
+      if (colorImgIndex !== -1) {
+        sliderRef.current.scrollTo({
+          left: colorImgIndex * sliderRef.current.clientWidth,
+          behavior: 'smooth'
+        })
+      }
+    }
+  }, [selectedColor, images])
 
   const handleScroll = () => {
     if (sliderRef.current) {
@@ -36,8 +54,13 @@ export default function ProductPage() {
   }
 
   const handleAdd = () => {
-    if(!selectedSize) return alert('Selecione um tamanho')
-    addToCart(product, selectedSize)
+    if (product.colors && product.colors.length > 0 && !selectedColor) {
+        return alert('Por favor, selecione uma cor.')
+    }
+
+    if (!selectedSize) return alert('Selecione um tamanho')
+
+    addToCart(product, selectedSize, selectedColor ? selectedColor.name : null)
     setIsCartOpen(true)
   }
 
@@ -56,6 +79,7 @@ export default function ProductPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 lg:items-center">
+
         <div className="relative group w-full min-w-0"> 
           <div 
             ref={sliderRef}
@@ -153,13 +177,36 @@ export default function ProductPage() {
             )}
 
             <div className="py-6">
+
+              {product.colors && product.colors.length > 0 && (
+                <div className="mb-6">
+                   <div className="flex justify-between mb-3">
+                      <span className="text-[10px] uppercase tracking-[0.2em] font-bold">
+                        Cor: <span className="text-white/60 font-normal">{selectedColor ? selectedColor.name : 'Selecione'}</span>
+                      </span>
+                   </div>
+                   <div className="flex gap-3">
+                      {product.colors.map((color, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedColor(color)}
+                          className={`w-8 h-8 rounded-full border border-white/20 hover:scale-110 transition-all relative
+                            ${selectedColor?.name === color.name ? 'ring-2 ring-white ring-offset-2 ring-offset-black' : ''}
+                          `}
+                          style={{ backgroundColor: color.hex }}
+                          title={color.name}
+                        />
+                      ))}
+                   </div>
+                </div>
+              )}
+
               <div className="flex justify-between mb-3">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Tamanho</span>
                 
                 {product.measurements && (
                   <button 
                     onClick={() => setShowSizeGuide(true)}
-                    aria-label=''
                     className="text-[10px] underline text-white/40 hover:text-white transition-colors"
                   >
                     Guia de Medidas
@@ -192,15 +239,14 @@ export default function ProductPage() {
 
             <button
               onClick={handleAdd}
-              aria-label=''
-              disabled={!selectedSize}
+              disabled={!selectedSize || (product.colors && product.colors.length > 0 && !selectedColor)}
               className={`w-full py-5 font-bold uppercase tracking-[0.2em] transition-all
-                ${selectedSize 
+                ${selectedSize && (!product.colors || product.colors.length === 0 || selectedColor)
                   ? 'bg-white text-black hover:bg-zinc-200' 
                   : 'bg-zinc-800 text-white/20 cursor-not-allowed'}
               `}
             >
-              {selectedSize ? 'Adicionar à Sacola' : 'Selecione um tamanho'}
+              {(product.colors && !selectedColor) ? 'Selecione uma cor' : (!selectedSize ? 'Selecione um tamanho' : 'Adicionar à Sacola')}
             </button>
             
             <div className="flex items-center justify-center gap-2 mt-2 text-[10px] text-white/40 uppercase tracking-widest">
@@ -223,7 +269,7 @@ export default function ProductPage() {
                 .map(related => (
                     <Link key={related.id} to={`/product/${related.id}`} className="group">
                     <div className="aspect-[4/5] bg-zinc-900 overflow-hidden mb-3">
-                        <img src={related.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <img src={related.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={related.name} />
                     </div>
                     <p className="text-[10px] uppercase tracking-widest text-white/60">{related.name}</p>
                     <p className="text-sm font-bold">R$ {related.price.toFixed(2)}</p>
@@ -241,7 +287,6 @@ export default function ProductPage() {
           <div className="relative bg-[#0F0F0F] border border-white/10 p-6 md:p-8 max-w-lg w-full shadow-2xl overflow-hidden">
             <button 
               onClick={() => setShowSizeGuide(false)} 
-              aria-label=''
               className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors text-lg"
             >
               ✕
