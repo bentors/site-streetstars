@@ -144,11 +144,3 @@ export default function Footer() {
     </footer>
   )
 }
-
-function PaymentBadge({ children }) {
-  return (
-    <div className="h-6 px-2 border border-white/10 rounded-[2px] flex items-center justify-center bg-white/5 text-[9px] font-bold text-white/50 tracking-widest cursor-default">
-      {children}
-    </div>
-  )
-}
