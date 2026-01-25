@@ -9,11 +9,10 @@ export default function CartDrawer() {
     isCartOpen, 
     setIsCartOpen, 
     removeFromCart, 
-    updateQuantity, // Importando a nova função
+    updateQuantity,
     cartTotal 
   } = useCart()
 
-  // Trava o scroll do fundo ao abrir
   useEffect(() => {
     if (isCartOpen) {
       document.body.style.overflow = 'hidden'
@@ -23,9 +22,8 @@ export default function CartDrawer() {
     return () => { document.body.style.overflow = 'unset' }
   }, [isCartOpen])
 
-  // Lógica do WhatsApp (Mantida e melhorada)
   const handleCheckout = () => {
-    const phoneNumber = "5511999999999" // Coloque seu número real aqui
+    const phoneNumber = "5511999999999"
     
     let message = `*NOVO PEDIDO - STREET STARS* ⭐\n\n`
     cartItems.forEach(item => {
@@ -42,7 +40,6 @@ export default function CartDrawer() {
     <AnimatePresence>
       {isCartOpen && (
         <>
-          {/* Overlay Escuro com Blur */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -51,7 +48,6 @@ export default function CartDrawer() {
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
           />
 
-          {/* Gaveta Lateral */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -59,7 +55,6 @@ export default function CartDrawer() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="fixed right-0 top-0 h-full w-full sm:w-[450px] bg-[#050505] border-l border-white/10 z-[70] flex flex-col shadow-2xl"
           >
-            {/* Header do Carrinho */}
             <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#050505]">
               <h2 className="text-xl font-black uppercase italic tracking-tighter">
                 Sua Sacola <span className="not-italic font-sans text-sm text-white/50 ml-1">({cartItems.length})</span>
@@ -74,7 +69,6 @@ export default function CartDrawer() {
               </button>
             </div>
 
-            {/* Lista de Produtos */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-track-black scrollbar-thumb-zinc-800">
               {cartItems.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-white/40 space-y-4">
@@ -96,7 +90,6 @@ export default function CartDrawer() {
                     animate={{ opacity: 1, y: 0 }}
                     className="flex gap-4 group"
                   >
-                    {/* Imagem */}
                     <Link 
                       to={`/product/${item.id}`} 
                       onClick={() => setIsCartOpen(false)}
@@ -105,7 +98,6 @@ export default function CartDrawer() {
                       <img src={item.img} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     </Link>
 
-                    {/* Infos */}
                     <div className="flex-1 flex flex-col justify-between py-1">
                       <div>
                         <div className="flex justify-between items-start gap-4">
@@ -129,10 +121,8 @@ export default function CartDrawer() {
                         </p>
                       </div>
 
-                      {/* Controles de Preço e Quantidade */}
                       <div className="flex justify-between items-end mt-3">
-                        
-                        {/* Seletor de Quantidade */}
+
                         <div className="flex items-center border border-white/10 rounded-sm">
                           <button 
                             onClick={() => updateQuantity(item.id, item.size, item.quantity - 1)}
@@ -157,7 +147,6 @@ export default function CartDrawer() {
               )}
             </div>
 
-            {/* Footer do Carrinho */}
             {cartItems.length > 0 && (
               <div className="p-6 bg-[#0A0A0A] border-t border-white/10 space-y-4 z-10">
                 <div className="flex justify-between items-center text-sm uppercase tracking-widest">

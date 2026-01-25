@@ -1,5 +1,6 @@
-import { useState, lazy, Suspense } from 'react'
+import { useState, lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
+import { initGA, logPageView } from './utils/analytics'
 
 import Overlay from './components/Overlay'
 import Header from './components/Header'
@@ -12,6 +13,7 @@ const ProductPage = lazy(() => import('./pages/ProductPage'))
 const CollectionPage = lazy(() => import('./pages/CollectionPage'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Footer = lazy(() => import('./components/Footer'))
+const LegalInfo = lazy(() => import('./pages/LegalInfo'))
 
 const PageLoader = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
@@ -22,6 +24,14 @@ const PageLoader = () => (
 export default function App() {
   const [overlayActive, setOverlayActive] = useState(false)
   const location = useLocation()
+  
+  useEffect(() => {
+    initGA()
+  }, [])
+
+  useEffect(() => {
+    logPageView()
+  }, [location])
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-white selection:text-black">
@@ -38,6 +48,7 @@ export default function App() {
             <Route path="/product/:id" element={<ProductPage />} />
             <Route path="/collection/:id" element={<CollectionPage />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/legal/:slug" element={<LegalInfo />} />
           </Routes>
       </Suspense>
 

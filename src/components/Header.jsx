@@ -3,6 +3,7 @@ import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import logo from '../assets/images/logo.webp'
+import HeaderSearch from './HeaderSearch'
 
 const LINKS = [
   { label: 'Shop', href: '#shop' },
@@ -18,7 +19,6 @@ export default function Header({ setOverlayActive }) {
   const [activeSection, setActiveSection] = useState(null)
 
   const isNavigating = useRef(false)
-
   const headerRef = useRef(null)
   
   const { scrollY } = useScroll()
@@ -34,25 +34,19 @@ export default function Header({ setOverlayActive }) {
     } else {
       document.body.style.overflow = 'unset'
     }
-
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
+    return () => { document.body.style.overflow = 'unset' }
   }, [isOpen])
 
   useEffect(() => {
     if (!isOpen) return
-
     const handleClickOutside = (event) => {
       if (headerRef.current && !headerRef.current.contains(event.target)) {
         setIsOpen(false)
         if (setOverlayActive) setOverlayActive(false)
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside)
     document.addEventListener('touchstart', handleClickOutside)
-
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
       document.removeEventListener('touchstart', handleClickOutside)
@@ -64,18 +58,6 @@ export default function Header({ setOverlayActive }) {
       setScrolled(true)
     } else {
       setScrolled(latest > 40)
-    }
-
-    if (isNavigating.current) return
-
-    if (isHome) {
-      const layoutHeight = document.documentElement.scrollHeight
-      const clientHeight = document.documentElement.clientHeight
-      const scrollPos = latest + clientHeight
-
-      if (layoutHeight - scrollPos < 100) {
-         setActiveSection('#footer')
-      }
     }
   })
 
@@ -94,28 +76,36 @@ export default function Header({ setOverlayActive }) {
     const observerOptions = {
       root: null,
       rootMargin: '-40% 0px -50% 0px',
-      threshold: 0
     }
 
     const observer = new IntersectionObserver((entries) => {
       if (isNavigating.current) return
+
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const isBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100
-          if (!isBottom || entry.target.id === 'footer') {
-            setActiveSection(`#${entry.target.id}`)
-          }
+          setActiveSection(`#${entry.target.id}`)
         }
       })
     }, observerOptions)
 
-    const timer = setTimeout(() => {
+    const connectObserver = () => {
       const sections = document.querySelectorAll('section[id], footer[id]')
-      sections.forEach(section => observer.observe(section))
-    }, 500)
+      if (sections.length > 0) {
+        sections.forEach(section => observer.observe(section))
+      }
+    }
+
+    connectObserver()
+
+    const intervalId = setInterval(connectObserver, 1000)
+
+    const timeoutId = setTimeout(() => {
+      clearInterval(intervalId)
+    }, 6000)
 
     return () => {
-      clearTimeout(timer)
+      clearInterval(intervalId)
+      clearTimeout(timeoutId)
       observer.disconnect()
     }
   }, [isHome])
@@ -124,21 +114,23 @@ export default function Header({ setOverlayActive }) {
     setActiveSection(href)
     setIsOpen(false)
     if (setOverlayActive) setOverlayActive(false)
-    isNavigating.current = true
+    
+    isNavigating.current = true 
 
-  const scrollToTarget = () => {
+    const scrollToTarget = () => {
       const element = document.querySelector(href)
       if (element) {
-        const y = element.getBoundingClientRect().top + window.scrollY - 80
+        const y = element.getBoundingClientRect().top + window.scrollY - 80 
         window.scrollTo({ top: y, behavior: 'smooth' })
       }
     }
 
-  if (isHome) {
+    if (isHome) {
       setTimeout(() => {
         scrollToTarget()
-        setTimeout(() => { isNavigating.current = false }, 1000)
       }, 100)
+      
+      setTimeout(() => { isNavigating.current = false }, 1000)
     } else {
       navigate('/')
       setTimeout(() => {
@@ -176,17 +168,16 @@ export default function Header({ setOverlayActive }) {
             {LINKS.map(link => (
               <button
                 key={link.href}
-                aria-label={`Navegar para ${link.label}`}
                 onClick={() => handleNavClick(link.href)}
                 className={`relative text-xs uppercase tracking-widest transition-colors
-                  ${activeSection === link.href ? 'text-white' : 'text-white/60 hover:text-white'}`}
+                  ${activeSection === link.href ? 'text-white font-bold' : 'text-white/60 hover:text-white'}`}
               >
                 {link.label}
 
                 {activeSection === link.href && (
                   <motion.span
                     layoutId="star-underline"
-                    className="absolute -bottom-2 left-0 right-0 flex justify-center text-[10px]"
+                    className="absolute -bottom-2 left-0 right-0 flex justify-center text-[10px] text-white"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   >
                     -★-
@@ -196,11 +187,14 @@ export default function Header({ setOverlayActive }) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-1 md:gap-4">
+            
+            <HeaderSearch />
+            
             <button 
               onClick={() => setIsCartOpen(true)} 
-              aria-label="Abrir carrinho de compras"
-              className="relative p-1 text-white/80 hover:text-white transition"
+              aria-label="Abrir carrinho"
+              className="relative w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -211,7 +205,7 @@ export default function Header({ setOverlayActive }) {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
-                    className="absolute -top-1 -right-1 bg-white text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center"
+                    className="absolute top-1 right-1 bg-white text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center"
                   >
                     {cartCount}
                   </motion.span>
@@ -220,10 +214,9 @@ export default function Header({ setOverlayActive }) {
             </button>
 
             <button
-              onClick={() => { const newState = !isOpen; setIsOpen(newState); 
-                ; }}
-              aria-label="Menu"
-              className="md:hidden text-white/80"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Menu Principal"
+              className="md:hidden w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -246,10 +239,11 @@ export default function Header({ setOverlayActive }) {
                 {LINKS.map(link => (
                   <button
                     key={link.href}
-                    aria-label={`Navegar para ${link.label}`}
                     onClick={() => handleNavClick(link.href)}
-                    className={`text-left text-sm uppercase tracking-[0.2em] transition-colors py-2 border-b border-white/5
-                      ${activeSection === link.href ? 'text-white font-bold pl-2' : 'text-white/60 hover:text-white'}`}
+                    className={`text-left text-sm uppercase tracking-[0.2em] transition-colors py-2 border-b border-white/5 
+                      ${activeSection === link.href 
+                        ? 'text-white font-bold border-l-2 border-white pl-4'
+                        : 'text-white/60 hover:text-white'}`}
                   >
                     {link.label}
                   </button>
@@ -266,7 +260,6 @@ export default function Header({ setOverlayActive }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
             onClick={() => setIsOpen(false)}
             className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
           />

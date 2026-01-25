@@ -6,7 +6,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
   const [copied, setCopied] = useState(false)
 
-  const EMAIL = 'streetstarsco@gmail.com'
+  const EMAIL = 'streetstars.company@gmail.com'
   const WHATSAPP_NUMBER = '5511999999999'
 
   const location = useLocation()
@@ -106,7 +106,7 @@ export default function Footer() {
                 
                 <div className="flex flex-col overflow-hidden">
                   <span className="text-[10px] uppercase tracking-wider text-white/50">Email</span>
-                  <span className="text-xs font-bold text-white font-mono truncate">{copied ? 'Copiado!' : 'streetstarsco@gmail.com'}</span>
+                  <span className="text-xs font-bold text-white font-mono truncate">{copied ? 'Copiado!' : 'streetstars.company@gmail.com'}</span>
                 </div>
               </button>
             </div>
@@ -126,9 +126,9 @@ export default function Footer() {
           <div className="md:col-span-3 flex flex-col items-center md:items-start text-center md:text-left">
              <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-white/90">Legal</h4>
              <ul className="space-y-3 text-xs text-white/50 w-full">
-               <li><Link to="/" className="hover:text-white transition-colors py-1 block w-full text-center md:text-left">Política de Privacidade</Link></li>
-               <li><Link to="/" className="hover:text-white transition-colors py-1 block w-full text-center md:text-left">Termos de Uso</Link></li>
-               <li><Link to="/" className="hover:text-white transition-colors py-1 block w-full text-center md:text-left">Trocas e Devoluções</Link></li>
+               <li><Link to="/legal/politica-de-privacidade" className="hover:text-white transition-colors py-1 block w-full text-center md:text-left">Política de Privacidade</Link></li>
+               <li><Link to="/legal/termos-de-uso" className="hover:text-white transition-colors py-1 block w-full text-center md:text-left">Termos de Uso</Link></li>
+               <li><Link to="/legal/trocas-e-devolucoes" className="hover:text-white transition-colors py-1 block w-full text-center md:text-left">Trocas e Devoluções</Link></li>
              </ul>
           </div>
 
