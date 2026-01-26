@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import logo from '../assets/images/logo.webp'
+import logo from '../../assets/images/logo.webp'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()

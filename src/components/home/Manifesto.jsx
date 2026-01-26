@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import manifestoBgDesktop from '../assets/images/manifesto-bg.webp'
-import manifestoBgMobile from '../assets/images/manifesto-bg-mobile.webp'
+import manifestoBgDesktop from '../../assets/images/manifesto-bg.webp'
+import manifestoBgMobile from '../../assets/images/manifesto-bg-mobile.webp'
 
 const container = {
   hidden: {},

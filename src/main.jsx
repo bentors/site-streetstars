@@ -6,7 +6,7 @@ import App from './App'
 import './index.css'
 import { CartProvider } from './context/CartContext'
 
-import { db } from './services/firebaseConnection'
+import { db } from './services/firebase'
 console.log("Firebase Conectado:", db)
 
 ReactDOM.createRoot(document.getElementById('root')).render(

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
-import { auth } from '../../services/firebaseConnection'
+import { auth } from '../../services/firebase'
 import logo from '../../assets/images/logo.webp'
 
 export default function Login() {

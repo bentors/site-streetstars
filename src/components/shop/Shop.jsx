@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { collection, getDocs, query, orderBy } from 'firebase/firestore'
-import { db } from '../services/firebaseConnection'
+import { db } from '../../services/firebase'
 
-import { CATEGORIES } from '../data/constants'
-import Loading from '../components/Loading'
+import { CATEGORIES } from '../../data/constants'
+import Loading from '../Loading'
 
 export default function Shop() {
   const [filter, setFilter] = useState("TODOS")

@@ -1,6 +1,6 @@
-import hero from '../assets/images/hero.webp'
+import hero from '../../assets/images/hero.webp'
 import { motion } from 'framer-motion'
-import { scrollToSection } from '../utils/scrollToSection'
+import { scrollToSection } from '../../utils/scrollToSection'
 
 const container = {
   hidden: {},

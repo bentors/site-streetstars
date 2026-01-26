@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useCart } from '../context/CartContext.jsx'
+import { useCart } from '../../context/CartContext.jsx'
 import { Link } from 'react-router-dom'
 
 export default function CartDrawer() {

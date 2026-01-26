@@ -1,12 +1,14 @@
 import { Suspense, lazy, useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
-import Hero from '../components/Hero'
+// Import Estático (Seção de entrada)
+import Hero from '../components/home/Hero'
 
-const Shop = lazy(() => import('../components/Shop'))
-const Collections = lazy(() => import('../components/Collections'))
-const Manifesto = lazy(() => import('../components/Manifesto'))
-const About = lazy(() => import('../components/About'))
+// Lazy Imports das Seções (Melhora performance inicial)
+const Shop = lazy(() => import('../components/shop/Shop'))
+const Collections = lazy(() => import('../components/home/Collections'))
+const Manifesto = lazy(() => import('../components/home/Manifesto'))
+const About = lazy(() => import('../components/home/About'))
 
 const SectionLoader = () => (
   <div className="w-full py-24 flex items-center justify-center opacity-20">
@@ -34,7 +36,6 @@ export default function Home() {
           setTimeout(() => attemptScroll(attempts + 1), 300)
         }
       }
-
       attemptScroll()
     } else {
       window.scrollTo(0, 0)
@@ -43,16 +44,13 @@ export default function Home() {
 
   return (
     <main id="main-content" className="bg-black min-h-screen">
-
       <Hero />
-
       <Suspense fallback={<SectionLoader />}>
         <Shop />
         <Collections />
         <Manifesto />
         <About />
       </Suspense>
-
     </main>
   )
 }

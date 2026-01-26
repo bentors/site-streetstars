@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useCart } from '../context/CartContext'
-import logo from '../assets/images/logo.webp'
-import HeaderSearch from './HeaderSearch'
+import { useCart } from '../../context/CartContext'
+import logo from '../../assets/images/logo.webp'
+import HeaderSearch from '../shop/HeaderSearch'
 
 const LINKS = [
   { label: 'Shop', href: '#shop' },

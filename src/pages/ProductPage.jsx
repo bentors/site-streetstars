@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
 import { doc, getDoc, getDocs, collection, query, where, limit } from 'firebase/firestore'
-import { db } from '../services/firebaseConnection'
+import { db } from '../services/firebase.js'
 import Loading from '../components/Loading'
 
 export default function ProductPage() {

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { collections } from '../data/collections.js'
+import { collections } from '../../data/collections.js'
 import { Link } from 'react-router-dom' 
 
 const container = {
