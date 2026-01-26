@@ -1,12 +1,18 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext.jsx'
-import { PRODUCTS } from '../data/products.js' 
+import { doc, getDoc, getDocs, collection, query, where, limit } from 'firebase/firestore'
+import { db } from '../services/firebaseConnection'
+import Loading from '../components/Loading'
 
 export default function ProductPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { addToCart, setIsCartOpen } = useCart()
+
+  const [product, setProduct] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [relatedProducts, setRelatedProducts] = useState([])
 
   const handleBack = () => {
     navigate('/', { state: { scrollTo: 'shop' } })
@@ -19,22 +25,58 @@ export default function ProductPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const sliderRef = useRef(null)
 
-  const product = PRODUCTS.find(p => p.id === parseInt(id))
+  useEffect(() => {
+    async function loadProduct() {
+      try {
+        const docRef = doc(db, "products", id)
+        const snapshot = await getDoc(docRef)
 
-  useEffect(() => { 
-    window.scrollTo(0, 0)
-    setSelectedSize(null)
-    setSelectedColor(null)
+        if (snapshot.exists()) {
+          const data = snapshot.data()
+          setProduct({ id: snapshot.id, ...data })
+
+          setSelectedSize(null)
+          setSelectedColor(null)
+          window.scrollTo(0, 0)
+
+          loadRelated(data.category, snapshot.id)
+
+        } else {
+          setProduct(null)
+        }
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadProduct()
   }, [id])
 
-  if (!product) return <div className="h-screen flex items-center justify-center text-white">Produto não encontrado</div>
+  async function loadRelated(category, currentId) {
+     try {
+        const productsRef = collection(db, "products")
+        const q = query(productsRef, where("category", "==", category), limit(5))
+        const snapshot = await getDocs(q)
+        
+        const list = []
+        snapshot.forEach(doc => {
+            if(doc.id !== currentId) {
+                list.push({ id: doc.id, ...doc.data() })
+            }
+        })
+        setRelatedProducts(list.slice(0, 4))
+     } catch(err) {
+         console.log("Erro ao carregar relacionados", err)
+     }
+  }
 
-  const images = product.gallery || [product.img, product.img]
+  const images = product?.gallery || (product ? [product.img] : [])
 
   useEffect(() => {
     if (selectedColor && selectedColor.img && sliderRef.current) {
       const colorImgIndex = images.findIndex(img => img === selectedColor.img)
-      
       if (colorImgIndex !== -1) {
         sliderRef.current.scrollTo({
           left: colorImgIndex * sliderRef.current.clientWidth,
@@ -57,12 +99,20 @@ export default function ProductPage() {
     if (product.colors && product.colors.length > 0 && !selectedColor) {
         return alert('Por favor, selecione uma cor.')
     }
-
     if (!selectedSize) return alert('Selecione um tamanho')
 
     addToCart(product, selectedSize, selectedColor ? selectedColor.name : null)
     setIsCartOpen(true)
   }
+
+  if (loading) return <Loading />
+  
+  if (!product) return (
+      <div className="h-screen flex flex-col items-center justify-center text-white bg-black gap-4">
+          <p>Produto não encontrado.</p>
+          <button onClick={handleBack} className="underline">Voltar para a loja</button>
+      </div>
+  )
 
   return (
     <div className="bg-black min-h-screen text-white pt-24 pb-10 relative">
@@ -153,7 +203,7 @@ export default function ProductPage() {
               <h1 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter leading-none mb-2">
                 {product.name}
               </h1>
-              <p className="text-xl text-white/80">R$ {product.price.toFixed(2)}</p>
+              <p className="text-xl text-white/80">R$ {product.price?.toFixed(2)}</p>
               <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">
                 Em até 6x sem juros
               </p>
@@ -161,7 +211,7 @@ export default function ProductPage() {
 
             <div className="border-t border-white/10 pt-6">
               <h3 className="text-xs font-bold uppercase tracking-widest mb-2 text-white/90">Sobre</h3>
-              <p className="text-sm text-white/70 leading-relaxed font-light">
+              <p className="text-sm text-white/70 leading-relaxed font-light whitespace-pre-line">
                 {product.description || "Descrição indisponível."}
               </p>
             </div>
@@ -215,7 +265,7 @@ export default function ProductPage() {
               </div>
 
               <div className="flex gap-3">
-                {product.sizes.map(size => (
+                {product.sizes?.map(size => (
                   <button
                     key={size}
                     aria-label={`Selecionar tamanho ${size}`}
@@ -257,27 +307,26 @@ export default function ProductPage() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 mt-20 border-t border-white/10 pt-16 lg:col-span-2 w-full">
-            <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-8">
-                Complete o <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Kit</span>
-            </h3>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {PRODUCTS
-                .filter(p => p.category !== product.category)
-                .slice(0, 2)
-                .map(related => (
-                    <Link key={related.id} to={`/product/${related.id}`} className="group">
-                    <div className="aspect-[4/5] bg-zinc-900 overflow-hidden mb-3">
-                        <img src={related.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={related.name} />
-                    </div>
-                    <p className="text-[10px] uppercase tracking-widest text-white/60">{related.name}</p>
-                    <p className="text-sm font-bold">R$ {related.price.toFixed(2)}</p>
-                    </Link>
-                ))
-                }
+        {relatedProducts.length > 0 && (
+            <div className="max-w-7xl mx-auto px-6 mt-20 border-t border-white/10 pt-16 lg:col-span-2 w-full">
+                <h3 className="text-2xl font-black uppercase italic tracking-tighter mb-8">
+                    Complete o <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Kit</span>
+                </h3>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {relatedProducts.map(related => (
+                        <Link key={related.id} to={`/product/${related.id}`} className="group">
+                            <div className="aspect-[4/5] bg-zinc-900 overflow-hidden mb-3">
+                                <img src={related.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={related.name} />
+                            </div>
+                            <p className="text-[10px] uppercase tracking-widest text-white/60">{related.name}</p>
+                            <p className="text-sm font-bold">R$ {related.price?.toFixed(2)}</p>
+                        </Link>
+                    ))}
+                </div>
             </div>
-        </div>
+        )}
+
       </div>
 
       {showSizeGuide && product.measurements && (

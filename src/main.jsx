@@ -6,6 +6,9 @@ import App from './App'
 import './index.css'
 import { CartProvider } from './context/CartContext'
 
+import { db } from './services/firebaseConnection'
+console.log("Firebase Conectado:", db)
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <HelmetProvider>

@@ -1,19 +1,47 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { PRODUCTS } from '../data/products'
+
+import { collection, getDocs, query } from 'firebase/firestore'
+import { db } from '../services/firebaseConnection'
 
 export default function HeaderSearch() {
   const [isOpen, setIsOpen] = useState(false)
-  const [query, setQuery] = useState('')
+  const [queryText, setQueryText] = useState('')
   const containerRef = useRef(null)
 
-  const safeProducts = Array.isArray(PRODUCTS) ? PRODUCTS : []
+  const [productsList, setProductsList] = useState([])
 
-  const results = query.length > 0 
-    ? safeProducts.filter(p => 
-        p.name.toLowerCase().includes(query.toLowerCase()) || 
-        (p.category && p.category.toLowerCase().includes(query.toLowerCase()))
+  useEffect(() => {
+    async function loadSearchData() {
+      try {
+        const productsRef = collection(db, "products")
+        const q = query(productsRef) 
+        const snapshot = await getDocs(q)
+        
+        const list = []
+        snapshot.forEach((doc) => {
+          list.push({
+            id: doc.id,
+            name: doc.data().name,
+            category: doc.data().category,
+            img: doc.data().img,
+            price: doc.data().price
+          })
+        })
+        setProductsList(list)
+      } catch (err) {
+        console.log("Erro ao carregar busca:", err)
+      }
+    }
+
+    loadSearchData()
+  }, [])
+
+  const results = queryText.length > 0 
+    ? productsList.filter(p => 
+        p.name.toLowerCase().includes(queryText.toLowerCase()) || 
+        (p.category && p.category.toLowerCase().includes(queryText.toLowerCase()))
       ).slice(0, 4)
     : []
 
@@ -54,14 +82,14 @@ export default function HeaderSearch() {
                 type="text"
                 autoFocus
                 placeholder="BUSCAR PEÇA..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                value={queryText}
+                onChange={(e) => setQueryText(e.target.value)}
                 className="w-full bg-transparent text-white placeholder:text-white/30 text-sm uppercase tracking-widest outline-none"
               />
             </div>
 
             <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
-              {query.length > 0 && results.length === 0 ? (
+              {queryText.length > 0 && results.length === 0 ? (
                 <div className="p-6 text-center text-white/40 text-xs uppercase tracking-wider">
                   Nenhuma peça encontrada.
                 </div>
@@ -82,9 +110,9 @@ export default function HeaderSearch() {
                         />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-white uppercase mb-1">{product.name}</h4>
+                        <h4 className="text-xs font-bold text-white uppercase mb-1 line-clamp-1">{product.name}</h4>
                         <span className="text-[10px] font-mono text-white/60">
-                            R$ {product.price.toFixed(2)}
+                           R$ {product.price?.toFixed(2)}
                         </span>
                       </div>
                     </Link>

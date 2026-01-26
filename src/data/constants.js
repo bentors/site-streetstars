@@ -1,0 +1,1 @@
+export const CATEGORIES = ["TODOS", "CAMISETAS", "MOLETONS", "BONÉS", "CONJUNTOS"]

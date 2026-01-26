@@ -1,15 +1,49 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'
+import { db } from '../services/firebaseConnection'
 
-import { PRODUCTS, CATEGORIES } from '../data/products'
+import { CATEGORIES } from '../data/constants'
+import Loading from '../components/Loading'
 
 export default function Shop() {
   const [filter, setFilter] = useState("TODOS")
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const productsRef = collection(db, "products")
+        const q = query(productsRef, orderBy("created_at", "asc"))
+        
+        const querySnapshot = await getDocs(q)
+        const list = []
+        
+        querySnapshot.forEach((doc) => {
+          list.push({
+            id: doc.id,
+            ...doc.data()
+          })
+        })
+
+        setProducts(list)
+      } catch (error) {
+        console.log("Erro ao buscar produtos:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadProducts()
+  }, [])
 
   const filteredProducts = filter === "TODOS" 
-    ? PRODUCTS 
-    : PRODUCTS.filter(p => p.category === filter)
+    ? products 
+    : products.filter(p => p.category === filter)
+
+  if (loading) return <Loading />
 
   return (
     <section id="shop" className="py-24 sm:py-32 bg-black text-white min-h-screen">
@@ -48,6 +82,12 @@ export default function Shop() {
           </nav>
         </div>
 
+        {products.length === 0 && (
+           <div className="text-center text-white/40 py-20">
+              <p>Nenhum produto cadastrado ainda.</p>
+           </div>
+        )}
+
         <motion.div 
           layout 
           className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 sm:gap-x-8"
@@ -72,6 +112,11 @@ export default function Shop() {
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" 
                     />
+                     <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                        <span className="block w-full text-center bg-white text-black text-[10px] font-bold uppercase tracking-widest py-2">
+                            Ver Peça
+                        </span>
+                    </div>
                   </div>
 
                   <div className="flex flex-col gap-1">

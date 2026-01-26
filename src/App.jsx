@@ -2,18 +2,24 @@ import { useState, lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { initGA, logPageView } from './utils/analytics'
 
-const Overlay = lazy(() => import('./components/Overlay'))
 import Header from './components/Header'
-const CartDrawer = lazy(() => import('./components/CartDrawer'))
+
 import ScrollToTop from './utils/ScrollToTop' 
 import FloatingAction from './components/FloatingAction'
 import Home from './pages/Home'
 
+import Private from './routes/Private'
+
+const Overlay = lazy(() => import('./components/Overlay'))
 const ProductPage = lazy(() => import('./pages/ProductPage'))
 const CollectionPage = lazy(() => import('./pages/CollectionPage'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Footer = lazy(() => import('./components/Footer'))
 const LegalInfo = lazy(() => import('./pages/LegalInfo'))
+const CartDrawer = lazy(() => import('./components/CartDrawer'))
+const Login = lazy(() => import('./pages/admin/Login'))
+const Dashboard = lazy(() => import('./pages/admin/Dashboard'))
+const NewProduct = lazy(() => import('./pages/admin/NewProduct'))
 
 const PageLoader = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
@@ -55,6 +61,9 @@ export default function App() {
             <Route path="/collection/:id" element={<CollectionPage />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/legal/:slug" element={<LegalInfo />} />
+            <Route path="/admin" element={<Login />} />
+            <Route path="/admin/dashboard" element={<Private><Dashboard /></Private>} />
+            <Route path="/admin/new-product" element={<Private><NewProduct /></Private>} />
           </Routes>
       </Suspense>
 
@@ -62,6 +71,7 @@ export default function App() {
       <Suspense fallback={<div className="h-20 bg-black" />}>
         <Footer />
       </Suspense>
+
     </div>
   )
 }
