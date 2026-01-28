@@ -1,11 +1,9 @@
 import { Outlet } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 
-// Imports de Layout
 import Header from '../components/layout/Header'
 import FloatingAction from '../components/layout/FloatingAction'
 
-// Lazy para componentes que não precisam carregar no segundo 1
 const Footer = lazy(() => import('../components/layout/Footer'))
 const CartDrawer = lazy(() => import('../components/layout/CartDrawer'))
 const Overlay = lazy(() => import('../components/layout/Overlay'))

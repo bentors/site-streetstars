@@ -1,10 +1,8 @@
 import { Suspense, lazy, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
-// Import Estático (Seção de entrada)
 import Hero from '../components/home/Hero'
 
-// Lazy Imports das Seções (Melhora performance inicial)
 const Shop = lazy(() => import('../components/shop/Shop'))
 const Collections = lazy(() => import('../components/home/Collections'))
 const Manifesto = lazy(() => import('../components/home/Manifesto'))

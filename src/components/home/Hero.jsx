@@ -1,4 +1,5 @@
-import hero from '../../assets/images/hero.webp'
+import { optimizeImage } from '../../utils/image'
+const HERO_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769638546/hero_rb9jvq.jpg"
 import { motion } from 'framer-motion'
 import { scrollToSection } from '../../utils/scrollToSection'
 
@@ -34,8 +35,8 @@ export default function Hero() {
     <section id="top"
       className="min-h-screen relative overflow-hidden flex items-center text-center justify-center px-6">
       <motion.img
-        src={hero}
-        alt=""
+        src={optimizeImage(HERO_URL, 1500)}
+        alt="Street Stars Hero"
         aria-hidden="true"
         fetchPriority="high"
         loading="eager"

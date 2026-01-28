@@ -1,7 +1,8 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import manifestoBgDesktop from '../../assets/images/manifesto-bg.webp'
-import manifestoBgMobile from '../../assets/images/manifesto-bg-mobile.webp'
+import { optimizeImage } from '../../utils/image'
+const BG_MOBILE_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769639102/manifesto-mobile_ozgxrb.jpg"
+const BG_DESKTOP_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769639101/manifesto-desktop_jitoun.jpg"
 
 const container = {
   hidden: {},
@@ -66,13 +67,14 @@ export default function Manifesto() {
       <div className="absolute inset-0 z-0 overflow-hidden">
         <motion.div style={{ y }} className="w-full h-[120%] -top-[01%] relative">
           <img
-            src={manifestoBgMobile}
+            src={optimizeImage(BG_MOBILE_URL, 800)} 
             alt="Manifesto background"
             loading="lazy"
-            className="block md:hidden w-full h-full object-cover  object-[60%_center] contrast-125 opacity-50" 
+            className="block md:hidden w-full h-full object-cover object-[60%_center] contrast-125 opacity-50" 
           />
+
           <img
-            src={manifestoBgDesktop}
+            src={optimizeImage(BG_DESKTOP_URL, 1500)}
             alt="Manifesto background"
             loading="lazy"
             className="hidden md:block w-full h-full object-cover contrast-125 opacity-50" 

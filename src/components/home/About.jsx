@@ -1,4 +1,5 @@
-import aboutus from '../../assets/images/aboutus.webp'
+import { optimizeImage } from '../../utils/image'
+const ABOUT_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769639378/aboutus_qdafud.jpg"
 import { motion } from 'framer-motion'
 
 export default function About() {
@@ -20,10 +21,10 @@ export default function About() {
             viewport={{ once: true }}
           >
             <motion.img
-              src={aboutus}
+              src={optimizeImage(ABOUT_URL, 1000)}
               alt="Equipe Street Stars - Felipe e Bento"
               loading="lazy"
-              className="w-full h-[400px] md:h-[550px] object-cover grayscale hover:grayscale-0 hover:scale-105 transition-all duration-1000 ease-in-out"
+              className="w-full h-[400px] md:h-[550px] object-[center_45%] sm:object-[center_35%] object-cover grayscale hover:grayscale-0 hover:scale-105 transition-all duration-1000 ease-in-out"
             />
           </motion.div>
         </div>
