@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 
 export default function About() {
   return (
-    <section id="about" className="py-24 sm:py-32 bg-[#050505] text-white relative overflow-hidden">
+    <section id="about" className="py-24 sm:py-32 bg-black text-white relative overflow-hidden">
 
       <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-white/5 hidden lg:block"></div>
 

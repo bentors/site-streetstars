@@ -3,6 +3,7 @@ import { signOut } from 'firebase/auth'
 import { auth, db } from '../../services/firebase'
 import { Link, useNavigate } from 'react-router-dom'
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'
+import { formatCurrency } from '../utils/format'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -122,7 +123,7 @@ export default function Dashboard() {
                                     </span>
                                 </td>
                                 <td className="p-4 font-mono">
-                                    R$ {item.price.toFixed(2)}
+                                    {formatCurrency(item.price)}
                                 </td>
                                 <td className="p-4 text-right">
                                     <div className="flex items-center justify-end gap-3">

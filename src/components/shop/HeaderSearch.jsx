@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { formatCurrency } from '../../utils/format'
 
 import { collection, getDocs, query } from 'firebase/firestore'
 import { db } from '../../services/firebase'
@@ -112,7 +113,7 @@ export default function HeaderSearch() {
                       <div>
                         <h4 className="text-xs font-bold text-white uppercase mb-1 line-clamp-1">{product.name}</h4>
                         <span className="text-[10px] font-mono text-white/60">
-                           R$ {product.price?.toFixed(2)}
+                           {formatCurrency(product.price || 0)}
                         </span>
                       </div>
                     </Link>

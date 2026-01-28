@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../../context/CartContext.jsx'
 import { Link } from 'react-router-dom'
+import { formatCurrency } from '../../utils/format'
+import { optimizeImage } from '../../utils/image'
 
 export default function CartDrawer() {
   const { 
@@ -30,7 +32,7 @@ export default function CartDrawer() {
       const colorText = item.color ? ` | Cor: ${item.color}` : ''
       message += `▪️ ${item.quantity}x ${item.name}\n   Size: ${item.size}${colorText}\n`
     })
-    message += `\n*Total: R$ ${cartTotal.toFixed(2)}*\n`
+    message += `\n*Total: ${formatCurrency(cartTotal)}*\n`
     message += `\nOlá! Gostaria de finalizar a compra e combinar o pagamento.`
 
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
@@ -96,7 +98,11 @@ export default function CartDrawer() {
                       onClick={() => setIsCartOpen(false)}
                       className="w-20 aspect-[4/5] bg-zinc-900 border border-white/5 overflow-hidden flex-shrink-0"
                     >
-                      <img src={item.img} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      <img 
+                        src={optimizeImage(item.img, 200)}
+                        alt={item.name} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                      />
                     </Link>
 
                     <div className="flex-1 flex flex-col justify-between py-1">
@@ -149,7 +155,7 @@ export default function CartDrawer() {
                           </button>
                         </div>
 
-                        <p className="text-sm font-bold">R$ {(item.price * item.quantity).toFixed(2)}</p>
+                        <p className="text-sm font-bold">{formatCurrency(item.price * item.quantity)}</p>
                       </div>
                     </div>
                   </motion.div>
@@ -161,7 +167,7 @@ export default function CartDrawer() {
               <div className="p-6 bg-[#0A0A0A] border-t border-white/10 space-y-4 z-10">
                 <div className="flex justify-between items-center text-sm uppercase tracking-widest">
                   <span className="text-white/60">Subtotal</span>
-                  <span className="font-bold text-lg">R$ {cartTotal.toFixed(2)}</span>
+                  <span className="font-bold text-lg">{formatCurrency(cartTotal)}</span>
                 </div>
                 <p className="text-[10px] text-center text-white/40">Frete calculado no checkout.</p>
                 

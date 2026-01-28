@@ -4,6 +4,8 @@ import { useCart } from '../context/CartContext.jsx'
 import { doc, getDoc, getDocs, collection, query, where, limit } from 'firebase/firestore'
 import { db } from '../services/firebase.js'
 import Loading from '../components/Loading'
+import { formatCurrency } from '../utils/format'
+import { optimizeImage } from '../utils/image'
 
 export default function ProductPage() {
   const { id } = useParams()
@@ -144,7 +146,7 @@ export default function ProductPage() {
                     style={{ flex: '0 0 100%' }}
                 >
                     <img 
-                      src={img} 
+                      src={optimizeImage(img, 1000)}
                       alt={`${product.name} - view ${i + 1}`}
                       className="w-full h-full object-cover" 
                     />
@@ -203,7 +205,7 @@ export default function ProductPage() {
               <h1 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter leading-none mb-2">
                 {product.name}
               </h1>
-              <p className="text-xl text-white/80">R$ {product.price?.toFixed(2)}</p>
+              <p className="text-xl text-white/80">{formatCurrency(product.price || 0)}</p>
               <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">
                 Em até 6x sem juros
               </p>
@@ -317,10 +319,14 @@ export default function ProductPage() {
                     {relatedProducts.map(related => (
                         <Link key={related.id} to={`/product/${related.id}`} className="group">
                             <div className="aspect-[4/5] bg-zinc-900 overflow-hidden mb-3">
-                                <img src={related.img} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={related.name} />
+                                <img 
+                                  src={optimizeImage(related.img, 500)}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                                  alt={related.name} 
+                                />
                             </div>
                             <p className="text-[10px] uppercase tracking-widest text-white/60">{related.name}</p>
-                            <p className="text-sm font-bold">R$ {related.price?.toFixed(2)}</p>
+                            <p className="text-sm font-bold">{formatCurrency(related.price || 0)}</p>
                         </Link>
                     ))}
                 </div>

@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { collection, getDocs, query, orderBy } from 'firebase/firestore'
 import { db } from '../../services/firebase'
+import { formatCurrency } from '../../utils/format'
+import { optimizeImage } from '../../utils/image'
 
 import { CATEGORIES } from '../../data/constants'
 import Loading from '../Loading'
@@ -107,7 +109,7 @@ export default function Shop() {
                   
                   <div className="relative aspect-[4/5] bg-[#0a0a0a] overflow-hidden mb-5 rounded-sm">
                     <img 
-                      src={product.img} 
+                      src={optimizeImage(product.img, 500)} 
                       alt={product.name}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" 
@@ -124,7 +126,7 @@ export default function Shop() {
                       {product.name}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <p className="text-sm text-white/90">R$ {product.price.toFixed(2)}</p>
+                      <p className="text-sm text-white/90">{formatCurrency(product.price || 0)}</p>
                       <span className="text-[11px] text-white/50 uppercase tracking-wider">
                         Em até 6x
                       </span>
