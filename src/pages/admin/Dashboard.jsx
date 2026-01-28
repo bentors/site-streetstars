@@ -3,7 +3,7 @@ import { signOut } from 'firebase/auth'
 import { auth, db } from '../../services/firebase'
 import { Link, useNavigate } from 'react-router-dom'
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'
-import { formatCurrency } from '../utils/format'
+import { formatCurrency } from '../../utils/format'
 
 export default function Dashboard() {
   const navigate = useNavigate()
