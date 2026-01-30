@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth } from '../../services/firebase'
-import logo from '../../assets/images/logo.webp'
+import Logo from '../../components/ui/Logo'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -34,7 +34,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6">
       <Link to="/" className="mb-8">
-        <img src={logo} alt="Street Stars" className="h-12 w-auto opacity-80 hover:opacity-100 transition" />
+        <Logo className="h-16 w-auto text-white mb-6" />
       </Link>
 
       <div className="w-full max-w-sm bg-zinc-900/50 border border-white/10 p-8 rounded-sm backdrop-blur-sm">
