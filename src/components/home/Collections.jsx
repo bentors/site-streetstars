@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { collections } from '../../data/collections.js'
 import { Link } from 'react-router-dom' 
+import { optimizeImage } from '../../utils/image'
 
 const container = {
   hidden: {},
@@ -124,7 +125,7 @@ function CollectionCard({ item, index }) {
         <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/5 h-full">
 
           <img
-            src={item.image}
+            src={optimizeImage(item.image, 800)}
             alt={item.title}
             loading='lazy'
             className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:opacity-0"
@@ -132,7 +133,7 @@ function CollectionCard({ item, index }) {
 
           {item.imageHover && (
             <img
-              src={item.imageHover}
+              src={optimizeImage(item.imageHover, 800)}
               alt={`${item.title} hover`}
               loading='lazy'
               className="absolute inset-0 w-full h-full object-cover opacity-0 scale-110 transition-all duration-700 group-hover:opacity-100 group-hover:scale-100"

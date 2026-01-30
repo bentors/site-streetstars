@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { collections } from '../data/collections.js' 
+import { collections } from '../data/collections.js'
+import { optimizeImage } from '../utils/image'
 
 const CloseIcon = () => (
   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -41,7 +42,7 @@ export default function CollectionPage() {
             <motion.img 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              src={selectedImage} 
+              src={optimizeImage(selectedImage, 1200)}
               alt="Zoom" 
               className="max-h-[90vh] max-w-[95vw] object-contain shadow-2xl"
             />
@@ -60,7 +61,7 @@ export default function CollectionPage() {
             className="lg:col-span-6"
           >
             <div className="relative aspect-[3/4] md:aspect-[16/9] lg:aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/10">
-              <img src={collection.image} alt={collection.title} className="w-full h-full object-cover" />
+              <img src={optimizeImage(collection.image, 1000)} alt={collection.title} className="w-full h-full object-cover" />
               <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 border border-white/10">
                 <span className="text-[10px] uppercase tracking-widest text-white/90">Capa do Editorial</span>
               </div>
@@ -131,7 +132,7 @@ export default function CollectionPage() {
                 `}
               >
                 <img 
-                  src={img} 
+                  src={optimizeImage(img, 800)}
                   alt={`Look ${index + 1}`} 
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 md:grayscale group-hover:grayscale-0" 

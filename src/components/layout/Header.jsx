@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
-import logo from '../../assets/images/logo.webp'
+import Logo from '../../components/ui/Logo'
 import HeaderSearch from '../shop/HeaderSearch'
 
 const LINKS = [
@@ -154,13 +154,9 @@ export default function Header({ setOverlayActive }) {
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
-          <button onClick={() => handleNavClick('#top')}>
-            <img
-              src={logo}
-              alt="Street Stars"
-              width={300}
-              height={169}
-              className="h-8 md:h-12 w-auto object-contain hover:opacity-80 transition"
+          <button onClick={() => handleNavClick('#top')} aria-label="Voltar ao início">
+            <Logo 
+              className="h-8 md:h-12 w-auto text-white hover:opacity-80 transition-opacity" 
             />
           </button>
 

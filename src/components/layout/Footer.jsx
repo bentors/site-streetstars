@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import logo from '../../assets/images/logo.webp'
+import Logo from '../../components/ui/Logo'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
@@ -45,8 +45,10 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
 
           <div className="md:col-span-4 space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
-            <button onClick={() => handleNavigation('top')} className="block">
-              <img src={logo} width={300} height={169} alt="Street Stars" className="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity" />
+            <button onClick={() => handleNavigation('top')} className="block" aria-label="Voltar ao início">
+              <Logo 
+                className="h-16 w-auto text-white opacity-90 hover:opacity-100 transition-opacity" 
+              />
             </button>
             
             <p className="text-white/50 text-xs leading-relaxed max-w-xs font-light">
