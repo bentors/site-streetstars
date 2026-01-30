@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 const LEGAL_CONTENT = {
   'termos-de-uso': {
     title: 'Termos de Uso',
-    content: `Última atualização: Janeiro de 2025
+    content: `Última atualização: Janeiro de 2026
 
 Bem-vindo à Street Stars. Ao acessar e usar nosso site, você concorda com estes Termos de Uso. Leia atentamente antes de realizar qualquer compra.
 
@@ -107,7 +107,7 @@ Nada nestes Termos de Uso limita ou exclui direitos garantidos pelo Código de D
 
 13. CONTATO
 Para dúvidas, sugestões ou reclamações:
-E-mail: streetstarsco@gmail.com
+E-mail: streetstars.company@gmail.com
 WhatsApp: https://wa.me/5511999999999
 Instagram: @_streetstars.co
 
@@ -119,7 +119,7 @@ Ao utilizar nosso site, você declara ter lido, compreendido e concordado com es
 
   'politica-de-privacidade': {
     title: 'Política de Privacidade',
-    content: `Última atualização: Janeiro de 2025
+    content: `Última atualização: Janeiro de 2026
 
 A Street Stars respeita a sua privacidade e está comprometida em proteger seus dados pessoais. Esta Política de Privacidade explica como coletamos, usamos, armazenamos e protegemos suas informações.
 
@@ -196,18 +196,18 @@ Podemos atualizar esta Política de Privacidade periodicamente. Mudanças signif
 
 10. CONTATO
 Para dúvidas sobre esta Política de Privacidade ou para exercer seus direitos:
-E-mail: streetstarsco@gmail.com
+E-mail: streetstars.company@gmail.com
 WhatsApp: https://wa.me/5511999999999
 
 Street Stars — São Paulo - SP
-CNPJ: [ADICIONAR SEU CNPJ AQUI]
+CNPJ: [Em criação]
 
 Esta política está em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018) e o Marco Civil da Internet (Lei 12.965/2014).`
   },
 
   'trocas-e-devolucoes': {
     title: 'Trocas e Devoluções',
-    content: `Última atualização: Janeiro de 2025
+    content: `Última atualização: Janeiro de 2026
 
 Na Street Stars, queremos que você fique satisfeito com sua compra. Esta política explica como funcionam trocas e devoluções.
 
@@ -343,7 +343,7 @@ Se o prazo de entrega expirou, entre em contato para rastreamento. Após investi
 
 9. CONTATO
 Para solicitar troca ou devolução:
-E-mail: streetstarsco@gmail.com
+E-mail: streetstars.company@gmail.com
 WhatsApp: https://wa.me/5511999999999
 
 Horário de atendimento:
@@ -351,6 +351,7 @@ Segunda a Sexta: 9h às 18h
 Sábado: 9h às 13h
 
 Street Stars — São Paulo - SP
+CNPJ: [Em criação]
 Esta política está em conformidade com o Código de Defesa do Consumidor (Lei 8.078/90).`
   }
 }

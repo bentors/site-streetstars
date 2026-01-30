@@ -28,10 +28,14 @@ export default function Home() {
       const attemptScroll = (attempts = 0) => {
         const element = document.getElementById(sectionId)
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
+          const y = element.getBoundingClientRect().top + window.scrollY
+          const isMobile = window.innerWidth < 768
+
+          const yOffset = isMobile ? 27 : 20
+          window.scrollTo({ top: y + yOffset, behavior: 'smooth' })
           window.history.replaceState({}, document.title)
-        } else if (attempts < 5) {
-          setTimeout(() => attemptScroll(attempts + 1), 300)
+        } else if (attempts < 10) {
+          setTimeout(() => attemptScroll(attempts + 1), 100)
         }
       }
       attemptScroll()
