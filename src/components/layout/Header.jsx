@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
@@ -18,8 +18,9 @@ export default function Header({ setOverlayActive }) {
   const [scrolled, setScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState(null)
 
-  const isNavigating = useRef(false)
+  const isNavigatingRef = useRef(false)
   const headerRef = useRef(null)
+  const menuButtonRef = useRef(null)
   
   const { scrollY } = useScroll()
   const { setIsCartOpen, cartCount } = useCart()
@@ -32,43 +33,52 @@ export default function Header({ setOverlayActive }) {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'unset'
+      document.body.style.overflow = ''
     }
-    return () => { document.body.style.overflow = 'unset' }
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [isOpen])
 
   useEffect(() => {
     if (!isOpen) return
+
     const handleClickOutside = (event) => {
       if (headerRef.current && !headerRef.current.contains(event.target)) {
         setIsOpen(false)
-        if (setOverlayActive) setOverlayActive(false)
+        setOverlayActive?.(false)
       }
     }
+
     document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('touchstart', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('touchstart', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isOpen, setOverlayActive])
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false)
+        setOverlayActive?.(false)
+        menuButtonRef.current?.focus()
+      }
     }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
   }, [isOpen, setOverlayActive])
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
-    if (!isHome) {
-      setScrolled(true)
-    } else {
-      setScrolled(latest > 40)
-    }
+    setScrolled(isHome ? latest > 40 : true)
   })
 
   useEffect(() => {
     if (!isHome) {
       setScrolled(true)
       setActiveSection(null)
-    } else {
-      setScrolled(window.scrollY > 40)
     }
-  }, [isHome, location])
+  }, [isHome])
 
   useEffect(() => {
     if (!isHome) return
@@ -79,7 +89,15 @@ export default function Header({ setOverlayActive }) {
     }
 
     const observer = new IntersectionObserver((entries) => {
-      if (isNavigating.current) return
+      if (isNavigatingRef.current) return
+
+      const scrolledToBottom = 
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100
+
+      if (scrolledToBottom) {
+        setActiveSection('#footer')
+        return
+      }
 
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -88,39 +106,42 @@ export default function Header({ setOverlayActive }) {
       })
     }, observerOptions)
 
-    const connectObserver = () => {
+    const timeoutId = setTimeout(() => {
       const sections = document.querySelectorAll('section[id], footer[id]')
-      if (sections.length > 0) {
-        sections.forEach(section => observer.observe(section))
+      sections.forEach(section => observer.observe(section))
+    }, 100)
+
+    const handleScroll = () => {
+      if (isNavigatingRef.current) return
+      
+      const scrolledToBottom = 
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100
+
+      if (scrolledToBottom) {
+        setActiveSection('#footer')
       }
     }
 
-    connectObserver()
-
-    const intervalId = setInterval(connectObserver, 1000)
-
-    const timeoutId = setTimeout(() => {
-      clearInterval(intervalId)
-    }, 6000)
+    window.addEventListener('scroll', handleScroll)
 
     return () => {
-      clearInterval(intervalId)
       clearTimeout(timeoutId)
       observer.disconnect()
+      window.removeEventListener('scroll', handleScroll)
     }
   }, [isHome])
 
-  const handleNavClick = (href) => {
+  const handleNavClick = useCallback((href) => {
     setActiveSection(href)
     setIsOpen(false)
-    if (setOverlayActive) setOverlayActive(false)
+    setOverlayActive?.(false)
     
-    isNavigating.current = true 
+    isNavigatingRef.current = true
 
     const scrollToTarget = () => {
       const element = document.querySelector(href)
       if (element) {
-        const y = element.getBoundingClientRect().top + window.scrollY - 60 
+        const y = element.getBoundingClientRect().top + window.scrollY - 60
         window.scrollTo({ top: y, behavior: 'smooth' })
       }
     }
@@ -130,15 +151,25 @@ export default function Header({ setOverlayActive }) {
         scrollToTarget()
       }, 100)
       
-      setTimeout(() => { isNavigating.current = false }, 1000)
+      setTimeout(() => { isNavigatingRef.current = false }, 1000)
     } else {
       navigate('/')
       setTimeout(() => {
         scrollToTarget()
-        setTimeout(() => { isNavigating.current = false }, 1000)
+        setTimeout(() => { isNavigatingRef.current = false }, 1000)
       }, 300)
     }
-  }
+  }, [isHome, navigate, setOverlayActive])
+
+  const handleLogoClick = useCallback(() => {
+    if (isHome) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      navigate('/')
+    }
+    setIsOpen(false)
+    setOverlayActive?.(false)
+  }, [isHome, navigate, setOverlayActive])
 
   return (
     <>
@@ -154,13 +185,16 @@ export default function Header({ setOverlayActive }) {
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
 
-          <button onClick={() => handleNavClick('#top')} aria-label="Voltar ao início">
+          <button 
+            onClick={handleLogoClick} 
+            aria-label="Ir para página inicial"
+          >
             <Logo 
               className="h-8 md:h-12 w-auto text-white hover:opacity-80 transition-opacity" 
             />
           </button>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8" aria-label="Navegação principal">
             {LINKS.map(link => (
               <button
                 key={link.href}
@@ -175,8 +209,9 @@ export default function Header({ setOverlayActive }) {
                     layoutId="star-underline"
                     className="absolute -bottom-2 left-0 right-0 flex justify-center text-[10px] text-white"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    aria-hidden="true"
                   >
-                    -★-
+                    ★
                   </motion.span>
                 )}
               </button>
@@ -186,13 +221,13 @@ export default function Header({ setOverlayActive }) {
           <div className="flex items-center gap-1 md:gap-4">
             
             <HeaderSearch />
-            
+
             <button 
               onClick={() => setIsCartOpen(true)} 
-              aria-label="Abrir carrinho"
+              aria-label={`Abrir carrinho${cartCount > 0 ? ` (${cartCount} ${cartCount === 1 ? 'item' : 'itens'})` : ''}`}
               className="relative w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               <AnimatePresence>
@@ -202,19 +237,22 @@ export default function Header({ setOverlayActive }) {
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
                     className="absolute top-1 right-1 bg-white text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center"
+                    aria-hidden="true"
                   >
-                    {cartCount}
+                    {cartCount > 99 ? '99+' : cartCount}
                   </motion.span>
                 )}
               </AnimatePresence>
             </button>
 
             <button
+              ref={menuButtonRef}
               onClick={() => setIsOpen(!isOpen)}
-              aria-label="Menu Principal"
+              aria-label={isOpen ? 'Fechar menu' : 'Abrir menu'}
+              aria-expanded={isOpen}
               className="md:hidden w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} 
                 />
@@ -231,7 +269,7 @@ export default function Header({ setOverlayActive }) {
               exit={{ height: 0, opacity: 0 }}
               className="md:hidden bg-black/95 border-t border-white/10 overflow-hidden"
             >
-              <nav className="flex flex-col p-6 gap-5">
+              <nav className="flex flex-col p-6 gap-5" aria-label="Navegação mobile">
                 {LINKS.map(link => (
                   <button
                     key={link.href}
@@ -258,6 +296,7 @@ export default function Header({ setOverlayActive }) {
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
             className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+            aria-hidden="true"
           />
         )}
       </AnimatePresence>

@@ -1,20 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { collection, getDocs, query, orderBy } from 'firebase/firestore'
 import { db } from '../../services/firebase'
 import { formatCurrency } from '../../utils/format'
 import { optimizeImage } from '../../utils/image'
-
 import { CATEGORIES } from '../../data/constants'
 import Loading from '../Loading'
 
+let cachedProducts = null
+
 export default function Shop() {
   const [filter, setFilter] = useState("TODOS")
-  const [products, setProducts] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState(cachedProducts || [])
+  const [loading, setLoading] = useState(!cachedProducts)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
+    if (cachedProducts) {
+      setLoading(false)
+      return
+    }
+
     async function loadProducts() {
       try {
         const productsRef = collection(db, "products")
@@ -31,8 +38,10 @@ export default function Shop() {
         })
 
         setProducts(list)
+        cachedProducts = list
       } catch (error) {
-        console.log("Erro ao buscar produtos:", error)
+        console.error("Erro ao buscar produtos:", error)
+        setError("Não foi possível carregar os produtos. Tente novamente.")
       } finally {
         setLoading(false)
       }
@@ -41,16 +50,34 @@ export default function Shop() {
     loadProducts()
   }, [])
 
-  const filteredProducts = filter === "TODOS" 
-    ? products 
-    : products.filter(p => p.category === filter)
+  const filteredProducts = useMemo(() => {
+    return filter === "TODOS" 
+      ? products 
+      : products.filter(p => p.category === filter)
+  }, [filter, products])
 
   if (loading) return <Loading />
+
+  if (error) {
+    return (
+      <section className="py-24 bg-black text-white min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md px-6">
+          <p className="text-white/60 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-white text-black font-bold hover:bg-white/90 transition"
+          >
+            Recarregar
+          </button>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="shop" className="py-24 sm:py-32 bg-black text-white min-h-screen">
       <div className="max-w-7xl mx-auto px-6">
-        
+
         <div className="flex flex-col xl:flex-row xl:items-end justify-between mb-16 gap-10 border-b border-white/10 pb-8">
           <div className="max-w-2xl">
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase italic tracking-tighter leading-[0.9]">
@@ -62,11 +89,12 @@ export default function Shop() {
             </p>
           </div>
 
-          <nav className="flex flex-wrap gap-x-6 gap-y-3">
+          <nav className="flex flex-wrap gap-x-6 gap-y-3" aria-label="Filtrar produtos por categoria">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
-                aria-label={`Filtrar produtos por categoria ${cat}`}
+                aria-label={`Filtrar por ${cat}`}
+                aria-pressed={filter === cat}
                 onClick={() => setFilter(cat)}
                 className={`text-[11px] uppercase tracking-[0.2em] transition-all relative py-1
                   ${filter === cat ? 'text-white font-bold' : 'text-white/50 hover:text-white'}
@@ -86,8 +114,21 @@ export default function Shop() {
 
         {products.length === 0 && (
            <div className="text-center text-white/40 py-20">
-              <p>Nenhum produto cadastrado ainda.</p>
+              <p className="text-lg mb-2">Nenhum produto cadastrado ainda.</p>
+              <p className="text-sm">Em breve teremos novidades por aqui.</p>
            </div>
+        )}
+
+        {products.length > 0 && filteredProducts.length === 0 && (
+          <div className="text-center text-white/40 py-20">
+            <p className="text-lg mb-2">Nenhum produto encontrado em "{filter}"</p>
+            <button 
+              onClick={() => setFilter("TODOS")}
+              className="text-sm text-white/60 hover:text-white underline"
+            >
+              Ver todos os produtos
+            </button>
+          </div>
         )}
 
         <motion.div 
@@ -96,7 +137,7 @@ export default function Shop() {
         >
           <AnimatePresence mode='popLayout'>
             {filteredProducts.map((product) => (
-              <motion.div
+              <motion.article
                 layout
                 key={product.id}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -105,19 +146,26 @@ export default function Shop() {
                 transition={{ duration: 0.4 }}
                 className="group select-none"
               >
-                <Link to={`/product/${product.id}`} className="block">
-                  
+                <Link 
+                  to={`/product/${product.id}`} 
+                  className="block"
+                  aria-label={`Ver detalhes de ${product.name}`}
+                >
+
                   <div className="relative aspect-[4/5] bg-[#0a0a0a] overflow-hidden mb-5 rounded-sm">
                     <img 
                       src={optimizeImage(product.img, 500)} 
                       alt={product.name}
+                      width={500}
+                      height={625}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" 
                     />
-                     <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                        <span className="block w-full text-center bg-white text-black text-[10px] font-bold uppercase tracking-widest py-2">
-                            Ver Peça
-                        </span>
+
+                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 to-transparent">
+                      <span className="block w-full text-center bg-white text-black text-[10px] font-bold uppercase tracking-widest py-2 shadow-lg">
+                        Ver Peça
+                      </span>
                     </div>
                   </div>
 
@@ -125,16 +173,18 @@ export default function Shop() {
                     <h3 className="text-xs uppercase tracking-[0.15em] font-bold text-white group-hover:text-white/80 transition-colors truncate">
                       {product.name}
                     </h3>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm text-white/90">{formatCurrency(product.price || 0)}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-semibold text-white/90">
+                        {formatCurrency(product.price || 0)}
+                      </p>
                       <span className="text-[11px] text-white/50 uppercase tracking-wider">
-                        Em até 6x
+                        Em até 6x sem juros
                       </span>
                     </div>
                   </div>
 
                 </Link>
-              </motion.div>
+              </motion.article>
             ))}
           </AnimatePresence>
         </motion.div>
