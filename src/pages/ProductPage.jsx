@@ -95,6 +95,7 @@ export default function ProductPage() {
   }
 
   const images = product?.gallery || (product ? [product.img] : [])
+  const mainImagePreload = images.length > 0 ? optimizeImage(images[0], 1000) : null
 
   useEffect(() => {
     if (selectedColor?.img && sliderRef.current) {
@@ -170,17 +171,27 @@ export default function ProductPage() {
       <Helmet>
         <title>{product.name} - Street Stars</title>
         <meta name="description" content={product.description || `Compre ${product.name} na Street Stars. ${formatCurrency(product.price)} em até 6x sem juros.`} />
+
         <meta property="og:title" content={`${product.name} - Street Stars`} />
         <meta property="og:description" content={product.description} />
-        <meta property="og:image" content={product.img} />
+        <meta property="og:image" content={optimizeImage(images[0], 800)} />
         <meta property="og:type" content="product" />
+
+        {mainImagePreload && (
+           <link 
+             rel="preload" 
+             as="image" 
+             href={mainImagePreload} 
+             fetchpriority="high" 
+           />
+        )}
 
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "Product",
             "name": product.name,
-            "image": images,
+            "image": images.map(img => optimizeImage(img, 1000)),
             "description": product.description,
             "brand": {
               "@type": "Brand",
@@ -200,7 +211,7 @@ export default function ProductPage() {
       <div className="bg-black min-h-screen text-white pt-24 pb-10 relative">
 
         {feedbackMessage && (
-          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white text-black px-6 py-3 text-sm font-bold shadow-lg animate-fade-in">
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white text-black px-6 py-3 text-sm font-bold shadow-lg animate-fade-in rounded-sm">
             {feedbackMessage}
           </div>
         )}
@@ -240,6 +251,8 @@ export default function ProductPage() {
                     width={1000}
                     height={1250}
                     loading={i === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={i === 0 ? 'high' : 'auto'}
+                    decoding="async"
                     className="w-full h-full object-cover" 
                   />
                 </div>
@@ -247,7 +260,7 @@ export default function ProductPage() {
             </div>
 
             {images.length > 1 && (
-              <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-10">
+              <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-10 pointer-events-none">
                 {images.map((_, i) => (
                   <button
                     key={i}
@@ -258,7 +271,7 @@ export default function ProductPage() {
                       })
                     }}
                     aria-label={`Ir para imagem ${i + 1}`}
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm pointer-events-auto
                       ${currentImageIndex === i ? 'bg-white scale-125' : 'bg-white/30 hover:bg-white/60'}`}
                   />
                 ))}

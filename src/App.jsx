@@ -44,7 +44,7 @@ export default function App() {
       <ScrollToTop />
 
       <Suspense fallback={<Loading />}>
-        <Routes location={location}> {/* ✅ Removido key desnecessário */}
+        <Routes location={location}>
           
           {/* Rotas Públicas com Layout */}
           <Route element={

@@ -43,10 +43,6 @@ try {
   }
 } catch (error) {
   console.error('Erro ao inicializar Firebase:', error)
-
-  if (!import.meta.env.DEV) {
-    window.location.href = '/error'
-  }
 }
 
 export { db, auth, app }
