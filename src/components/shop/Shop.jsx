@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { collection, getDocs, query, orderBy } from 'firebase/firestore'
 import { db } from '../../services/firebase'
 import { formatCurrency } from '../../utils/format'
-import { optimizeImage } from '../../utils/image'
+import { optimizeImage, generateSrcSet } from '../../utils/image'
 import { CATEGORIES } from '../../data/constants'
 import Loading from '../Loading'
 
@@ -154,7 +154,9 @@ export default function Shop() {
 
                   <div className="relative aspect-[4/5] bg-[#0a0a0a] overflow-hidden mb-5 rounded-sm">
                     <img 
-                      src={optimizeImage(product.img, 500)} 
+                      src={optimizeImage(product.img, 500)}
+                      srcSet={generateSrcSet(product.img)}
+                      sizes="(max-width: 768px) 50vw, 25vw"
                       alt={product.name}
                       width={500}
                       height={625}

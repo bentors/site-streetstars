@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { motion } from 'framer-motion'
-import { optimizeImage } from '../../utils/image'
+import { optimizeImage, generateSrcSet } from '../../utils/image'
 import { scrollToSection } from '../../utils/scrollToSection'
 
 const HERO_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769638546/hero_rb9jvq.jpg"
@@ -33,6 +33,9 @@ const image = {
 }
 
 function Hero() {
+  const heroSrc = optimizeImage(HERO_URL, 1500)
+  const heroSrcSet = generateSrcSet(HERO_URL)
+
   return (
     <section 
       id="top"
@@ -40,12 +43,15 @@ function Hero() {
       className="min-h-screen relative overflow-hidden flex items-center text-center justify-center px-6"
     >
       <motion.img
-        src={optimizeImage(HERO_URL, 1500)}
+        src={heroSrc}
+        srcSet={heroSrcSet}
+        sizes="100vw"
         alt="Jovens vestindo roupas Street Stars"
         width={1500}
         height={1000}
         fetchPriority="high"
         loading="eager"
+        decoding="async"
         variants={image}
         initial="hidden"
         animate="show"  

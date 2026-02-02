@@ -6,7 +6,7 @@ import { doc, getDoc, getDocs, collection, query, where, limit } from 'firebase/
 import { db } from '../services/firebase.js'
 import Loading from '../components/Loading'
 import { formatCurrency } from '../utils/format'
-import { optimizeImage } from '../utils/image'
+import { optimizeImage, generateSrcSet } from '../utils/image'
 
 const relatedCache = new Map()
 
@@ -247,6 +247,8 @@ export default function ProductPage() {
                 >
                   <img 
                     src={optimizeImage(img, 1000)}
+                    srcSet={generateSrcSet(img)}
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     alt={`${product.name} - visualização ${i + 1}`}
                     width={1000}
                     height={1250}
@@ -458,6 +460,8 @@ export default function ProductPage() {
                   <div className="aspect-[4/5] bg-zinc-900 overflow-hidden mb-3 rounded-sm">
                     <img 
                       src={optimizeImage(related.img, 500)}
+                      srcSet={generateSrcSet(related.img)}
+                      sizes="(max-width: 768px) 50vw, 25vw"
                       alt={related.name}
                       width={500}
                       height={625}

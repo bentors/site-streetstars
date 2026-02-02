@@ -7,7 +7,7 @@
  */
 export const optimizeImage = (url, width = 800, options = {}) => {
   if (!url || typeof url !== 'string') {
-    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%23000" width="400" height="400"/%3E%3C/svg%3E';
+    return 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect fill="%230F0F0F" width="400" height="400"/%3E%3C/svg%3E';
   }
 
   if (!url.includes('cloudinary.com')) {
@@ -18,33 +18,37 @@ export const optimizeImage = (url, width = 800, options = {}) => {
     const parts = url.split('/upload/');
     
     if (parts.length !== 2) {
-      console.warn('URL Cloudinary inválida:', url);
       return url;
     }
 
     const transformations = [
       'f_auto',
-      'q_auto:best',
-      `w_${width}`,
       'c_limit',
       'dpr_auto',
+      `w_${width}`,
     ];
 
-    if (options.quality) transformations.push(`q_${options.quality}`);
+    if (options.quality) {
+        transformations.push(`q_${options.quality}`);
+    } else {
+        transformations.push('q_auto'); 
+    }
+
     if (options.height) transformations.push(`h_${options.height}`);
     if (options.crop) transformations.push(`c_${options.crop}`);
 
-    const transformation = transformations.join(',');
+    const transformationString = transformations.join(',');
 
-    return `${parts[0]}/upload/${transformation}/${parts[1]}`;
+    return `${parts[0]}/upload/${transformationString}/${parts[1]}`;
   } catch (error) {
-    console.error('Erro ao otimizar imagem:', error);
+    console.warn('Falha na otimização da imagem:', error);
     return url;
   }
 }
 
 /**
  * Gera srcset responsivo para Cloudinary
+ * Útil para o atributo 'srcset' da tag <img>
  * @param {string} url
  * @returns {string}
  */

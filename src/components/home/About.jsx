@@ -1,17 +1,18 @@
-import { optimizeImage } from '../../utils/image'
-const ABOUT_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769639378/aboutus_qdafud.jpg"
+import { optimizeImage, generateSrcSet } from '../../utils/image'
 import { motion } from 'framer-motion'
+
+const ABOUT_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769639378/aboutus_qdafud.jpg"
 
 export default function About() {
   return (
     <section id="about" className="py-24 sm:py-32 bg-black text-white relative overflow-hidden">
 
-      <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-white/5 hidden lg:block"></div>
+      <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-white/5 hidden lg:block" aria-hidden="true" />
 
       <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 
         <div className='relative'>
-          <div className="absolute top-4 -left-4 w-full h-full border border-white/20 hidden md:block z-0"></div>
+          <div className="absolute top-4 -left-4 w-full h-full border border-white/20 hidden md:block z-0" aria-hidden="true" />
           
           <motion.div
             className="relative z-10 overflow-hidden bg-zinc-900"
@@ -20,9 +21,13 @@ export default function About() {
             transition={{ duration: 0.8, ease: 'easeOut' }}
             viewport={{ once: true }}
           >
-            <motion.img
+            <img
               src={optimizeImage(ABOUT_URL, 1000)}
-              alt="Equipe Street Stars - Felipe e Bento"
+              srcSet={generateSrcSet(ABOUT_URL)}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              alt="Fundadores da Street Stars - Felipe dos Santos e Bento Rangel"
+              width={1000}
+              height={550}
               loading="lazy"
               className="w-full h-[400px] md:h-[550px] object-[center_45%] sm:object-[center_35%] object-cover grayscale hover:grayscale-0 hover:scale-105 transition-all duration-1000 ease-in-out"
             />
@@ -41,12 +46,12 @@ export default function About() {
             <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Somos</span>
           </h2>
           
-          <div className="space-y-6 text-base md:text-lg text-white/60 font-light leading-relaxed text-justify">
+          <div className="space-y-6 text-base md:text-lg text-white/60 font-light leading-relaxed">
             <p>
               A <strong className="text-white font-bold">Street Stars</strong> nasceu da rua. Da vontade de transformar vivência urbana em estilo, em identidade, em movimento.
             </p>
             <p>
-              Fundada em 2024 por <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors cursor-default">Felipe dos Santos</span> e <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors cursor-default">Bento Rangel</span>, a marca nasceu para ocupar seu espaço no streetwear nacional.
+              Fundada em 2024 por <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors">Felipe dos Santos</span> e <span className="text-white border-b border-white/30 pb-0.5 hover:border-white transition-colors">Bento Rangel</span>, a marca nasceu para ocupar seu espaço no streetwear nacional.
             </p>
             <p>
               Inspirada pela arquitetura das ruas, pela batida da música e pela estética noturna, a gente representa quem se expressa sem pedir permissão.
@@ -55,12 +60,12 @@ export default function About() {
 
           <div className="grid grid-cols-2 gap-6 mt-12 pt-8 border-t border-white/10">
             <div>
-               <h3 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">Missão</h3>
-               <p className="font-mono text-sm text-white">Fazer brilhar quem já é estrela.</p>
+              <h3 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">Missão</h3>
+              <p className="text-sm text-white font-mono">Fazer brilhar quem já é estrela.</p>
             </div>
             <div>
               <h3 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">Fundação</h3>
-              <p className="font-mono text-sm text-white">São Paulo, 2024.</p>
+              <p className="text-sm text-white font-mono">São Paulo, 2024</p>
             </div>
           </div>
 

@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
 import { collections } from '../data/collections.js'
-import { optimizeImage } from '../utils/image'
+import { optimizeImage, generateSrcSet } from '../utils/image'
 
 const CloseIcon = () => (
-  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+  </svg>
 )
 
 export default function CollectionPage() {
@@ -19,13 +22,31 @@ export default function CollectionPage() {
     window.scrollTo(0, 0) 
   }, [id])
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && selectedImage) {
+        setSelectedImage(null)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedImage])
+
   if (!collection) return null
 
   const galleryImages = collection.gallery || [collection.image, collection.imageHover, collection.image, collection.imageHover].filter(Boolean)
 
   return (
-
     <main className="min-h-screen bg-black text-white selection:bg-white selection:text-black overflow-x-hidden">
+      
+      <Helmet>
+        <title>{collection.title} - Street Stars Collections</title>
+        <meta name="description" content={collection.shortDescription || `Confira o editorial ${collection.title} da Street Stars.`} />
+        <meta property="og:title" content={`${collection.title} - Lookbook`} />
+        <meta property="og:description" content={collection.shortDescription} />
+        <meta property="og:image" content={optimizeImage(collection.image, 800)} />
+        <meta property="og:type" content="article" />
+      </Helmet>
 
       <AnimatePresence>
         {selectedImage && (
@@ -35,15 +56,23 @@ export default function CollectionPage() {
             exit={{ opacity: 0 }}
             onClick={() => setSelectedImage(null)}
             className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+            role="dialog"
+            aria-modal="true"
           >
-            <button className="absolute top-6 right-6 p-2 hover:rotate-90 transition-transform">
+            <button 
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-6 right-6 p-2 hover:rotate-90 transition-transform"
+              aria-label="Fechar zoom"
+            >
               <CloseIcon />
             </button>
             <motion.img 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               src={optimizeImage(selectedImage, 1200)}
-              alt="Zoom" 
+              srcSet={generateSrcSet(selectedImage)}
+              sizes="95vw"
+              alt="Zoom na imagem do editorial" 
               className="max-h-[90vh] max-w-[95vw] object-contain shadow-2xl"
             />
           </motion.div>
@@ -61,7 +90,16 @@ export default function CollectionPage() {
             className="lg:col-span-6"
           >
             <div className="relative aspect-[3/4] md:aspect-[16/9] lg:aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/10">
-              <img src={optimizeImage(collection.image, 1000)} alt={collection.title} className="w-full h-full object-cover" />
+              <img 
+                src={optimizeImage(collection.image, 1000)}
+                srcSet={generateSrcSet(collection.image)}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                alt={collection.title} 
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
+                className="w-full h-full object-cover" 
+              />
               <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 border border-white/10">
                 <span className="text-[10px] uppercase tracking-widest text-white/90">Capa do Editorial</span>
               </div>
@@ -133,7 +171,9 @@ export default function CollectionPage() {
               >
                 <img 
                   src={optimizeImage(img, 800)}
-                  alt={`Look ${index + 1}`} 
+                  srcSet={generateSrcSet(img)}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  alt={`Look ${index + 1} - ${collection.title}`} 
                   loading="lazy"
                   className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 md:grayscale group-hover:grayscale-0" 
                 />

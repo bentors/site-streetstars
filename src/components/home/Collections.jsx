@@ -1,8 +1,8 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { collections } from '../../data/collections.js'
 import { Link } from 'react-router-dom' 
-import { optimizeImage } from '../../utils/image'
+import { optimizeImage, generateSrcSet } from '../../utils/image'
 
 const container = {
   hidden: {},
@@ -26,31 +26,30 @@ export default function Collections() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const scrollRef = useRef(null)
 
-const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
 
       if (scrollLeft + clientWidth >= scrollWidth - 10) {
-        setCurrentIndex(collections.length - 1);
-        return;
+        setCurrentIndex(collections.length - 1)
+        return
       }
 
-      const index = Math.round(scrollLeft / (clientWidth * 0.85)); 
-
-      setCurrentIndex(Math.min(index, collections.length - 1));
+      const index = Math.round(scrollLeft / (clientWidth * 0.85))
+      setCurrentIndex(Math.min(index, collections.length - 1))
     }
-  }
+  }, [])
 
-  const scrollToItem = (index) => {
+  const scrollToItem = useCallback((index) => {
     if (scrollRef.current) {
-      const cardWidth = scrollRef.current.firstChild.offsetWidth + 16;
+      const cardWidth = scrollRef.current.firstChild.offsetWidth + 16
       
       scrollRef.current.scrollTo({
         left: index * cardWidth,
         behavior: 'smooth'
       })
     }
-  }
+  }, [])
 
   return (
     <section
@@ -65,8 +64,8 @@ const handleScroll = () => {
             <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Archive</span>
           </h2>
           
-          <div className="flex flex-col items-end gap-2">
-            <p className="text-white/50 text-[10px] uppercase tracking-[0.2em] max-w-xs text-right">
+          <div className="flex flex-col items-start md:items-end gap-2">
+            <p className="text-white/50 text-[10px] uppercase tracking-[0.2em] max-w-xs md:text-right">
               Nossos drops, nossa história. <br/>
               Explore cada coleção que já lançamos.
             </p>
@@ -89,7 +88,7 @@ const handleScroll = () => {
         >
           {collections.map((item, index) => (
             <motion.div
-              key={index}
+              key={item.id || index}
               variants={itemVariant}
               className="min-w-[85%] sm:min-w-[45%] md:min-w-0 snap-center"
             >
@@ -98,20 +97,22 @@ const handleScroll = () => {
           ))}
         </motion.div>
 
-        <div className="md:hidden flex justify-center mt-2 gap-2">
-          {collections.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => scrollToItem(index)}
-              className={`h-1.5 rounded-full transition-all duration-500 ease-out
-                ${currentIndex === index 
-                  ? 'w-8 bg-white'
-                  : 'w-1.5 bg-white/20 hover:bg-white/40'
-                }`}
-              aria-label={`Ir para coleção ${index + 1}`}
-            />
-          ))}
-        </div>
+        {collections.length > 1 && (
+          <div className="md:hidden flex justify-center mt-2 gap-2">
+            {collections.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => scrollToItem(index)}
+                aria-label={`Ir para coleção ${index + 1}`}
+                className={`h-1.5 rounded-full transition-all duration-500 ease-out
+                  ${currentIndex === index 
+                    ? 'w-8 bg-white'
+                    : 'w-1.5 bg-white/20 hover:bg-white/40'
+                  }`}
+              />
+            ))}
+          </div>
+        )}
 
       </div>
     </section>
@@ -120,13 +121,21 @@ const handleScroll = () => {
 
 function CollectionCard({ item, index }) {
   return (
-    <div className="group relative cursor-pointer block h-full">
-      <Link to={`/collection/${index}`} aria-label='Ir para coleção' className="block group relative cursor-pointer h-full">
+    <article className="group h-full">
+      <Link 
+        to={`/collection/${index}`} 
+        aria-label={`Ver coleção ${item.title}`}
+        className="block relative h-full"
+      >
         <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/5 h-full">
 
           <img
             src={optimizeImage(item.image, 800)}
-            alt={item.title}
+            srcSet={generateSrcSet(item.image)}
+            sizes="(max-width: 768px) 85vw, 33vw"
+            alt={`Coleção ${item.title} - Street Stars`}
+            width={800}
+            height={1067}
             loading='lazy'
             className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:opacity-0"
           />
@@ -134,13 +143,17 @@ function CollectionCard({ item, index }) {
           {item.imageHover && (
             <img
               src={optimizeImage(item.imageHover, 800)}
-              alt={`${item.title} hover`}
+              srcSet={generateSrcSet(item.imageHover)}
+              sizes="(max-width: 768px) 85vw, 33vw"
+              alt={`Coleção ${item.title} - Visualização alternativa`}
+              width={800}
+              height={1067}
               loading='lazy'
               className="absolute inset-0 w-full h-full object-cover opacity-0 scale-110 transition-all duration-700 group-hover:opacity-100 group-hover:scale-100"
             />
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" aria-hidden="true" />
 
           <div className="absolute inset-0 p-6 flex flex-col justify-between">
 
@@ -148,7 +161,9 @@ function CollectionCard({ item, index }) {
               <span className="text-[9px] border border-white/30 px-2 py-1 uppercase tracking-widest bg-black/30 backdrop-blur-sm">
                 Drop 0{index + 1}
               </span>
-              <span className="text-[18px] opacity-50 group-hover:opacity-100 transition-opacity">↗</span>
+              <span className="text-[18px] opacity-50 group-hover:opacity-100 transition-opacity" aria-hidden="true">
+                ↗
+              </span>
             </div>
 
             <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
@@ -156,7 +171,7 @@ function CollectionCard({ item, index }) {
                 {item.title}
               </h3>
 
-              <div className="w-0 group-hover:w-full h-[1px] bg-white transition-all duration-700 mb-3" />
+              <div className="w-0 group-hover:w-full h-[1px] bg-white transition-all duration-700 mb-3" aria-hidden="true" />
               
               <p className="text-[10px] text-white/70 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
                 Ver Editorial Completo
@@ -165,6 +180,6 @@ function CollectionCard({ item, index }) {
           </div>
         </div>
       </Link>
-    </div>
+    </article>
   )
 }
