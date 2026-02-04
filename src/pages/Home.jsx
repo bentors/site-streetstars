@@ -16,20 +16,25 @@ const HERO_IMAGE_PRELOAD = optimizeImage(HERO_RAW_URL, 1500)
 const SchemaMarkup = () => {
   const schemaData = {
     "@context": "https://schema.org",
-    "@type": "FashionBrand",
+    "@type": "ClothingStore",
     "name": "Street Stars",
-    "url": "https://streetstars.com.br",
+    "url": "https://streetstars.vercel.app",
     "logo": optimizeImage(HERO_RAW_URL, 500),
-    "description": "Streetwear autêntico nascido em São Paulo.",
+    "description": "Streetwear autêntico nascido em São Paulo. Transformamos vivência urbana em estilo.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "São Paulo",
+      "addressRegion": "SP",
+      "addressCountry": "BR"
+    },
     "sameAs": [
-      "https://www.instagram.com/_streetstars.co/",
-      "https://www.facebook.com/streetstars"
+      "https://www.instagram.com/_streetstars.co/"
     ],
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "+55-11-99999-9999",
-      "contactType": "customer service"
-    }
+    "foundingDate": "2024",
+    "founders": [
+      { "@type": "Person", "name": "Felipe dos Santos" },
+      { "@type": "Person", "name": "Bento Rangel" }
+    ]
   }
 
   return (
@@ -40,8 +45,10 @@ const SchemaMarkup = () => {
 }
 
 const SectionLoader = ({ minHeight = "min-h-[50vh]" }) => (
-  <div className={`w-full ${minHeight} flex items-center justify-center bg-black opacity-20 transition-all`}>
-    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+  <div className={`w-full ${minHeight} flex items-center justify-center bg-black transition-opacity duration-300`}>
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+    </div>
   </div>
 )
 
@@ -56,22 +63,29 @@ export default function Home() {
     if (location.state?.scrollTo) {
       const sectionId = location.state.scrollTo
 
-      const attemptScroll = (attempts = 0) => {
+      const scrollToSection = (attempts = 0) => {
         const element = document.getElementById(sectionId)
         
         if (element) {
-          const y = element.getBoundingClientRect().top + window.scrollY
-          const isMobile = window.innerWidth < 768
 
-          const yOffset = isMobile ? -60 : -80 
+          const isMobile = window.innerWidth < 768
+          const offset = isMobile ? 60 : 80 
           
-          window.scrollTo({ top: y + yOffset, behavior: 'smooth' })
+          const elementPosition = element.getBoundingClientRect().top
+          const offsetPosition = elementPosition + window.pageYOffset - offset
+          
+          window.scrollTo({ 
+            top: offsetPosition, 
+            behavior: 'smooth' 
+          })
+
           window.history.replaceState({}, document.title)
-        } else if (attempts < 20) { 
-          setTimeout(() => attemptScroll(attempts + 1), 100)
+        } else if (attempts < 25) {
+          setTimeout(() => scrollToSection(attempts + 1), 100)
         }
       }
-      attemptScroll()
+
+      setTimeout(() => scrollToSection(), 100)
     } else {
       window.scrollTo(0, 0)
     }
@@ -79,13 +93,25 @@ export default function Home() {
 
   return (
     <main id="main-content" className="bg-black min-h-screen">
-      
       <Helmet>
-        <title>Street Stars | Estrelas nascem nas ruas</title> 
-        <meta name="description" content="A Street Stars nasceu da rua. Da vontade de transformar vivência urbana em estilo, identidade e movimento." />
+        <title>Street Stars | Estrelas nascem nas ruas</title>
+        <meta 
+          name="description" 
+          content="Streetwear autêntico nascido em São Paulo. Transformamos vivência urbana em estilo, identidade e movimento." 
+        />
+
         <meta property="og:title" content="Street Stars — Seja uma Estrela das Ruas" />
+        <meta property="og:description" content="Streetwear autêntico nascido em São Paulo." />
+        <meta property="og:image" content={optimizeImage(HERO_RAW_URL, 1200)} />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://streetstars.com.br/" />
+        <meta property="og:url" content="https://streetstars.vercel.app/" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Street Stars — Seja uma Estrela das Ruas" />
+        <meta name="twitter:description" content="Streetwear autêntico nascido em São Paulo." />
+        <meta name="twitter:image" content={optimizeImage(HERO_RAW_URL, 1200)} />
+
+        <link rel="canonical" href="https://streetstars.vercel.app/" />
 
         <link rel="preload" as="image" href={HERO_IMAGE_PRELOAD} />
       </Helmet>

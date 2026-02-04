@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { Helmet } from 'react-helmet-async'
 
 const LEGAL_CONTENT = {
   'termos-de-uso': {
     title: 'Termos de Uso',
+    description: 'Termos e condições de uso do site Street Stars.',
     content: `Última atualização: Janeiro de 2026
 
 Bem-vindo à Street Stars. Ao acessar e usar nosso site, você concorda com estes Termos de Uso. Leia atentamente antes de realizar qualquer compra.
@@ -112,13 +114,14 @@ WhatsApp: https://wa.me/5511999999999
 Instagram: @_streetstars.co
 
 Street Stars — São Paulo - SP
-CNPJ: [Em criação]
+CNPJ: [Em registro]
 
 Ao utilizar nosso site, você declara ter lido, compreendido e concordado com estes Termos de Uso.`
   },
 
   'politica-de-privacidade': {
     title: 'Política de Privacidade',
+    description: 'Como a Street Stars coleta, usa e protege seus dados pessoais.',
     content: `Última atualização: Janeiro de 2026
 
 A Street Stars respeita a sua privacidade e está comprometida em proteger seus dados pessoais. Esta Política de Privacidade explica como coletamos, usamos, armazenamos e protegemos suas informações.
@@ -200,13 +203,14 @@ E-mail: streetstars.company@gmail.com
 WhatsApp: https://wa.me/5511999999999
 
 Street Stars — São Paulo - SP
-CNPJ: [Em criação]
+CNPJ: [Em registro]
 
 Esta política está em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei 13.709/2018) e o Marco Civil da Internet (Lei 12.965/2014).`
   },
 
   'trocas-e-devolucoes': {
     title: 'Trocas e Devoluções',
+    description: 'Política de trocas e devoluções da Street Stars.',
     content: `Última atualização: Janeiro de 2026
 
 Na Street Stars, queremos que você fique satisfeito com sua compra. Esta política explica como funcionam trocas e devoluções.
@@ -351,7 +355,8 @@ Segunda a Sexta: 9h às 18h
 Sábado: 9h às 13h
 
 Street Stars — São Paulo - SP
-CNPJ: [Em criação]
+CNPJ: [Em registro]
+
 Esta política está em conformidade com o Código de Defesa do Consumidor (Lei 8.078/90).`
   }
 }
@@ -364,40 +369,70 @@ export default function LegalInfo() {
     window.scrollTo(0, 0)
   }, [slug])
 
-  if (!data) return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Página não encontrada</h1>
-            <Link to="/" className="text-sm underline hover:text-white/70">Voltar para Home</Link>
-        </div>
-    </div>
-  )
+  if (!data) {
+    return <Navigate to="/" replace />
+  }
 
   return (
-    <div className="min-h-screen bg-black text-white pt-32 pb-20 px-6">
-      <div className="max-w-3xl mx-auto">
+    <>
+      <Helmet>
+        <title>{data.title} - Street Stars</title>
+        <meta name="description" content={data.description} />
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
 
-        <div className="mb-8 text-xs text-white/40 uppercase tracking-widest">
-            <Link to="/" className="hover:text-white transition-colors">Home</Link> / <span className="text-white">Legal</span>
+      <div className="min-h-screen bg-black text-white pt-32 pb-20 px-6">
+        <div className="max-w-3xl mx-auto">
+
+          <nav className="mb-8 text-xs text-white/40 uppercase tracking-widest" aria-label="Breadcrumb">
+            <Link to="/" className="hover:text-white transition-colors">
+              Home
+            </Link>
+            {' / '}
+            <span className="text-white/60">Legal</span>
+            {' / '}
+            <span className="text-white">{data.title}</span>
+          </nav>
+
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl md:text-5xl font-black uppercase italic mb-8 border-b border-white/20 pb-6"
+          >
+            {data.title}
+          </motion.h1>
+
+          <motion.article 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="prose prose-invert prose-sm md:prose-base max-w-none
+                       prose-headings:font-black prose-headings:uppercase prose-headings:italic
+                       prose-p:text-white/70 prose-p:leading-relaxed
+                       prose-strong:text-white prose-strong:font-bold
+                       prose-ul:text-white/70 prose-ul:list-disc
+                       prose-a:text-white prose-a:underline hover:prose-a:text-white/70"
+          >
+            <div className="whitespace-pre-line">{data.content}</div>
+          </motion.article>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="mt-12 pt-8 border-t border-white/10"
+          >
+            <Link 
+              to="/" 
+              className="inline-flex items-center gap-2 text-sm uppercase tracking-widest text-white/50 hover:text-white transition-colors group"
+            >
+              <span className="group-hover:-translate-x-1 transition-transform">←</span>
+              Voltar para Home
+            </Link>
+          </motion.div>
+
         </div>
-
-        <motion.h1 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-3xl md:text-4xl font-black uppercase italic mb-8 border-b border-white/20 pb-4"
-        >
-          {data.title}
-        </motion.h1>
-        
-        <motion.div 
-           initial={{ opacity: 0 }}
-           animate={{ opacity: 1 }}
-           transition={{ delay: 0.2 }}
-           className="prose prose-invert prose-sm md:prose-base font-light text-white/70 whitespace-pre-line text-justify leading-relaxed"
-        >
-          {data.content}
-        </motion.div>
       </div>
-    </div>
+    </>
   )
 }

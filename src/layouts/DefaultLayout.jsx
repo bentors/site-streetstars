@@ -3,30 +3,28 @@ import { Suspense, lazy } from 'react'
 
 import Header from '../components/layout/Header'
 import FloatingAction from '../components/layout/FloatingAction'
+import ScrollToTop from '../components/utils/ScrollToTop'
 
-const Footer = lazy(() => import('../components/layout/Footer'))
 const CartDrawer = lazy(() => import('../components/layout/CartDrawer'))
-const Overlay = lazy(() => import('../components/layout/Overlay'))
+const Footer = lazy(() => import('../components/layout/Footer'))
 
-export default function DefaultLayout({ setOverlayActive, overlayActive }) {
+export default function DefaultLayout() {
   return (
     <>
-      <Suspense fallback={null}>
-        <Overlay active={overlayActive} onClick={() => setOverlayActive(false)} />
-        <CartDrawer />
-      </Suspense>
+      <ScrollToTop />
 
-      <Header setOverlayActive={setOverlayActive} />
-      
-      <main>
+      <Header />
+
+      <main className="min-h-screen bg-black w-full selection:bg-white selection:text-black">
         <Outlet /> 
       </main>
 
-      <FloatingAction setOverlayActive={setOverlayActive} />
-      
-      <Suspense fallback={<div className="h-20 bg-black" />}>
+      <Suspense fallback={null}>
+        <CartDrawer />
         <Footer />
       </Suspense>
+
+      <FloatingAction />
     </>
   )
 }
