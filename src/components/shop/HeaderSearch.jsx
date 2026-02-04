@@ -12,46 +12,45 @@ export default function HeaderSearch() {
   const [isOpen, setIsOpen] = useState(false)
   const [queryText, setQueryText] = useState('')
   const [productsList, setProductsList] = useState(productsCache || [])
-  const [loading, setLoading] = useState(!productsCache)
+  const [loading, setLoading] = useState(false)
   
   const containerRef = useRef(null)
   const inputRef = useRef(null)
 
   useEffect(() => {
-    if (productsCache) {
-      setLoading(false)
-      return
-    }
-
-    async function loadSearchData() {
-      try {
-        const productsRef = collection(db, "products")
-        const q = query(productsRef)
-        const snapshot = await getDocs(q)
-        
-        const list = []
-        snapshot.forEach((doc) => {
-          const data = doc.data()
-          list.push({
-            id: doc.id,
-            name: data.name,
-            category: data.category,
-            img: data.img,
-            price: data.price
+    if (isOpen && !productsCache) {
+      setLoading(true)
+      
+      async function loadSearchData() {
+        try {
+          const productsRef = collection(db, "products")
+          const q = query(productsRef)
+          const snapshot = await getDocs(q)
+          
+          const list = []
+          snapshot.forEach((doc) => {
+            const data = doc.data()
+            list.push({
+              id: doc.id,
+              name: data.name,
+              category: data.category,
+              img: data.img,
+              price: data.price
+            })
           })
-        })
-        
-        setProductsList(list)
-        productsCache = list
-      } catch (err) {
-        console.error("Erro ao carregar produtos para busca:", err)
-      } finally {
-        setLoading(false)
+          
+          setProductsList(list)
+          productsCache = list
+        } catch (err) {
+          console.error("Erro ao carregar produtos para busca:", err)
+        } finally {
+          setLoading(false)
+        }
       }
-    }
 
-    loadSearchData()
-  }, [])
+      loadSearchData()
+    }
+  }, [isOpen])
 
   const results = useMemo(() => {
     if (queryText.length === 0) return []

@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react'
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../../context/CartContext'
 import Logo from '../../components/ui/Logo'
-import HeaderSearch from '../shop/HeaderSearch'
+
+const HeaderSearch = lazy(() => import('../shop/HeaderSearch'))
 
 const LINKS = [
   { label: 'Shop', href: '#shop' },
@@ -12,6 +13,14 @@ const LINKS = [
   { label: 'Quem somos', href: '#about' },
   { label: 'Contato', href: '#footer' },
 ]
+
+const SearchFallback = () => (
+  <button aria-label="Carregando busca" className="w-10 h-10 flex items-center justify-center text-white/80">
+     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+     </svg>
+  </button>
+)
 
 export default function Header({ setOverlayActive }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -141,16 +150,13 @@ export default function Header({ setOverlayActive }) {
     const scrollToTarget = () => {
       const element = document.querySelector(href)
       if (element) {
-        const y = element.getBoundingClientRect().top + window.scrollY - 60
+        const y = element.getBoundingClientRect().top + window.scrollY - 80
         window.scrollTo({ top: y, behavior: 'smooth' })
       }
     }
 
     if (isHome) {
-      setTimeout(() => {
-        scrollToTarget()
-      }, 100)
-      
+      setTimeout(() => scrollToTarget(), 100)
       setTimeout(() => { isNavigatingRef.current = false }, 1000)
     } else {
       navigate('/')
@@ -203,7 +209,6 @@ export default function Header({ setOverlayActive }) {
                   ${activeSection === link.href ? 'text-white font-bold' : 'text-white/60 hover:text-white'}`}
               >
                 {link.label}
-
                 {activeSection === link.href && (
                   <motion.span
                     layoutId="star-underline"
@@ -219,8 +224,10 @@ export default function Header({ setOverlayActive }) {
           </nav>
 
           <div className="flex items-center gap-1 md:gap-4">
-            
-            <HeaderSearch />
+
+            <Suspense fallback={<SearchFallback />}>
+              <HeaderSearch />
+            </Suspense>
 
             <button 
               onClick={() => setIsCartOpen(true)} 
