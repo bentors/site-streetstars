@@ -3,7 +3,7 @@ import { Suspense, lazy } from 'react'
 
 import Header from '../components/layout/Header'
 import FloatingAction from '../components/layout/FloatingAction'
-import ScrollToTop from '../components/utils/ScrollToTop'
+import ScrollToTop from '../utils/ScrollToTop'
 
 const CartDrawer = lazy(() => import('../components/layout/CartDrawer'))
 const Footer = lazy(() => import('../components/layout/Footer'))
