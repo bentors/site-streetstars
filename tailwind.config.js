@@ -20,6 +20,9 @@ export default {
         sans: ['Inter', 'sans-serif'],
         display: ['Space Grotesk', 'sans-serif'],
       },
+      animation: {
+        'spin-reverse': 'spin 1s linear infinite reverse',
+      }
     },
   },
   plugins: [],
