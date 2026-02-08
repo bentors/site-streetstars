@@ -7,7 +7,7 @@ import ScrollToTop from './utils/ScrollToTop'
 
 // Layout & Loading
 import Loading from './components/Loading'
-import DefaultLayout from './layouts/DefaultLayout'
+import DefaultLayout from './components/layout/DefaultLayout'
 
 // Páginas Estáticas
 import Home from './pages/Home'

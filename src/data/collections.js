@@ -61,11 +61,11 @@ export const collections = [
       direction: "Beatriz M.",
       styling: "Street Team",
     },
-    image: `${BASE_URL}/construction-main.jpg`, 
-    imageHover: `${BASE_URL}/construction-hover.jpg`,
+    image: `${BASE_URL}/mamr-main.jpg`, 
+    imageHover: `${BASE_URL}/esiu-hover.jpg`,
     gallery: [
-      `${BASE_URL}/construction-1.jpg`,
-      `${BASE_URL}/construction-2.jpg`
+      `${BASE_URL}/mamr-1.jpg`,
+      `${BASE_URL}/mamr-2.jpg`
     ]
   },
 ]
