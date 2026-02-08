@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
+import { SpeedInsights } from "@vercel/speed-insights/react"
 
 // Utils & Analytics
 import { initGA, logPageView } from './utils/analytics'
@@ -72,6 +73,8 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+
+      <SpeedInsights />
     </div>
   )
 }
