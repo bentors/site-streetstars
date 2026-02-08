@@ -9,10 +9,12 @@ function Hero() {
   const desktopSrc = optimizeImage(HERO_URL, 1500)
 
   useEffect(() => {
-    if (window.removeLoader) {
-      requestAnimationFrame(() => window.removeLoader())
-    }
-  }, [])
+    const timer = setTimeout(() => {
+      if (window.removeLoader) window.removeLoader();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <section 
