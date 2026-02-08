@@ -32,7 +32,10 @@ export default function App() {
   const location = useLocation()
   
   useEffect(() => {
-    initGA()
+    const timer = setTimeout(() => {
+      initGA();
+    }, 3000);
+    return () => clearTimeout(timer);
   }, [])
 
   useEffect(() => {

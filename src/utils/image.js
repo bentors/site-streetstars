@@ -23,6 +23,7 @@ export const optimizeImage = (url, width = 800, options = {}) => {
 
     const transformations = [
       'f_auto',
+      'q_auto',
       'c_limit',
       'dpr_auto',
       `w_${width}`,

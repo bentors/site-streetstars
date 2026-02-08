@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { motion } from 'framer-motion'
-import { optimizeImage, generateSrcSet } from '../../utils/image'
+import { optimizeImage } from '../../utils/image'
 import { scrollToSection } from '../../utils/scrollToSection'
 
 const HERO_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769638546/hero_rb9jvq.jpg"
@@ -24,17 +24,9 @@ const text = {
   }
 }
 
-const image = {
-  hidden: { scale: 1.1 },
-  show: {
-    scale: 1,
-    transition: { duration: 2, ease: 'easeOut' }
-  }
-}
-
 function Hero() {
-  const heroSrc = optimizeImage(HERO_URL, 1500)
-  const heroSrcSet = generateSrcSet(HERO_URL)
+  const mobileSrc = optimizeImage(HERO_URL, 600)
+  const desktopSrc = optimizeImage(HERO_URL, 1500)
 
   return (
     <section 
@@ -42,18 +34,28 @@ function Hero() {
       aria-label="Seção principal"
       className="min-h-screen relative overflow-hidden flex items-center text-center justify-center px-6"
     >
-      <img
-        src={heroSrc}
-        srcSet={heroSrcSet}
-        sizes="100vw"
-        alt="Jovens vestindo roupas Street Stars"
-        width={1500}
-        height={1000}
-        fetchPriority="high"
-        loading="eager"
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover opacity-90 object-[55%_65%] sm:object-[50%_20%] lg:object-[50%_18%] animate-hero-zoom"
-      />
+      <picture className="absolute inset-0 w-full h-full">
+        <source 
+          media="(max-width: 768px)" 
+          srcSet={mobileSrc} 
+        />
+        <source 
+          media="(min-width: 769px)" 
+          srcSet={desktopSrc} 
+        />
+
+        <img
+          src={desktopSrc}
+          alt="Jovens vestindo roupas Street Stars"
+          width={1500}
+          height={1000}
+          fetchPriority="high"
+          loading="eager"
+          decoding="sync"
+          className="w-full h-full object-cover opacity-90 object-[55%_65%] sm:object-[50%_20%] lg:object-[50%_18%] animate-hero-zoom"
+          style={{ objectFit: 'cover' }}
+        />
+      </picture>
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-black/65" aria-hidden="true" />
 
