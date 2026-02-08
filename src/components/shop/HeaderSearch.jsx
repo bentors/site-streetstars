@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatCurrency } from '../../utils/format'
 import { optimizeImage } from '../../utils/image'
-import { collection, getDocs, query } from 'firebase/firestore'
+import { collection, getDocs, query } from 'firebase/firestore/lite'
 import { db } from '../../services/firebase'
 
 let productsCache = null

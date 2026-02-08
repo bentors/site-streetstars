@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { signOut } from 'firebase/auth'
 import { auth, db } from '../../services/firebase'
 import { Link, useNavigate } from 'react-router-dom'
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore/lite'
 import { formatCurrency } from '../../utils/format'
 import Logo from '../../components/ui/Logo'
 

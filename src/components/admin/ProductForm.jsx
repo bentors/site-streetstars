@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { db } from '../../services/firebase'
-import { doc, getDoc, addDoc, updateDoc, collection } from 'firebase/firestore'
+import { doc, getDoc, addDoc, updateDoc, collection } from 'firebase/firestore/lite'
 import { uploadImageToCloudinary } from '../../services/cloudinary'
 import { CATEGORIES } from '../../data/constants'
 

@@ -15,7 +15,7 @@ export default defineConfig({
 
           framer: ['framer-motion'],
 
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore/lite'],
           
           analytics: ['react-ga4'] 
         }
