@@ -7,7 +7,7 @@
     <link 
       rel="preload" 
       as="image" 
-      href="https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,w_600/v1769638546/hero_rb9jvq.jpg"
+      href="https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,w_600,dpr_2.0/v1769638546/hero_rb9jvq.jpg"
       media="(max-width: 768px)"
     >
     <link 
@@ -17,56 +17,92 @@
       media="(min-width: 769px)"
     >
 
-    <style>
-      html, body {
-        background-color: #000000; 
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-      }
-    </style>
-
     <title>Street Stars | Estrelas nascem nas ruas</title>
     <meta name="description" content="Street Stars é uma marca de moda streetwear que nasce da rua, da cultura e da expressão individual. Conheça a loja oficial." />
     <meta name="author" content="Street Stars" />
-
     <link rel="canonical" href="https://streetstars.vercel.app/" />
-
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://streetstars.vercel.app/">
     <meta property="og:title" content="Street Stars — Estrelas nascem nas ruas" />
     <meta property="og:description" content="Mais do que roupas. Criamos identidade."/>
     <meta property="og:image" content="./assets/images/logo.webp" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="Street Stars" />
-    
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Street Stars" />
-    <meta name="twitter:description" content="Street Stars é uma marca de moda streetwear que nasce da rua. Conheça a loja oficial."/>
-    <meta name="twitter:image" content="./assets/logo.webp" />
-
     <link rel="icon" href="/public/favicon.ico" />
+
+    <style>
+      body { margin: 0; background-color: #000; overflow-x: hidden; }
+      #root { display: flex; flex-direction: column; min-height: 100vh; }
+      
+      /* O Segredo do LCP Instantâneo: Imagem no CSS */
+      .app-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background-color: #000;
+        /* Mobile Default */
+        background-image: url('https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,w_600,dpr_2.0/v1769638546/hero_rb9jvq.jpg');
+        background-size: cover;
+        background-position: 55% 65%;
+        background-repeat: no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.5s ease-out;
+      }
+
+      /* Desktop Override */
+      @media (min-width: 769px) {
+        .app-loader {
+          background-image: url('https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,w_1500/v1769638546/hero_rb9jvq.jpg');
+          background-position: center 18%;
+        }
+      }
+
+      .app-loader::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.65), rgba(0,0,0,0.55), rgba(0,0,0,0.65));
+      }
+
+      .loader-content {
+        position: relative;
+        z-index: 10000;
+        text-align: center;
+        color: white;
+        font-family: sans-serif;
+      }
+      
+      .spinner {
+        width: 24px; height: 24px; margin: 20px auto 0;
+        border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff;
+        border-radius: 50%; animation: spin 1s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
   </head>
-    <body>
-      <div id="root">
-        <div style="
-          height: 100vh; width: 100vw; background-color: #000;
-          display: flex; flex-direction: column; align-items: center; justify-content: center;
-          color: white; font-family: sans-serif;
-        ">
-          <h1 style="font-size: 14px; letter-spacing: 0.35em; opacity: 0.6; text-transform: uppercase;">Street Stars</h1>
-          <div class="loader" style="margin-top: 20px;"></div>
-          
-          <style>
-            .loader { width: 24px; height: 24px; border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; }
-            @keyframes spin { to { transform: rotate(360deg); } }
-          </style>
+  <body>
+    <div id="root">
+      <div class="app-loader" id="initial-loader">
+        <div class="loader-content">
+          <p style="font-size: 12px; letter-spacing: 0.35em; opacity: 0.6; margin-bottom: 24px;">STREET STARS</p>
+          <h1 style="font-size: 36px; font-weight: 900; line-height: 1.1; text-transform: uppercase; margin: 0;">ESTRELAS NASCEM<br>NAS RUAS</h1>
+          <div class="spinner"></div>
         </div>
       </div>
-      
-      <script type="module" src="/src/main.jsx"></script>
-      <style>body { margin: 0; background-color: #000; }</style>
-    </body>
+    </div>
+
+    <script type="module" src="/src/main.jsx"></script>
+    
+    <script>
+      window.removeLoader = () => {
+        const loader = document.getElementById('initial-loader');
+        if(loader) {
+          loader.style.opacity = '0';
+          setTimeout(() => loader.remove(), 500);
+        }
+      }
+    </script>
+  </body>
 </html>

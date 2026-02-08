@@ -1,9 +1,6 @@
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 import { optimizeImage } from '../../utils/image'
 import { scrollToSection } from '../../utils/scrollToSection'
-
-// Removemos a importação do framer-motion para evitar bloqueio de renderização
-// Removemos as variantes 'container' e 'text' pois usaremos CSS puro
 
 const HERO_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769638546/hero_rb9jvq.jpg"
 
@@ -11,13 +8,20 @@ function Hero() {
   const mobileSrc = optimizeImage(HERO_URL, 600)
   const desktopSrc = optimizeImage(HERO_URL, 1500)
 
+  // Remove o App Shell (Loader) assim que o componente montar
+  useEffect(() => {
+    if (window.removeLoader) {
+      // requestAnimationFrame garante que o render visual já aconteceu
+      requestAnimationFrame(() => window.removeLoader())
+    }
+  }, [])
+
   return (
     <section 
       id="top"
       aria-label="Seção principal"
       className="min-h-screen relative overflow-hidden flex items-center text-center justify-center px-6"
     >
-      {/* Imagem Otimizada (LCP) */}
       <picture className="absolute inset-0 w-full h-full">
         <source 
           media="(max-width: 768px)" 
@@ -35,7 +39,8 @@ function Hero() {
           height={1000}
           fetchPriority="high"
           loading="eager"
-          decoding="sync"
+          // MUDANÇA IMPORTANTE: Async evita travamentos da thread principal
+          decoding="async"
           className="w-full h-full object-cover opacity-90 object-[55%_65%] sm:object-[50%_20%] lg:object-[50%_18%] animate-hero-zoom"
           style={{ objectFit: 'cover' }}
         />
@@ -43,10 +48,6 @@ function Hero() {
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-black/65" aria-hidden="true" />
 
-      {/* Conteúdo de Texto 
-        - Removemos motion.div
-        - Adicionamos 'animate-fadeInUp' para animar via CSS (sem JS)
-      */}
       <div className="relative max-w-4xl z-10 text-center animate-fadeInUp">
         <p className="text-xs lg:text-xl tracking-[0.35em] text-white/60 mb-6">
           STREET STARS
