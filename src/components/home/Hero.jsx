@@ -43,7 +43,7 @@ function Hero() {
         />
       </picture>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-black/65 opacity-1" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-black/65" aria-hidden="true" />
 
       <div className="relative max-w-4xl z-10 text-center animate-fadeInUp">
         <p className="text-xs lg:text-xl tracking-[0.35em] text-white/60 mb-6">

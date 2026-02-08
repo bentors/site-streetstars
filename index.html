@@ -20,6 +20,13 @@
     <title>Street Stars | Estrelas nascem nas ruas</title>
     
     <style>
+      #root {
+        min-height: 100vh;
+        width: 100%;
+        display: block;
+        background-color: #000;
+      }
+
       body { 
         margin: 0; 
         background-color: #000; 
@@ -62,6 +69,7 @@
         opacity: 0 !important;
         pointer-events: none !important;
         visibility: hidden !important;
+        z-index: -1 !important;
       }
     </style>
   </head>
