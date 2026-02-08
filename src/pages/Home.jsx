@@ -113,7 +113,6 @@ export default function Home() {
 
         <link rel="canonical" href="https://streetstars.vercel.app/" />
 
-        <link rel="preload" as="image" href={HERO_IMAGE_PRELOAD} />
       </Helmet>
 
       <SchemaMarkup />

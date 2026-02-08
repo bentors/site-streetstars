@@ -9,8 +9,9 @@ import './index.css'
 import { ErrorBoundary } from './components/ErrorBoundary'
 
 if (import.meta.env.DEV) {
-  const { db } = await import('./services/firebase')
-  console.log('Firebase conectado:', !!db)
+  import('./services/firebase').then(({ db }) => {
+    console.log('Firebase conectado:', !!db)
+  })
 }
 
 createRoot(document.getElementById('root')).render(
