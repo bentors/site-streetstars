@@ -1,28 +1,11 @@
 import { memo } from 'react'
-import { motion } from 'framer-motion'
 import { optimizeImage } from '../../utils/image'
 import { scrollToSection } from '../../utils/scrollToSection'
 
+// Removemos a importação do framer-motion para evitar bloqueio de renderização
+// Removemos as variantes 'container' e 'text' pois usaremos CSS puro
+
 const HERO_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769638546/hero_rb9jvq.jpg"
-
-const container = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.15,
-      delayChildren: 0.2
-    }
-  }
-}
-
-const text = {
-  hidden: { opacity: 0, y: 30 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
-  }
-}
 
 function Hero() {
   const mobileSrc = optimizeImage(HERO_URL, 600)
@@ -34,6 +17,7 @@ function Hero() {
       aria-label="Seção principal"
       className="min-h-screen relative overflow-hidden flex items-center text-center justify-center px-6"
     >
+      {/* Imagem Otimizada (LCP) */}
       <picture className="absolute inset-0 w-full h-full">
         <source 
           media="(max-width: 768px)" 
@@ -59,39 +43,26 @@ function Hero() {
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-black/65" aria-hidden="true" />
 
-      <motion.div 
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="relative max-w-4xl z-10 text-center"
-      >
-        <motion.p 
-          variants={text} 
-          className="text-xs lg:text-xl tracking-[0.35em] text-white/60 mb-6"
-        >
+      {/* Conteúdo de Texto 
+        - Removemos motion.div
+        - Adicionamos 'animate-fadeInUp' para animar via CSS (sem JS)
+      */}
+      <div className="relative max-w-4xl z-10 text-center animate-fadeInUp">
+        <p className="text-xs lg:text-xl tracking-[0.35em] text-white/60 mb-6">
           STREET STARS
-        </motion.p>
+        </p>
 
-        <motion.h1 
-          variants={text}
-          className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tighter uppercase"
-        >
+        <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tighter uppercase">
           Estrelas nascem <br /> nas ruas
-        </motion.h1>
+        </h1>
 
-        <motion.p 
-          variants={text}
-          className="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed font-light"
-        >
+        <p className="text-sm sm:text-base md:text-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
           A Street Stars nasce da rua, da cultura urbana e da expressão individual.{' '}
           <br className='hidden sm:block'/>
           Mais do que moda, transformamos quem veste em estrela.
-        </motion.p>
+        </p>
 
-        <motion.div 
-          variants={text} 
-          className="flex flex-col items-center gap-6"
-        >
+        <div className="flex flex-col items-center gap-6">
           <button
             onClick={() => scrollToSection('#shop')}
             aria-label='Ver produtos da Street Stars'
@@ -103,8 +74,8 @@ function Hero() {
           <p className="text-[8px] text-white/30 tracking-[0.2em]">
             ★ Feito por quem vive a rua ★
           </p>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   )
 }
