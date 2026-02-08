@@ -8,10 +8,8 @@ function Hero() {
   const mobileSrc = optimizeImage(HERO_URL, 600)
   const desktopSrc = optimizeImage(HERO_URL, 1500)
 
-  // Remove o App Shell (Loader) assim que o componente montar
   useEffect(() => {
     if (window.removeLoader) {
-      // requestAnimationFrame garante que o render visual já aconteceu
       requestAnimationFrame(() => window.removeLoader())
     }
   }, [])
@@ -39,10 +37,9 @@ function Hero() {
           height={1000}
           fetchPriority="high"
           loading="eager"
-          // MUDANÇA IMPORTANTE: Async evita travamentos da thread principal
           decoding="async"
           className="w-full h-full object-cover opacity-90 object-[55%_65%] sm:object-[50%_20%] lg:object-[50%_18%] animate-hero-zoom"
-          style={{ objectFit: 'cover' }}
+          style={{ objectFit: 'cover', visibility: 'visible', contentVisibility: 'visible' }}
         />
       </picture>
 
