@@ -39,7 +39,7 @@ function Hero() {
           loading="eager"
           decoding="async"
           className="w-full h-full object-cover opacity-90 object-[55%_65%] sm:object-[50%_20%] lg:object-[50%_18%] animate-hero-zoom"
-          style={{ objectFit: 'cover', visibility: 'visible', contentVisibility: 'visible' }}
+          style={{ objectFit: 'cover', visibility: 'visible' }}
         />
       </picture>
 

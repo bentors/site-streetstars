@@ -7,98 +7,79 @@
     <link 
       rel="preload" 
       as="image" 
-      href="https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,w_600,dpr_2.0/v1769638546/hero_rb9jvq.jpg"
+      href="https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,c_limit,dpr_auto,w_600,q_auto/v1769638546/hero_rb9jvq.jpg"
       media="(max-width: 768px)"
-    >
+    > 
     <link 
       rel="preload" 
       as="image" 
-      href="https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,w_1500/v1769638546/hero_rb9jvq.jpg" 
+      href="https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,c_limit,dpr_auto,w_1500,q_auto/v1769638546/hero_rb9jvq.jpg"
       media="(min-width: 769px)"
     >
 
     <title>Street Stars | Estrelas nascem nas ruas</title>
-    <meta name="description" content="Street Stars é uma marca de moda streetwear que nasce da rua, da cultura e da expressão individual. Conheça a loja oficial." />
-    <meta name="author" content="Street Stars" />
-    <link rel="canonical" href="https://streetstars.vercel.app/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://streetstars.vercel.app/">
-    <meta property="og:title" content="Street Stars — Estrelas nascem nas ruas" />
-    <meta property="og:description" content="Mais do que roupas. Criamos identidade."/>
-    <meta property="og:image" content="./assets/images/logo.webp" />
-    <meta property="og:site_name" content="Street Stars" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="/public/favicon.ico" />
-
+    
     <style>
-      body { margin: 0; background-color: #000; overflow-x: hidden; }
-      #root { display: flex; flex-direction: column; min-height: 100vh; }
-      .app-loader {
+      body { 
+        margin: 0; 
+        background-color: #000; 
+        color: #fff;
+        font-family: sans-serif;
+      }
+
+      #initial-loader {
         position: fixed;
         inset: 0;
         z-index: 9999;
         background-color: #000;
-        background-image: url('https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,w_600,dpr_2.0/v1769638546/hero_rb9jvq.jpg');
-        background-size: cover;
-        background-position: 55% 65%;
-        background-repeat: no-repeat;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        transition: opacity 0.5s ease-out;
+        transition: opacity 0.4s ease-out;
       }
 
-      @media (min-width: 769px) {
-        .app-loader {
-          background-image: url('https://res.cloudinary.com/dmsvju9ca/image/upload/f_auto,q_auto,w_1500/v1769638546/hero_rb9jvq.jpg');
-          background-position: center 18%;
-        }
+      .loader-brand {
+        font-size: 14px;
+        letter-spacing: 0.4em;
+        text-transform: uppercase;
+        opacity: 0.7;
+        margin-bottom: 20px;
       }
 
-      .app-loader::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(to bottom, rgba(0,0,0,0.65), rgba(0,0,0,0.55), rgba(0,0,0,0.65));
-      }
-
-      .loader-content {
-        position: relative;
-        z-index: 10000;
-        text-align: center;
-        color: white;
-        font-family: sans-serif;
-      }
-      
       .spinner {
-        width: 24px; height: 24px; margin: 20px auto 0;
-        border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff;
-        border-radius: 50%; animation: spin 1s linear infinite;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-top: 2px solid #fff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
       }
+
       @keyframes spin { to { transform: rotate(360deg); } }
+
+      .loader-hidden {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+      }
     </style>
   </head>
   <body>
     <div id="root">
-      <div class="app-loader" id="initial-loader">
-        <div class="loader-content">
-          <p style="font-size: 12px; letter-spacing: 0.35em; opacity: 0.6; margin-bottom: 24px;">STREET STARS</p>
-          <div class="spinner"></div>
-        </div>
+      <div id="initial-loader">
+        <span class="loader-brand">Street Stars</span>
+        <div class="spinner"></div>
       </div>
     </div>
 
     <script type="module" src="/src/main.jsx"></script>
-    
+
     <script>
       window.removeLoader = () => {
         const loader = document.getElementById('initial-loader');
         if (loader) {
-          loader.style.opacity = '0';
-
-          loader.style.zIndex = '-1'; 
-          loader.style.pointerEvents = 'none';
-          
+          loader.classList.add('loader-hidden');
           setTimeout(() => {
             loader.remove();
           }, 500);
