@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { collections } from '../../data/collections.js'
 import { Link } from 'react-router-dom' 
 import { optimizeImage, generateSrcSet } from '../../utils/image'
@@ -8,17 +8,18 @@ const container = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.1
+      staggerChildren: 0.1,
+      delayChildren: 0.1
     }
   }
 }
 
 const itemVariant = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 40 },
   show: { 
     opacity: 1, 
     y: 0, 
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } 
+    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] }
   }
 }
 
@@ -29,21 +30,22 @@ export default function Collections() {
   const handleScroll = useCallback(() => {
     if (scrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
-
+      
+      let newIndex = 0;
       if (scrollLeft + clientWidth >= scrollWidth - 10) {
-        setCurrentIndex(collections.length - 1)
-        return
+        newIndex = collections.length - 1;
+      } else {
+        newIndex = Math.round(scrollLeft / (clientWidth * 0.85));
+        newIndex = Math.min(newIndex, collections.length - 1);
       }
-
-      const index = Math.round(scrollLeft / (clientWidth * 0.85))
-      setCurrentIndex(Math.min(index, collections.length - 1))
+      
+      setCurrentIndex(prev => (prev === newIndex ? prev : newIndex));
     }
   }, [])
 
   const scrollToItem = useCallback((index) => {
     if (scrollRef.current) {
       const cardWidth = scrollRef.current.firstChild.offsetWidth + 16
-      
       scrollRef.current.scrollTo({
         left: index * cardWidth,
         behavior: 'smooth'
@@ -78,19 +80,23 @@ export default function Collections() {
           variants={container}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, amount: 0.2 }}
           className="
             flex gap-4 overflow-x-auto snap-x snap-mandatory pb-8 -mx-6 px-6 
             md:grid md:grid-cols-3 md:gap-8 md:overflow-visible md:pb-0 md:mx-0 md:px-0
             scrollbar-hide
           "
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} 
+          style={{ 
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none',
+            willChange: 'scroll-position' 
+          }} 
         >
           {collections.map((item, index) => (
             <motion.div
               key={item.id || index}
               variants={itemVariant}
-              className="min-w-[85%] sm:min-w-[45%] md:min-w-0 snap-center"
+              className="min-w-[85%] sm:min-w-[45%] md:min-w-0 snap-center h-full"
             >
               <CollectionCard item={item} index={index} />
             </motion.div>
@@ -120,61 +126,73 @@ export default function Collections() {
 }
 
 function CollectionCard({ item, index }) {
+  const ref = useRef(null)
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  })
+
+  const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"])
+
   return (
-    <article className="group h-full">
+    <article ref={ref} className="group h-full overflow-hidden">
       <Link 
         to={`/collection/${index}`} 
-        aria-label={`Ver coleção ${item.title}`}
-        className="block relative h-full"
+        className="block relative h-full aspect-[3/4]"
       >
-        <div className="relative aspect-[3/4] overflow-hidden bg-zinc-900 border border-white/5 h-full">
+        <div className="relative w-full h-full overflow-hidden bg-zinc-900 border border-white/5">
 
-          <img
-            src={optimizeImage(item.image, 800)}
-            srcSet={generateSrcSet(item.image)}
-            sizes="(max-width: 768px) 85vw, 33vw"
-            alt={`Coleção ${item.title} - Street Stars`}
-            width={800}
-            height={1067}
-            loading='lazy'
-            className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:opacity-0"
-          />
-
-          {item.imageHover && (
+          <motion.div style={{ y }} className="absolute inset-0 w-full h-[120%] -top-[10%]">
             <img
-              src={optimizeImage(item.imageHover, 800)}
-              srcSet={generateSrcSet(item.imageHover)}
+              src={optimizeImage(item.image, 800)}
+              srcSet={generateSrcSet(item.image)}
               sizes="(max-width: 768px) 85vw, 33vw"
-              alt={`Coleção ${item.title} - Visualização alternativa`}
+              alt={item.title}
               width={800}
               height={1067}
               loading='lazy'
-              className="absolute inset-0 w-full h-full object-cover opacity-0 scale-110 transition-all duration-700 group-hover:opacity-100 group-hover:scale-100"
+              decoding="async"
+              className="w-full h-full object-cover transition-opacity duration-700 group-hover:opacity-0"
             />
-          )}
+            
+            {item.imageHover && (
+              <img
+                src={optimizeImage(item.imageHover, 800)}
+                srcSet={generateSrcSet(item.imageHover)}
+                sizes="(max-width: 768px) 85vw, 33vw"
+                alt=""
+                width={800}
+                height={1067}
+                loading='lazy'
+                decoding="async"
+                fetchPriority="low"
+                className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+              />
+            )}
+          </motion.div>
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80" aria-hidden="true" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 pointer-events-none" />
 
-          <div className="absolute inset-0 p-6 flex flex-col justify-between">
-
+          <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
             <div className="flex justify-between items-start">
               <span className="text-[9px] border border-white/30 px-2 py-1 uppercase tracking-widest bg-black/30 backdrop-blur-sm">
                 Drop 0{index + 1}
               </span>
-              <span className="text-[18px] opacity-50 group-hover:opacity-100 transition-opacity" aria-hidden="true">
+              <span className="text-[18px] opacity-50 group-hover:opacity-100 transition-opacity translate-x-4 group-hover:translate-x-0 duration-300">
                 ↗
               </span>
             </div>
 
-            <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-              <h3 className="font-display text-2xl uppercase italic leading-none mb-2 text-white">
+            <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+              <h3 className="font-display text-2xl uppercase italic leading-none mb-2 text-white drop-shadow-md">
                 {item.title}
               </h3>
 
-              <div className="w-0 group-hover:w-full h-[1px] bg-white transition-all duration-700 mb-3" aria-hidden="true" />
+              <div className="w-0 group-hover:w-full h-[1px] bg-white transition-all duration-700 mb-3" />
               
               <p className="text-[10px] text-white/70 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                Ver Editorial Completo
+                Ver Editorial
               </p>
             </div>
           </div>

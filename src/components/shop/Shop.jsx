@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { collection, getDocs, query, orderBy } from 'firebase/firestore/lite'
-import { db } from '../../services/firebase'
+
 import { formatCurrency } from '../../utils/format'
 import { optimizeImage, generateSrcSet } from '../../utils/image'
 import { CATEGORIES } from '../../data/constants'
@@ -22,14 +21,21 @@ export default function Shop() {
       return
     }
 
+    let isMounted = true
+
     async function loadProducts() {
       try {
+        const { collection, getDocs, query, orderBy } = await import('firebase/firestore/lite');
+        const { db } = await import('../../services/firebase');
+
+        if (!isMounted) return;
+
         const productsRef = collection(db, "products")
         const q = query(productsRef, orderBy("created_at", "asc"))
-        
+
         const querySnapshot = await getDocs(q)
+
         const list = []
-        
         querySnapshot.forEach((doc) => {
           list.push({
             id: doc.id,
@@ -37,17 +43,28 @@ export default function Shop() {
           })
         })
 
-        setProducts(list)
-        cachedProducts = list
+        if (isMounted) {
+          setProducts(list)
+          cachedProducts = list
+        }
+
       } catch (error) {
         console.error("Erro ao buscar produtos:", error)
-        setError("Não foi possível carregar os produtos. Tente novamente.")
+        if (isMounted) {
+          setError("Não foi possível carregar os produtos. Tente novamente.")
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
     loadProducts()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   const filteredProducts = useMemo(() => {

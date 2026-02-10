@@ -99,7 +99,7 @@ export default function Manifesto() {
         variants={container}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.2 }}
       >
 
         <header className="space-y-4 md:space-y-6 mb-24">

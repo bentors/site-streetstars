@@ -150,7 +150,7 @@ export default function Header({ setOverlayActive }) {
     const scrollToTarget = () => {
       const element = document.querySelector(href)
       if (element) {
-        const y = element.getBoundingClientRect().top + window.scrollY - 80
+        const y = element.getBoundingClientRect().top + window.scrollY - 60
         window.scrollTo({ top: y, behavior: 'smooth' })
       }
     }
