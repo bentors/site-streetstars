@@ -7,6 +7,8 @@ export default function SEO({ title, description, image, url, children }) {
   const siteUrl = 'https://streetstars.vercel.app'
 
   const getSocialImage = (imgUrl) => {
+
+    if (!imgUrl) return defaultImage
     let finalUrl = imgUrl || defaultImage
 
     if (!finalUrl.includes('cloudinary.com')) return finalUrl
