@@ -29,6 +29,8 @@ export default function About() {
               width={1000}
               height={550}
               loading="lazy"
+              decoding="async"
+              fetchPriority="low"
               className="w-full h-[400px] md:h-[550px] object-[center_45%] sm:object-[center_35%] object-cover grayscale hover:grayscale-0 hover:scale-105 transition-all duration-1000 ease-in-out"
             />
           </motion.div>

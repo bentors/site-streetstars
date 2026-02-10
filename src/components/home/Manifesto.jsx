@@ -65,6 +65,8 @@ export default function Manifesto() {
               width={1500}
               height={1000}
               loading="lazy"
+              decoding="async"
+              fetchPriority="low"
               className="w-full h-full object-cover contrast-125 opacity-50" 
             />
           </picture>
