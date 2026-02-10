@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
+import SEO from '../components/SEO'
 import { useCart } from '../context/CartContext.jsx'
 import { doc, getDoc, getDocs, collection, query, where, limit } from 'firebase/firestore/lite'
 import { db } from '../services/firebase.js'
@@ -168,21 +168,18 @@ export default function ProductPage() {
 
   return (
     <>
-      <Helmet>
-        <title>{product.name} - Street Stars</title>
-        <meta name="description" content={product.description || `Compre ${product.name} na Street Stars. ${formatCurrency(product.price)} em até 6x sem juros.`} />
-
-        <meta property="og:title" content={`${product.name} - Street Stars`} />
-        <meta property="og:description" content={product.description} />
-        <meta property="og:image" content={optimizeImage(images[0], 800)} />
-        <meta property="og:type" content="product" />
-
+      <SEO
+        title={product.name}
+        description={product.description}
+        image={optimizeImage(images[0], 800)}
+        url={`/product/${product.id}`}
+      >
         {mainImagePreload && (
            <link 
              rel="preload" 
              as="image" 
              href={mainImagePreload} 
-             fetchpriority="high" 
+             fetchPriority="high"
            />
         )}
 
@@ -206,7 +203,7 @@ export default function ProductPage() {
             }
           })}
         </script>
-      </Helmet>
+      </SEO>
 
       <div className="bg-black min-h-screen text-white pt-24 pb-10 relative">
 

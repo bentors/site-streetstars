@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useParams, Link, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Helmet } from 'react-helmet-async'
+import SEO from '../components/SEO'
 
 const LEGAL_CONTENT = {
   'termos-de-uso': {
@@ -375,11 +375,13 @@ export default function LegalInfo() {
 
   return (
     <>
-      <Helmet>
-        <title>{data.title} - Street Stars</title>
-        <meta name="description" content={data.description} />
+      <SEO 
+        title={data.title}
+        description={data.description}
+        url={`/legal/${slug}`}
+      >
         <meta name="robots" content="noindex, follow" />
-      </Helmet>
+      </SEO>
 
       <div className="min-h-screen bg-black text-white pt-32 pb-20 px-6">
         <div className="max-w-3xl mx-auto">

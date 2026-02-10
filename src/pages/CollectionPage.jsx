@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Helmet } from 'react-helmet-async'
+import SEO from '../components/SEO'
 import { collections } from '../data/collections.js'
 import { optimizeImage, generateSrcSet } from '../utils/image'
 
@@ -52,17 +52,12 @@ export default function CollectionPage() {
   return (
     <main className="min-h-screen bg-black text-white selection:bg-white selection:text-black overflow-x-hidden">
 
-      <Helmet>
-        <title>{collection.title} - Street Stars Collections</title>
-        <meta 
-          name="description" 
-          content={collection.shortDescription || `Confira o editorial ${collection.title} da Street Stars.`} 
-        />
-        <meta property="og:title" content={`${collection.title} - Lookbook Street Stars`} />
-        <meta property="og:description" content={collection.shortDescription} />
-        <meta property="og:image" content={optimizeImage(collection.image, 1200)} />
-        <meta property="og:type" content="article" />
-      </Helmet>
+      <SEO 
+        title={`${collection.title} - Collections`}
+        description={collection.shortDescription || `Confira o editorial ${collection.title} da Street Stars.`}
+        image={optimizeImage(collection.image, 1200)}
+        url={`/collection/${id}`}
+      />
 
       <AnimatePresence>
         {selectedImage && (

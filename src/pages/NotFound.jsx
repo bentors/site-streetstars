@@ -1,9 +1,15 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import SEO from '../components/SEO'
 
 export default function NotFound() {
   return (
     <div className="h-screen bg-black text-white flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+
+      <SEO title="Página não encontrada">
+        <meta name="robots" content="noindex, nofollow" />
+      </SEO>
+      
       <div className="absolute inset-0 bg-zinc-900/20" />
       
       <motion.h1 

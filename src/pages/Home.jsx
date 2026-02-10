@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Helmet } from 'react-helmet-async'
+import SEO from '../components/SEO'
 import { optimizeImage } from '../utils/image'
 
 import Hero from '../components/home/Hero'
@@ -11,7 +11,6 @@ const Manifesto = lazy(() => import('../components/home/Manifesto'))
 const About = lazy(() => import('../components/home/About'))
 
 const HERO_RAW_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769638546/hero_rb9jvq.jpg"
-const HERO_IMAGE_PRELOAD = optimizeImage(HERO_RAW_URL, 1500)
 
 const SchemaMarkup = () => {
   const schemaData = {
@@ -93,27 +92,12 @@ export default function Home() {
 
   return (
     <main id="main-content" className="bg-black min-h-screen">
-      <Helmet>
-        <title>Street Stars | Estrelas nascem nas ruas</title>
-        <meta
-          name="description"
-          content="Streetwear autêntico nascido em São Paulo. Transformamos vivência urbana em estilo, identidade e movimento."
-        />
-
-        <meta property="og:title" content="Street Stars — Seja uma Estrela das Ruas" />
-        <meta property="og:description" content="Streetwear autêntico nascido em São Paulo." />
-        <meta property="og:image" content={optimizeImage(HERO_RAW_URL, 1200)} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://streetstars.vercel.app/" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Street Stars — Seja uma Estrela das Ruas" />
-        <meta name="twitter:description" content="Streetwear autêntico nascido em São Paulo." />
-        <meta name="twitter:image" content={optimizeImage(HERO_RAW_URL, 1200)} />
-
-        <link rel="canonical" href="https://streetstars.vercel.app/" />
-
-      </Helmet>
+      <SEO 
+        title="Home"
+        description="Streetwear autêntico nascido em São Paulo. Transformamos vivência urbana em estilo, identidade e movimento."
+        image={optimizeImage(HERO_RAW_URL, 1200)}
+      >
+      </SEO>
 
       <SchemaMarkup />
 
