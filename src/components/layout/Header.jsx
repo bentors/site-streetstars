@@ -89,12 +89,12 @@ export default function Header({ setOverlayActive }) {
     }
   }, [isHome])
 
-  useEffect(() => {
+useEffect(() => {
     if (!isHome) return
 
     const observerOptions = {
-      root: null,
-      rootMargin: '-40% 0px -50% 0px',
+      root: null, 
+      rootMargin: '-40% 0px -50% 0px', 
     }
 
     const observer = new IntersectionObserver((entries) => {
@@ -115,10 +115,16 @@ export default function Header({ setOverlayActive }) {
       })
     }, observerOptions)
 
-    const timeoutId = setTimeout(() => {
+    const attachObserver = () => {
       const sections = document.querySelectorAll('section[id], footer[id]')
       sections.forEach(section => observer.observe(section))
-    }, 100)
+    }
+
+    const t1 = setTimeout(attachObserver, 100)
+    
+    const t2 = setTimeout(attachObserver, 1000)
+
+    const t3 = setTimeout(attachObserver, 3000)
 
     const handleScroll = () => {
       if (isNavigatingRef.current) return
@@ -134,7 +140,9 @@ export default function Header({ setOverlayActive }) {
     window.addEventListener('scroll', handleScroll)
 
     return () => {
-      clearTimeout(timeoutId)
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
       observer.disconnect()
       window.removeEventListener('scroll', handleScroll)
     }
