@@ -1,16 +1,44 @@
-# React + Vite
+<div align="center">
+  <img src="https://res.cloudinary.com/dmsvju9ca/image/upload/v1769730868/logo_fundopreto_y87j0h.png" alt="Street Stars Logo" width="200">
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+  # 👕 Street Stars - E-commerce
 
-Currently, two official plugins are available:
+  ### A experiência definitiva em moda urbana e performance web.
+  
+  [Link para o Site Ao Vivo](https://streetstars.vercel.app/) • [Reportar Bug](https://github.com/bentors/street-stars/issues)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+</div>
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📖 Sobre o Projeto
 
-## Expanding the ESLint configuration
+O **Street Stars** não é apenas um e-commerce; é um ecossistema de moda urbana focado em velocidade e fluidez. Como cofundador e desenvolvedor principal, o desafio foi criar uma plataforma que suportasse uma navegação rápida, carregamento inteligente de imagens e uma interface que respira a cultura streetwear.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 🌟 Diferenciais:
+- **Performance:** Imagens otimizadas com Cloudinary para carregamento instantâneo.
+- **Fluidez:** Transições suaves de página e elementos usando Framer Motion.
+- **Responsividade:** Experiência mobile-first impecável com Tailwind CSS.
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+| Ferramenta | Descrição |
+| :--- | :--- |
+| **React + Vite** | SPA rápida e moderna. |
+| **Tailwind CSS** | Estilização utilitária e responsiva. |
+| **Framer Motion** | Animações e micro-interações. |
+| **Cloudinary** | Gerenciamento e entrega de mídia. |
+| **Firebase/Backend** | (Ajuste aqui conforme o que você usa no backend deste projeto) |
+
+---
+
+## 👥 Fundadores
+Bento Rangel - Software Developer & Co-founder / Felipe dos Santos - Designer & Co-founder
+
+---
+
+<div align="center">
+  <p>Desenvolvido com ⚡ por Bento Rangel</p>
+</div>
