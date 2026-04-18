@@ -201,7 +201,11 @@ export default function ProductForm({ productId = null }) {
 
       const payload = {
         ...formData,
-        price: Number(formData.price),
+        name: formData.name.trim().slice(0, 100),
+        description: formData.description.trim().slice(0, 2000),
+        price: Math.max(0, Number(formData.price)),
+        category: formData.category.trim(),
+        features: formData.features.map(f => f.trim()).filter(Boolean),
         img: mainImageUrl,
         gallery: finalGallery,
         updated_at: new Date()
