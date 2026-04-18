@@ -15,12 +15,21 @@ import Home from './pages/Home'
 
 // Rotas de Segurança
 const Private = lazy(() => import('./routes/Private'))
+const PrivateUser = lazy(() => import('./routes/PrivateUser'))
 
 // Lazy Loading - Páginas Públicas
 const ProductPage = lazy(() => import('./pages/ProductPage'))
 const CollectionPage = lazy(() => import('./pages/CollectionPage'))
 const LegalInfo = lazy(() => import('./pages/LegalInfo'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+
+// Lazy Loading - Auth
+const UserLogin = lazy(() => import('./pages/auth/UserLogin'))
+const UserRegister = lazy(() => import('./pages/auth/UserRegister'))
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
+
+// Lazy Loading - Área do Usuário
+const MyAccount = lazy(() => import('./pages/account/MyAccount'))
 
 // Lazy Loading - Admin
 const Login = lazy(() => import('./pages/admin/Login'))
@@ -62,6 +71,14 @@ export default function App() {
             <Route path="collection/:id" element={<CollectionPage />} />
             <Route path="legal/:slug" element={<LegalInfo />} />
           </Route>
+
+          {/* Rotas de Autenticação */}
+          <Route path="login" element={<UserLogin />} />
+          <Route path="cadastro" element={<UserRegister />} />
+          <Route path="esqueci-senha" element={<ForgotPassword />} />
+
+          {/* Rotas Protegidas — Usuário */}
+          <Route path="minha-conta" element={<PrivateUser><MyAccount /></PrivateUser>} />
 
           {/* Rotas Admin */}
           <Route path="admin" element={<Login />} />
