@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { db } from '../../services/firebase'
 import { doc, getDoc, addDoc, updateDoc, collection } from 'firebase/firestore/lite'
-import { uploadImageToCloudinary } from '../../services/cloudinary'
+import { uploadImageToCloudinary, validateImageFile } from '../../services/cloudinary'
 import { CATEGORIES } from '../../data/constants'
 
 const AVAILABLE_SIZES = ["P", "M", "G", "GG", "XG", "UN"]
@@ -77,18 +77,33 @@ export default function ProductForm({ productId = null }) {
   }
 
   function handleMainImage(e) {
-    const image = e.target.files[0]
-    if (image) {
-      setMainImageFile(image)
-      setMainPreview(URL.createObjectURL(image))
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const { valid, error } = validateImageFile(file);
+    if (!valid) {
+      alert(error);
+      e.target.value = '';
+      return;
     }
+
+    setMainImageFile(file);
+    setMainPreview(URL.createObjectURL(file));
   }
 
   function handleGalleryFiles(e) {
-    const files = Array.from(e.target.files)
-    if (files.length > 0) {
-      setGalleryFiles(prev => [...prev, ...files])
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    const invalid = files.find(f => !validateImageFile(f).valid);
+    if (invalid) {
+      const { error } = validateImageFile(invalid);
+      alert(`Arquivo "${invalid.name}": ${error}`);
+      e.target.value = '';
+      return;
     }
+
+    setGalleryFiles(prev => [...prev, ...files]);
   }
 
   function removeGalleryItem(index, isNewFile = false) {
