@@ -8,6 +8,8 @@ import { CATEGORIES } from '../../data/constants'
 import Loading from '../Loading'
 
 let cachedProducts = null
+let cacheTimestamp = null
+const CACHE_TTL = 5 * 60 * 1000
 
 export default function Shop() {
   const [filter, setFilter] = useState("TODOS")
@@ -16,7 +18,8 @@ export default function Shop() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (cachedProducts) {
+    const isCacheValid = cachedProducts && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_TTL)
+    if (isCacheValid) {
       setLoading(false)
       return
     }
@@ -25,27 +28,25 @@ export default function Shop() {
 
     async function loadProducts() {
       try {
-        const { collection, getDocs, query, orderBy } = await import('firebase/firestore/lite');
+        const { collection, getDocs, query, orderBy, where } = await import('firebase/firestore/lite');
         const { db } = await import('../../services/firebase');
 
         if (!isMounted) return;
 
         const productsRef = collection(db, "products")
-        const q = query(productsRef, orderBy("created_at", "asc"))
+        const q = query(productsRef, where("isActive", "==", true), orderBy("created_at", "asc"))
 
         const querySnapshot = await getDocs(q)
 
         const list = []
         querySnapshot.forEach((doc) => {
-          list.push({
-            id: doc.id,
-            ...doc.data()
-          })
+          list.push({ id: doc.id, ...doc.data() })
         })
 
         if (isMounted) {
           setProducts(list)
           cachedProducts = list
+          cacheTimestamp = Date.now()
         }
 
       } catch (error) {
@@ -54,22 +55,17 @@ export default function Shop() {
           setError("Não foi possível carregar os produtos. Tente novamente.")
         }
       } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
+        if (isMounted) setLoading(false)
       }
     }
 
     loadProducts()
-
-    return () => {
-      isMounted = false
-    }
+    return () => { isMounted = false }
   }, [])
 
   const filteredProducts = useMemo(() => {
-    return filter === "TODOS" 
-      ? products 
+    return filter === "TODOS"
+      ? products
       : products.filter(p => p.category === filter)
   }, [filter, products])
 

@@ -76,7 +76,7 @@ export default function ProductPage() {
 
     try {
       const productsRef = collection(db, "products")
-      const q = query(productsRef, where("category", "==", category), limit(5))
+      const q = query(productsRef, where("category", "==", category), where("isActive", "==", true), limit(5))
       const snapshot = await getDocs(q)
       
       const list = []
