@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { doc, updateDoc, addDoc, collection, getDocs, deleteDoc } from 'firebase/firestore/lite'
 import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth'
@@ -7,6 +7,7 @@ import { db } from '../../services/firebase'
 import { useAuth } from '../../context/AuthContext'
 import Logo from '../../components/ui/Logo'
 import { validateCPF, formatCPF, formatPhone, formatCEP } from '../../utils/validators'
+import { formatCurrency } from '../../utils/format'
 
 const TABS = [
   { id: 'profile', label: 'Perfil' },
@@ -536,13 +537,114 @@ function AddressesTab({ user }) {
 
 // ─── Tab: Pedidos ────────────────────────────────────────────────────────────
 
-function OrdersTab() {
+function OrdersTab({ user }) {
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadOrders() {
+      try {
+        const { collection, query, where, orderBy, getDocs } = await import('firebase/firestore/lite')
+        const { db } = await import('../../services/firebase')
+
+        const q = query(
+          collection(db, 'orders'),
+          where('userId', '==', user.uid),
+          orderBy('created_at', 'desc')
+        )
+        const snap = await getDocs(q)
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        setOrders(list)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadOrders()
+  }, [user.uid])
+
+  if (loading) {
+    return (
+      <div className="text-white/30 text-xs font-mono uppercase tracking-widest animate-pulse py-10 text-center">
+        Carregando pedidos...
+      </div>
+    )
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10 rounded-sm">
+        <p className="text-white/30 text-xs uppercase tracking-widest font-mono text-center">
+          Você ainda não fez nenhum pedido.
+        </p>
+        <Link
+          to="/"
+          className="mt-4 text-[10px] uppercase tracking-widest text-white/40 hover:text-white transition-colors underline"
+        >
+          Ir para a loja
+        </Link>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center py-20 border border-dashed border-white/10">
-      <p className="text-white/30 text-xs uppercase tracking-widest font-mono text-center">
-        Seus pedidos aparecerão aqui após a integração com o Mercado Pago.
-      </p>
+    <div className="flex flex-col gap-4">
+      {orders.map(order => (
+        <div key={order.id} className="border border-white/10 rounded-sm overflow-hidden">
+          <div className="px-5 py-3 bg-zinc-900/50 border-b border-white/5 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-mono text-white/30 uppercase tracking-widest">
+                #{order.id.slice(0, 8).toUpperCase()}
+              </p>
+              <p className="text-[10px] font-mono text-white/20 mt-0.5">
+                {order.created_at?.toDate
+                  ? order.created_at.toDate().toLocaleDateString('pt-BR')
+                  : '—'
+                }
+              </p>
+            </div>
+            <OrderStatusBadge status={order.status} />
+          </div>
+
+          <div className="px-5 py-4 flex items-center justify-between">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-white/40 font-mono mb-1">
+                {order.address?.city}/{order.address?.state}
+              </p>
+              <p className="text-sm font-black text-white">
+                {formatCurrency(order.total)}
+              </p>
+            </div>
+            <Link
+              to={`/pedido/${order.id}`}
+              className="text-[10px] uppercase tracking-widest text-white/30 hover:text-white transition-colors font-mono border border-white/10 hover:border-white px-3 py-2"
+            >
+              Ver Detalhes
+            </Link>
+          </div>
+        </div>
+      ))}
     </div>
+  )
+}
+
+function OrderStatusBadge({ status }) {
+  const config = {
+    pending:    { label: 'Aguardando Pagamento', color: 'text-yellow-400 border-yellow-400/30 bg-yellow-400/5' },
+    paid:       { label: 'Pago', color: 'text-green-400 border-green-400/30 bg-green-400/5' },
+    processing: { label: 'Em Processamento', color: 'text-blue-400 border-blue-400/30 bg-blue-400/5' },
+    shipped:    { label: 'Enviado', color: 'text-purple-400 border-purple-400/30 bg-purple-400/5' },
+    delivered:  { label: 'Entregue', color: 'text-white border-white/20 bg-white/5' },
+    cancelled:  { label: 'Cancelado', color: 'text-red-400 border-red-400/30 bg-red-400/5' },
+  }
+
+  const { label, color } = config[status] || { label: status, color: 'text-white/40 border-white/10' }
+
+  return (
+    <span className={`text-[9px] uppercase tracking-widest font-bold font-mono px-2 py-1 border rounded-sm ${color}`}>
+      {label}
+    </span>
   )
 }
 

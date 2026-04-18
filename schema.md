@@ -68,3 +68,4 @@ qualquer status → cancelled
 - Status só pode ser alterado via Cloud Function (Admin SDK)
 - CPF é opcional no cadastro mas obrigatório antes de finalizar o checkout
 - marketingConsent deve ser registrado com timestamp para conformidade LGPD
+- Items do pedido permitem create por usuário autenticado, update e delete são bloqueados

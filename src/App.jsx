@@ -13,6 +13,8 @@ import DefaultLayout from './components/layout/DefaultLayout'
 // Páginas Estáticas
 import Home from './pages/Home'
 
+
+
 // Rotas de Segurança
 const Private = lazy(() => import('./routes/Private'))
 const PrivateUser = lazy(() => import('./routes/PrivateUser'))
@@ -30,6 +32,11 @@ const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
 
 // Lazy Loading - Área do Usuário
 const MyAccount = lazy(() => import('./pages/account/MyAccount'))
+
+// Lazy Loading - Checkout
+const CheckoutAddress = lazy(() => import('./pages/checkout/CheckoutAddress'))
+const CheckoutReview = lazy(() => import('./pages/checkout/CheckoutReview'))
+const OrderConfirmation = lazy(() => import('./pages/checkout/OrderConfirmation'))
 
 // Lazy Loading - Admin
 const Login = lazy(() => import('./pages/admin/Login'))
@@ -76,6 +83,11 @@ export default function App() {
           <Route path="login" element={<UserLogin />} />
           <Route path="cadastro" element={<UserRegister />} />
           <Route path="esqueci-senha" element={<ForgotPassword />} />
+
+          {/* Rotas de Checkout — requer login */}
+          <Route path="checkout/endereco" element={<PrivateUser><CheckoutAddress /></PrivateUser>} />
+          <Route path="checkout/revisao" element={<PrivateUser><CheckoutReview /></PrivateUser>} />
+          <Route path="pedido/:orderId" element={<PrivateUser><OrderConfirmation /></PrivateUser>} />
 
           {/* Rotas Protegidas — Usuário */}
           <Route path="minha-conta" element={<PrivateUser><MyAccount /></PrivateUser>} />

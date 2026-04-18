@@ -13,12 +13,12 @@
 - [x] Cache com TTL no Shop
 - [x] Documentação: README, SCHEMA, ARCHITECTURE, ROADMAP, .env.example
 
-## 🔄 Sprint 1 — Autenticação de Usuário (Em andamento)
-- [ ] Página de cadastro (email, senha, nome, CPF, consentimento LGPD)
-- [ ] Página de login de usuário
-- [ ] Recuperação de senha
-- [ ] Área do usuário: perfil e endereços salvos
-- [ ] Proteção de rotas autenticadas
+## 🔄 Sprint 1 — Autenticação de Usuário (Concluído)
+- [x] Página de cadastro (email, senha, nome, CPF, consentimento LGPD)
+- [x] Página de login de usuário
+- [x] Recuperação de senha
+- [x] Área do usuário: perfil e endereços salvos
+- [x] Proteção de rotas autenticadas
 
 ## ⏳ Sprint 2 — Estrutura de Pedidos
 - [ ] Fluxo de checkout: carrinho → endereço → confirmação

@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../../context/CartContext.jsx'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { formatCurrency } from '../../utils/format'
 import { optimizeImage } from '../../utils/image'
+import { useAuth } from '../../context/AuthContext'
 
 const WHATSAPP_NUMBER = "5511999999999"
 
@@ -18,6 +19,8 @@ export default function CartDrawer() {
   } = useCart()
 
   const [isProcessing, setIsProcessing] = useState(false)
+  const navigate = useNavigate()
+  const { user } = useAuth()
 
   useEffect(() => {
     if (isCartOpen) {
@@ -51,37 +54,15 @@ export default function CartDrawer() {
   const handleCheckout = useCallback(() => {
     if (cartItems.length === 0 || isProcessing) return
 
-    setIsProcessing(true)
+    setIsCartOpen(false)
 
-    try {
-      let message = `*NOVO PEDIDO - STREET STARS* ⭐\n\n`
-      
-      cartItems.forEach((item, index) => {
-        const colorText = item.color ? ` | Cor: ${item.color}` : ''
-        message += `${index + 1}. ${item.quantity}x ${item.name}\n`
-        message += `   Tamanho: ${item.size}${colorText}\n`
-        message += `   ${formatCurrency(item.price)} cada\n\n`
-      })
-      
-      message += `━━━━━━━━━━━━━━━\n`
-      message += `*TOTAL: ${formatCurrency(cartTotal)}*\n\n`
-      message += `Olá! Gostaria de finalizar a compra e combinar o pagamento.`
-
-      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
-
-      window.open(url, '_blank', 'noopener,noreferrer')
-
-      setTimeout(() => {
-        setIsCartOpen(false)
-        setIsProcessing(false)
-      }, 500)
-      
-    } catch (error) {
-      console.error('Erro ao processar checkout:', error)
-      setIsProcessing(false)
-      alert('Erro ao abrir WhatsApp. Tente novamente.')
+    if (!user) {
+      navigate('/login', { state: { from: { pathname: '/checkout/endereco' } } })
+      return
     }
-  }, [cartItems, cartTotal, setIsCartOpen, isProcessing])
+
+    navigate('/checkout/endereco')
+  }, [cartItems, user, isProcessing, setIsCartOpen, navigate])
 
   return (
     <AnimatePresence>
@@ -251,7 +232,7 @@ export default function CartDrawer() {
                       </svg>
                     )}
                   </span>
-                  <div className="absolute inset-0 bg-green-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"/>
+                  <div className="absolute inset-0 bg-black translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"/>
                 </button>
 
                 <p className="text-[9px] text-center text-white/30 uppercase tracking-wider">
