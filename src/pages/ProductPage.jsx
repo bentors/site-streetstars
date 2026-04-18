@@ -175,12 +175,12 @@ export default function ProductPage() {
         url={`/product/${product.id}`}
       >
         {mainImagePreload && (
-           <link 
-             rel="preload" 
-             as="image" 
-             href={mainImagePreload} 
-             fetchPriority="high"
-           />
+          <link
+            rel="preload"
+            as="image"
+            href={mainImagePreload}
+            fetchPriority="high"
+          />
         )}
 
         <script type="application/ld+json">
@@ -189,7 +189,7 @@ export default function ProductPage() {
             "@type": "Product",
             "name": product.name,
             "image": images.map(img => optimizeImage(img, 1000)),
-            "description": product.description,
+            "description": product.description || '',
             "brand": {
               "@type": "Brand",
               "name": "Street Stars"
@@ -198,8 +198,14 @@ export default function ProductPage() {
               "@type": "Offer",
               "price": product.price,
               "priceCurrency": "BRL",
-              "availability": "https://schema.org/InStock",
-              "url": window.location.href
+              "availability": product.isActive
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+              "url": `https://streetstars.vercel.app/product/${product.id}`,
+              "seller": {
+                "@type": "Organization",
+                "name": "Street Stars"
+              }
             }
           })}
         </script>

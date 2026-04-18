@@ -23,17 +23,11 @@ export const optimizeImage = (url, width = 800, options = {}) => {
 
     const transformations = [
       'f_auto',
-      'q_auto',
       'c_limit',
       'dpr_auto',
       `w_${width}`,
+      options.quality ? `q_${options.quality}` : 'q_auto',
     ];
-
-    if (options.quality) {
-        transformations.push(`q_${options.quality}`);
-    } else {
-        transformations.push('q_auto'); 
-    }
 
     if (options.height) transformations.push(`h_${options.height}`);
     if (options.crop) transformations.push(`c_${options.crop}`);
