@@ -210,6 +210,12 @@ export default function ProductForm({ productId = null }) {
         gallery: finalGallery,
         updated_at: new Date()
       }
+
+      if (!payload.name || !payload.price || !payload.category || !payload.img) {
+        alert('Preencha nome, preço, categoria e imagem antes de salvar.')
+        setLoading(false)
+        return
+      }
       
       if(!payload.created_at) payload.created_at = new Date()
 
