@@ -1,4 +1,4 @@
-const admin = require('./_firebase.cjs')
+const admin = require('./_firebase.js')
 const { MercadoPagoConfig, Preference } = require('mercadopago')
 
 module.exports = async (req, res) => {
@@ -9,7 +9,7 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     return res.status(204).send('')
   }
-  
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }

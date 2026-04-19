@@ -1,4 +1,4 @@
-const admin = require('./_firebase.cjs')
+const admin = require('./_firebase.js')
 const axios = require('axios')
 
 module.exports = async (req, res) => {
