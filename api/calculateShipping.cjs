@@ -8,12 +8,20 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     return res.status(204).send('')
   }
-  
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { cep } = req.body
+  if (typeof req.body === 'string') {
+    try {
+      req.body = JSON.parse(req.body)
+    } catch {
+      req.body = {}
+    }
+  }
+
+  const { cep } = req.body || {}
 
   if (!cep || cep.replace(/\D/g, '').length !== 8) {
     return res.status(400).json({ error: 'CEP inválido' })

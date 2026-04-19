@@ -9,12 +9,20 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     return res.status(204).send('')
   }
-  
+
   if (req.method !== 'POST') {
     return res.status(405).send('Method not allowed')
   }
 
-  const { type, data } = req.body
+  if (typeof req.body === 'string') {
+    try {
+      req.body = JSON.parse(req.body)
+    } catch {
+      req.body = {}
+    }
+  }
+
+  const { type, data } = req.body || {}
 
   if (type !== 'payment') {
     return res.status(200).send('OK')
