@@ -1,9 +1,9 @@
 require('dotenv').config()
 
 const http = require('http')
-const calculateShipping = require('./calculateShipping.cjs')
-const createPayment = require('./createPayment.cjs')
-const mpWebhook = require('./mpWebhook.cjs')
+const calculateShipping = require('./calculateShipping.js')
+const createPayment = require('./createPayment.js')
+const mpWebhook = require('./mpWebhook.js')
 
 const routes = {
   '/api/calculateShipping': calculateShipping,
