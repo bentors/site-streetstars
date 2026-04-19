@@ -6,36 +6,12 @@ const { Resend } = require('resend')
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 // ─── Verificação de assinatura HMAC do Mercado Pago ──────────────────────────
-function verifyMercadoPagoSignature(req) {
-  const xSignature = req.headers['x-signature']
-  const xRequestId = req.headers['x-request-id']
-
-  if (!xSignature || !xRequestId) return false
-
-  const dataId = req.query?.['data.id'] || req.body?.data?.id
-
-  const parts = xSignature.split(',')
-  let ts = null
-  let receivedHash = null
-
-  for (const part of parts) {
-    const [key, value] = part.trim().split('=')
-    if (key === 'ts') ts = value
-    if (key === 'v1') receivedHash = value
-  }
-
-  if (!ts || !receivedHash) return false
-
-  const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
-
-  const expectedHash = crypto
-    .createHmac('sha256', process.env.MP_WEBHOOK_SECRET)
-    .update(manifest)
-    .digest('hex')
-
-  return crypto.timingSafeEqual(
-    Buffer.from(receivedHash, 'hex'),
-    Buffer.from(expectedHash, 'hex')
+function verifySecret(req) {
+  const token = req.query?.secret
+  if (!token || !process.env.MP_WEBHOOK_SECRET) return false
+  return require('crypto').timingSafeEqual(
+    Buffer.from(token),
+    Buffer.from(process.env.MP_WEBHOOK_SECRET)
   )
 }
 
@@ -58,7 +34,7 @@ module.exports = async (req, res) => {
   }
 
   // ── Rejeitar requisições sem assinatura válida ──
-  if (!verifyMercadoPagoSignature(req)) {
+  if (!verifySecret(req)) {
     console.warn('mpWebhook: assinatura inválida rejeitada')
     return res.status(401).send('Unauthorized')
   }
