@@ -1,37 +1,39 @@
 import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../services/firebase'
+import { doc, getDoc } from 'firebase/firestore/lite'
+import { auth, db } from '../services/firebase'
 
 export default function Private({ children }) {
   const [loading, setLoading] = useState(true)
-  const [signed, setSigned] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const userData = {
-          uid: user.uid,
-          email: user.email,
-        }
-
         try {
-          localStorage.setItem("@streetstars_detail", JSON.stringify(userData))
-        } catch (error) {
-          console.error('Erro ao salvar dados do usuário:', error)
-        }
+          const adminRef = doc(db, 'admins', user.uid)
+          const adminSnap = await getDoc(adminRef)
 
-        setSigned(true)
+          if (adminSnap.exists() && adminSnap.data().isAdmin === true) {
+            localStorage.setItem('@streetstars_detail', JSON.stringify({
+              uid: user.uid,
+              email: user.email,
+            }))
+            setIsAdmin(true)
+          } else {
+            localStorage.removeItem('@streetstars_detail')
+            setIsAdmin(false)
+          }
+        } catch (error) {
+          console.error('Erro ao verificar admin:', error)
+          setIsAdmin(false)
+        }
       } else {
-        setSigned(false)
-
-        try {
-          localStorage.removeItem("@streetstars_detail")
-        } catch (error) {
-          console.error('Erro ao limpar dados do usuário:', error)
-        }
+        localStorage.removeItem('@streetstars_detail')
+        setIsAdmin(false)
       }
-      
+
       setLoading(false)
     })
 
@@ -49,7 +51,7 @@ export default function Private({ children }) {
     )
   }
 
-  if (!signed) {
+  if (!isAdmin) {
     return <Navigate to="/admin" replace />
   }
 
