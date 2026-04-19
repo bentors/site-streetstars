@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore/lite'
+import { db, auth } from '../../services/firebase'
 import { motion } from 'framer-motion'
-import { auth } from '../../services/firebase'
 import Logo from '../../components/ui/Logo'
 
 export default function Login() {
@@ -14,9 +15,17 @@ export default function Login() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        navigate('/admin/dashboard', { replace: true })
+        try {
+          const adminRef = doc(db, 'admins', user.uid)
+          const adminSnap = await getDoc(adminRef)
+          if (adminSnap.exists() && adminSnap.data().isAdmin === true) {
+            navigate('/admin/dashboard', { replace: true })
+          }
+        } catch (error) {
+          console.error('Erro ao verificar admin:', error)
+        }
       }
     })
     return () => unsub()
