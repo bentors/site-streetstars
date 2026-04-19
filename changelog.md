@@ -32,3 +32,27 @@
 - Otimização de imagens com Cloudinary
 - SEO com react-helmet-async
 - Deploy na Vercel
+
+## [1.2.0] — 2026
+
+### Funcionalidades
+- Sistema completo de autenticação de usuários (cadastro, login, recuperação de senha)
+- Área do usuário com perfil, endereços, pedidos e segurança
+- Dropdown de conta no header com iniciais do usuário
+- Fluxo de checkout: carrinho → endereço → revisão → pagamento
+- Cálculo de frete via Melhor Envio (PAC/SEDEX)
+- Integração Mercado Pago Checkout Pro
+- Webhook de confirmação de pagamento atualizando status no Firestore
+- Histórico de pedidos na área do usuário
+- Visualização de pedidos no dashboard admin
+
+### Segurança
+- Private.jsx agora verifica papel admin no Firestore antes de liberar acesso
+- Login admin não redireciona usuários comuns para o dashboard
+- CSP atualizado para cobrir Firebase Auth, ViaCEP, Melhor Envio e Mercado Pago
+
+### Correções
+- Loop de redirect corrigido quando usuário comum acessa /admin
+- Vercel Functions detectadas corretamente (.js + api/package.json commonjs)
+- Body parsing manual nas Vercel Functions para produção
+- CORS headers em todas as functions

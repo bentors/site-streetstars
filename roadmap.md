@@ -26,18 +26,22 @@
 - [x] Histórico de pedidos na área do usuário
 - [x] Visualização de pedidos no painel admin
 
-## ⏳ Sprint 3 — Integração Mercado Pago
-- [ ] Setup Firebase Cloud Functions
-- [ ] Function createPayment: cria preferência no Mercado Pago
-- [ ] Function mpWebhook: recebe confirmação e atualiza status
-- [ ] Checkout Pro (página hosted do Mercado Pago)
-- [ ] Upload assinado Cloudinary via Cloud Function
+## ✅ Sprint 3 — Integração Mercado Pago (Concluída)
+- [x] Setup Vercel Functions (calculateShipping, createPayment, mpWebhook)
+- [x] Firebase Admin SDK via service account
+- [x] Melhor Envio API para cálculo de frete PAC/SEDEX
+- [x] Mercado Pago Checkout Pro
+- [x] Webhook atualizando status do pedido no Firestore
+- [x] Correções de CSP para produção
+- [x] Fix de detecção de Vercel Functions (.js + api/package.json)
+- [x] Fix de loop de redirect admin
 
-## ⏳ Sprint 4 — Experiência Pós-compra
+## 🔄 Sprint 4 — Experiência Pós-compra (Em andamento)
+- [ ] auto_return no Mercado Pago para redirect automático após pagamento
 - [ ] Acompanhamento de status do pedido em tempo real (onSnapshot)
 - [ ] E-mail de confirmação via Firebase Extensions
 - [ ] Página de obrigado após pagamento aprovado
-- [ ] Notificação de status para o admin
+- [ ] Notificação de novo pedido para o admin
 
 ## 🔭 Backlog Futuro
 - [ ] TanStack Query para cache de requisições
