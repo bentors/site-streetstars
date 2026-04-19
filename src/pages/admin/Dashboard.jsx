@@ -1,10 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'firebase/auth'
 import { auth, db } from '../../services/firebase'
 import { Link, useNavigate } from 'react-router-dom'
 import { collection, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore/lite'
+import { getFirestore, collection as col, query as q, orderBy as ob, onSnapshot } from 'firebase/firestore'
+import { app } from '../../services/firebase'
 import { formatCurrency } from '../../utils/format'
 import Logo from '../../components/ui/Logo'
+
+const dbFull = getFirestore(app)
 
 const TABS = [
   { id: 'products', label: 'Produtos' },
@@ -20,14 +24,18 @@ const ORDER_STATUS_CONFIG = {
   cancelled:  { label: 'Cancelado', color: 'text-red-400 border-red-400/30 bg-red-400/5' },
 }
 
+const LAST_SEEN_KEY = 'admin_orders_last_seen'
+
 export default function Dashboard() {
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('products')
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
   const [loadingProducts, setLoadingProducts] = useState(true)
-  const [loadingOrders, setLoadingOrders] = useState(false)
-  const [ordersLoaded, setOrdersLoaded] = useState(false)
+  const [newOrdersCount, setNewOrdersCount] = useState(0)
+  const lastSeenRef = useRef(
+    parseInt(localStorage.getItem(LAST_SEEN_KEY) || '0')
+  )
 
   useEffect(() => {
     async function loadProducts() {
@@ -56,25 +64,36 @@ export default function Dashboard() {
     loadProducts()
   }, [])
 
+  // Listener em tempo real para pedidos
   useEffect(() => {
-    if (activeTab !== 'orders' || ordersLoaded) return
+    const ordersQuery = q(
+      col(dbFull, 'orders'),
+      ob('created_at', 'desc')
+    )
 
-    async function loadOrders() {
-      setLoadingOrders(true)
-      try {
-        const q = query(collection(db, 'orders'), orderBy('created_at', 'desc'))
-        const snapshot = await getDocs(q)
-        const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
-        setOrders(list)
-        setOrdersLoaded(true)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoadingOrders(false)
-      }
-    }
-    loadOrders()
-  }, [activeTab, ordersLoaded])
+    const unsubscribe = onSnapshot(ordersQuery, (snapshot) => {
+      const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+      setOrders(list)
+
+      // Conta pedidos novos desde a última visita
+      const newCount = list.filter(order => {
+        const createdAt = order.created_at?.toMillis?.() || 0
+        return createdAt > lastSeenRef.current && order.status === 'paid'
+      }).length
+      setNewOrdersCount(newCount)
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  function handleOrdersTabClick() {
+    setActiveTab('orders')
+    // Marca como visto
+    const now = Date.now()
+    localStorage.setItem(LAST_SEEN_KEY, String(now))
+    lastSeenRef.current = now
+    setNewOrdersCount(0)
+  }
 
   async function handleLogout() {
     await signOut(auth)
@@ -119,7 +138,6 @@ export default function Dashboard() {
 
       <main className="p-6 md:p-10 max-w-7xl mx-auto">
 
-        {/* Título + ação */}
         <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-6">
           <div>
             <h1 className="text-3xl font-black uppercase italic tracking-tighter mb-2">Dashboard</h1>
@@ -145,14 +163,19 @@ export default function Dashboard() {
           {TABS.map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`pb-3 text-[11px] uppercase tracking-widest font-bold transition-colors ${
+              onClick={tab.id === 'orders' ? handleOrdersTabClick : () => setActiveTab(tab.id)}
+              className={`pb-3 text-[11px] uppercase tracking-widest font-bold transition-colors flex items-center gap-2 ${
                 activeTab === tab.id
                   ? 'text-white border-b-2 border-white'
                   : 'text-white/30 hover:text-white/60'
               }`}
             >
               {tab.label}
+              {tab.id === 'orders' && newOrdersCount > 0 && (
+                <span className="bg-green-500 text-black text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                  {newOrdersCount}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -180,7 +203,7 @@ export default function Dashboard() {
                         <th className="p-4 pl-6">Produto / Status</th>
                         <th className="p-4">Categoria</th>
                         <th className="p-4 font-mono">Valor (BRL)</th>
-                        <th className="p-4 text-right pr-6">Controles</th>
+                        <th className="p-4 textEditor pr-6">Controles</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
@@ -256,11 +279,7 @@ export default function Dashboard() {
         {/* Tab: Pedidos */}
         {activeTab === 'orders' && (
           <>
-            {loadingOrders ? (
-              <div className="text-center text-white/50 py-20 font-mono text-sm animate-pulse">
-                CARREGANDO PEDIDOS...
-              </div>
-            ) : orders.length === 0 ? (
+            {orders.length === 0 ? (
               <div className="text-center py-20 border border-dashed border-white/10 rounded bg-zinc-900/30">
                 <p className="text-white/50 font-mono text-sm">Nenhum pedido registrado ainda.</p>
               </div>
@@ -280,18 +299,27 @@ export default function Dashboard() {
                     <tbody className="divide-y divide-white/5">
                       {orders.map(order => {
                         const { label, color } = ORDER_STATUS_CONFIG[order.status] || { label: order.status, color: 'text-white/40 border-white/10' }
+                        const isNew = (order.created_at?.toMillis?.() || 0) > lastSeenRef.current
+                          && order.status === 'paid'
                         return (
-                          <tr key={order.id} className="hover:bg-white/5 transition-colors group">
+                          <tr key={order.id} className={`hover:bg-white/5 transition-colors group ${isNew ? 'bg-green-500/5' : ''}`}>
                             <td className="p-4 pl-6">
-                              <p className="text-xs font-mono font-bold text-white">
-                                #{order.id.slice(0, 8).toUpperCase()}
-                              </p>
-                              <p className="text-[10px] font-mono text-white/30 mt-0.5">
-                                {order.created_at?.toDate
-                                  ? order.created_at.toDate().toLocaleDateString('pt-BR')
-                                  : '—'
-                                }
-                              </p>
+                              <div className="flex items-center gap-2">
+                                {isNew && (
+                                  <div className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_5px_#22c55e] flex-shrink-0" />
+                                )}
+                                <div>
+                                  <p className="text-xs font-mono font-bold text-white">
+                                    #{order.id.slice(0, 8).toUpperCase()}
+                                  </p>
+                                  <p className="text-[10px] font-mono text-white/30 mt-0.5">
+                                    {order.created_at?.toDate
+                                      ? order.created_at.toDate().toLocaleDateString('pt-BR')
+                                      : '—'
+                                    }
+                                  </p>
+                                </div>
+                              </div>
                             </td>
                             <td className="p-4">
                               <p className="text-xs font-mono text-white/60 truncate max-w-[160px]">

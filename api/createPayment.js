@@ -68,6 +68,7 @@ module.exports = async (req, res) => {
           failure: `${req.headers.origin}/pedido/${orderId}?status=failure`,
           pending: `${req.headers.origin}/pedido/${orderId}?status=pending`,
         },
+        auto_return: 'approved',
         external_reference: orderId,
         notification_url: `${req.headers.origin}/api/mpWebhook`,
       }
