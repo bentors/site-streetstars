@@ -20,11 +20,11 @@
 - [x] Área do usuário: perfil e endereços salvos
 - [x] Proteção de rotas autenticadas
 
-## ⏳ Sprint 2 — Estrutura de Pedidos
-- [ ] Fluxo de checkout: carrinho → endereço → confirmação
-- [ ] Criação de pedido no Firestore com status pending
-- [ ] Histórico de pedidos na área do usuário
-- [ ] Visualização de pedidos no painel admin
+## ⏳ Sprint 2 — Estrutura de Pedidos (Concluído)
+- [x] Fluxo de checkout: carrinho → endereço → confirmação
+- [x] Criação de pedido no Firestore com status pending
+- [x] Histórico de pedidos na área do usuário
+- [x] Visualização de pedidos no painel admin
 
 ## ⏳ Sprint 3 — Integração Mercado Pago
 - [ ] Setup Firebase Cloud Functions

@@ -1,5 +1,12 @@
 {
+  "buildCommand": "vite build",
+  "devCommand": "vite dev --port 3000",
+  "framework": "vite",
   "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

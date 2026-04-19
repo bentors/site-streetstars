@@ -30,3 +30,8 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Firebase service account
+*-firebase-adminsdk-*.json
+.vercel
+.env*.local

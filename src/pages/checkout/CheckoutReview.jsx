@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore/lite'
 import { motion } from 'framer-motion'
@@ -8,6 +8,7 @@ import { useCart } from '../../context/CartContext'
 import { formatCurrency } from '../../utils/format'
 import { formatCEP } from '../../utils/validators'
 import { optimizeImage } from '../../utils/image'
+import { createPayment } from '../../services/api'
 import Logo from '../../components/ui/Logo'
 
 export default function CheckoutReview() {
@@ -17,13 +18,20 @@ export default function CheckoutReview() {
   const { cartItems, cartTotal, clearCart } = useCart()
 
   const address = location.state?.address
+  const shipping = location.state?.shipping
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Redireciona se não tem endereço ou carrinho vazio
-  if (!address || cartItems.length === 0) {
-    navigate('/checkout/endereco', { replace: true })
+  const orderTotal = cartTotal + (shipping?.price || 0)
+
+  useEffect(() => {
+    if (!address || !shipping || cartItems.length === 0) {
+      navigate('/checkout/endereco', { replace: true })
+    }
+  }, [address, shipping, cartItems.length, navigate])
+
+  if (!address || !shipping || cartItems.length === 0) {
     return null
   }
 
@@ -32,12 +40,18 @@ export default function CheckoutReview() {
     setError(null)
 
     try {
-      // Cria o pedido no Firestore
       const orderRef = await addDoc(collection(db, 'orders'), {
         userId: user.uid,
         status: 'pending',
-        total: cartTotal,
+        total: orderTotal,
         address: { ...address },
+        shipping: {
+          id: shipping.id,
+          name: shipping.name,
+          price: shipping.price,
+          delivery_time: shipping.delivery_time,
+          company: shipping.company,
+        },
         payment: {
           provider: 'mercadopago',
           preferenceId: null,
@@ -48,7 +62,6 @@ export default function CheckoutReview() {
         updated_at: serverTimestamp(),
       })
 
-      // Cria os itens do pedido na subcoleção
       const itemsRef = collection(db, 'orders', orderRef.id, 'items')
       await Promise.all(
         cartItems.map(item =>
@@ -64,16 +77,19 @@ export default function CheckoutReview() {
         )
       )
 
+      const { initPoint } = await createPayment({
+        orderId: orderRef.id,
+        userId: user.uid,
+        email: user.email,
+      })
+
       clearCart()
 
-      // Sprint 3: aqui vai redirecionar para o Mercado Pago
-      // Por ora vai para a página de confirmação com o orderId
-      navigate(`/pedido/${orderRef.id}`, { replace: true })
+      window.location.href = initPoint
 
     } catch (err) {
       console.error(err)
-      setError('Erro ao criar pedido. Tente novamente.')
-    } finally {
+      setError('Erro ao processar pedido. Tente novamente.')
       setLoading(false)
     }
   }
@@ -81,7 +97,6 @@ export default function CheckoutReview() {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
 
-      {/* Header */}
       <header className="border-b border-white/10 bg-zinc-900/50 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-2xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/">
@@ -106,14 +121,12 @@ export default function CheckoutReview() {
 
         <div className="flex flex-col gap-6">
 
-          {/* Itens do carrinho */}
           <section className="border border-white/10 rounded-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-white/5 bg-zinc-900/50">
               <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">
                 Itens ({cartItems.length})
               </p>
             </div>
-
             <div className="divide-y divide-white/5">
               {cartItems.map((item, index) => (
                 <div key={index} className="flex items-center gap-4 px-5 py-4">
@@ -140,7 +153,6 @@ export default function CheckoutReview() {
             </div>
           </section>
 
-          {/* Endereço de entrega */}
           <section className="border border-white/10 rounded-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-white/5 bg-zinc-900/50 flex items-center justify-between">
               <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">
@@ -166,24 +178,33 @@ export default function CheckoutReview() {
             </div>
           </section>
 
-          {/* Frete */}
           <section className="border border-white/10 rounded-sm overflow-hidden">
-            <div className="px-5 py-3 border-b border-white/5 bg-zinc-900/50">
+            <div className="px-5 py-3 border-b border-white/5 bg-zinc-900/50 flex items-center justify-between">
               <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">
                 Frete
               </p>
+              <Link
+                to="/checkout/endereco"
+                className="text-[10px] uppercase tracking-widest text-white/30 hover:text-white transition-colors font-mono"
+              >
+                Alterar
+              </Link>
             </div>
             <div className="px-5 py-4 flex items-center justify-between">
-              <p className="text-xs text-white/40 font-mono uppercase tracking-wider">
-                Calculado no próximo passo
-              </p>
-              <p className="text-xs text-white/30 font-mono">
-                — —
+              <div>
+                <p className="text-xs font-bold text-white uppercase tracking-wider">
+                  {shipping.name}
+                </p>
+                <p className="text-[10px] text-white/40 font-mono mt-0.5">
+                  {shipping.company} · {shipping.delivery_time} dias úteis
+                </p>
+              </div>
+              <p className="text-sm font-mono font-bold text-white">
+                {formatCurrency(shipping.price)}
               </p>
             </div>
           </section>
 
-          {/* Resumo financeiro */}
           <section className="border border-white/10 rounded-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-white/5 bg-zinc-900/50">
               <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">
@@ -197,16 +218,15 @@ export default function CheckoutReview() {
               </div>
               <div className="flex items-center justify-between">
                 <p className="text-xs text-white/50 font-mono uppercase tracking-wider">Frete</p>
-                <p className="text-xs font-mono text-white/30">A calcular</p>
+                <p className="text-xs font-mono text-white/70">{formatCurrency(shipping.price)}</p>
               </div>
               <div className="border-t border-white/10 pt-3 flex items-center justify-between">
                 <p className="text-sm font-black uppercase tracking-widest text-white">Total</p>
-                <p className="text-sm font-black font-mono text-white">{formatCurrency(cartTotal)}</p>
+                <p className="text-sm font-black font-mono text-white">{formatCurrency(orderTotal)}</p>
               </div>
             </div>
           </section>
 
-          {/* CPF — necessário para o Mercado Pago */}
           {!userProfile?.cpf && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -228,7 +248,6 @@ export default function CheckoutReview() {
             </p>
           )}
 
-          {/* Botão finalizar */}
           <button
             onClick={handlePlaceOrder}
             disabled={loading}
@@ -236,7 +255,10 @@ export default function CheckoutReview() {
           >
             <span className="relative z-10 group-hover:text-white transition-colors duration-300 flex items-center gap-2">
               {loading ? (
-                <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                <>
+                  <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                  <span>Preparando pagamento...</span>
+                </>
               ) : (
                 <>
                   Confirmar e Ir para Pagamento
@@ -250,7 +272,7 @@ export default function CheckoutReview() {
           </button>
 
           <p className="text-[10px] text-white/20 font-mono text-center uppercase tracking-wider">
-            Ao confirmar você será redirecionado para o Mercado Pago para concluir o pagamento com segurança.
+            Você será redirecionado para o Mercado Pago para concluir o pagamento com segurança.
           </p>
 
         </div>

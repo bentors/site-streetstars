@@ -6,11 +6,12 @@ import { db } from '../../services/firebase'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import Logo from '../../components/ui/Logo'
-import { formatCEP, validateCPF, formatCPF } from '../../utils/validators'
+import { formatCEP } from '../../utils/validators'
+import { calculateShipping } from '../../services/api'
 
 export default function CheckoutAddress() {
   const navigate = useNavigate()
-  const { user, userProfile, refreshProfile } = useAuth()
+  const { user } = useAuth()
   const { cartItems } = useCart()
 
   const [addresses, setAddresses] = useState([])
@@ -18,6 +19,11 @@ export default function CheckoutAddress() {
   const [showNewForm, setShowNewForm] = useState(false)
   const [loadingAddresses, setLoadingAddresses] = useState(true)
   const [saving, setSaving] = useState(false)
+
+  const [shippingOptions, setShippingOptions] = useState([])
+  const [selectedShipping, setSelectedShipping] = useState(null)
+  const [loadingShipping, setLoadingShipping] = useState(false)
+  const [shippingError, setShippingError] = useState(null)
 
   const [form, setForm] = useState({
     label: '', cep: '', street: '', number: '',
@@ -32,21 +38,26 @@ export default function CheckoutAddress() {
 
   useEffect(() => {
     async function loadAddresses() {
-      try {
+        try {
         const ref = collection(db, 'users', user.uid, 'addresses')
         const snap = await getDocs(ref)
         const list = snap.docs.map(d => ({ id: d.id, ...d.data() }))
         setAddresses(list)
 
         const defaultAddress = list.find(a => a.isDefault)
-        if (defaultAddress) setSelectedAddressId(defaultAddress.id)
-        else if (list.length > 0) setSelectedAddressId(list[0].id)
-        else setShowNewForm(true)
-      } catch (err) {
+        const first = defaultAddress || (list.length > 0 ? list[0] : null)
+
+        if (first) {
+            setSelectedAddressId(first.id)
+            handleCalculateShipping(first.cep)
+        } else {
+            setShowNewForm(true)
+        }
+        } catch (err) {
         console.error(err)
-      } finally {
+        } finally {
         setLoadingAddresses(false)
-      }
+        }
     }
     loadAddresses()
   }, [user.uid])
@@ -84,30 +95,58 @@ export default function CheckoutAddress() {
     e.preventDefault()
     setSaving(true)
     try {
-      const ref = collection(db, 'users', user.uid, 'addresses')
-      const docRef = await addDoc(ref, {
+        const ref = collection(db, 'users', user.uid, 'addresses')
+        const docRef = await addDoc(ref, {
         ...form,
         cep: form.cep.replace(/\D/g, ''),
-      })
-      const newAddress = { id: docRef.id, ...form }
-      setAddresses(prev => [...prev, newAddress])
-      setSelectedAddressId(docRef.id)
-      setShowNewForm(false)
-      setForm({
+        })
+        const newAddress = { id: docRef.id, ...form }
+        setAddresses(prev => [...prev, newAddress])
+        setSelectedAddressId(docRef.id)
+        setShowNewForm(false)
+        setForm({
         label: '', cep: '', street: '', number: '',
         complement: '', neighborhood: '', city: '', state: '', isDefault: false
-      })
+        })
+        handleCalculateShipping(form.cep)
     } catch (err) {
-      console.error(err)
+        console.error(err)
     } finally {
-      setSaving(false)
+        setSaving(false)
     }
   }
 
+  async function handleCalculateShipping(cep) {
+    setLoadingShipping(true)
+    setShippingError(null)
+    setShippingOptions([])
+    setSelectedShipping(null)
+
+    try {
+        const { options } = await calculateShipping(cep)
+        if (options.length === 0) {
+        setShippingError('Nenhuma opção de frete disponível para este CEP.')
+        return
+        }
+        setShippingOptions(options)
+        setSelectedShipping(options[0])
+    } catch (err) {
+        console.error(err)
+        setShippingError('Erro ao calcular frete. Tente novamente.')
+    } finally {
+        setLoadingShipping(false)
+    }
+ }
+
   function handleContinue() {
     const selected = addresses.find(a => a.id === selectedAddressId)
-    if (!selected) return
-    navigate('/checkout/revisao', { state: { address: selected } })
+    if (!selected || !selectedShipping) return
+    navigate('/checkout/revisao', {
+        state: {
+        address: selected,
+        shipping: selectedShipping
+        }
+    })
   }
 
   const selectedAddress = addresses.find(a => a.id === selectedAddressId)
@@ -147,7 +186,7 @@ export default function CheckoutAddress() {
             {addresses.map(address => (
               <button
                 key={address.id}
-                onClick={() => { setSelectedAddressId(address.id); setShowNewForm(false) }}
+                onClick={() => { setSelectedAddressId(address.id); setShowNewForm(false); handleCalculateShipping(address.cep) }}
                 className={`w-full text-left border p-4 transition-all rounded-sm ${
                   selectedAddressId === address.id
                     ? 'border-white bg-white/5'
@@ -345,8 +384,66 @@ export default function CheckoutAddress() {
               </motion.form>
             )}
 
+            {/* Opções de frete */}
+            {selectedAddressId && !showNewForm && (
+            <div className="border border-white/10 rounded-sm overflow-hidden">
+                <div className="px-5 py-3 border-b border-white/5 bg-zinc-900/50">
+                <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">
+                    Opções de Frete
+                </p>
+                </div>
+
+                {loadingShipping ? (
+                <div className="px-5 py-4 text-[10px] font-mono text-white/30 uppercase tracking-widest animate-pulse">
+                    Calculando frete...
+                </div>
+                ) : shippingError ? (
+                <div className="px-5 py-4 text-[10px] font-mono text-red-400 uppercase tracking-wider">
+                    {shippingError}
+                </div>
+                ) : (
+                <div className="divide-y divide-white/5">
+                    {shippingOptions.map(option => (
+                    <button
+                        type="button"
+                        key={option.id}
+                        onClick={() => setSelectedShipping(option)}
+                        className={`w-full flex items-center justify-between px-5 py-4 transition-colors ${
+                        selectedShipping?.id === Number(option.id)
+                            ? 'bg-white/5'
+                            : 'hover:bg-white/3'
+                        }`}
+                    >
+                        <div className="flex items-center gap-3">
+                        <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 transition-all ${
+                            selectedShipping?.id === Number(option.id)
+                            ? 'border-white bg-white'
+                            : 'border-white/30'
+                        }`} />
+                        <div className="text-left">
+                            <p className="text-xs font-bold text-white uppercase tracking-wider">
+                            {option.name}
+                            </p>
+                            <p className="text-[10px] text-white/40 font-mono mt-0.5">
+                            {option.company} · {option.delivery_time} dias úteis
+                            </p>
+                        </div>
+                        </div>
+                        <p className="text-sm font-mono font-bold text-white">
+                        {new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                        }).format(option.price)}
+                        </p>
+                    </button>
+                    ))}
+                </div>
+                )}
+            </div>
+          )}
+
             {/* Botão continuar */}
-            {selectedAddress && !showNewForm && (
+            {selectedAddress && !showNewForm && selectedShipping && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
