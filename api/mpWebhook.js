@@ -17,6 +17,9 @@ function verifySecret(req) {
 
 // ─── Handler principal ────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
+  console.log('Webhook recebido:', req.method)
+  console.log('Body:', JSON.stringify(req.body))
+  console.log('Headers:', JSON.stringify(req.headers))
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || '')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
