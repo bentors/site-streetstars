@@ -5,70 +5,40 @@ const { Resend } = require('resend')
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// ─── Verificação de assinatura HMAC do Mercado Pago ──────────────────────────
-function verifyMercadoPagoSignature(req) {
+// ─── Verificação por secret token na URL ─────────────────────────────────────
+function verifySecret(req) {
+  const token = req.query?.secret
+  if (!token || !process.env.MP_WEBHOOK_SECRET) return false
   try {
-    const signature = req.headers['x-signature']
-    const requestId = req.headers['x-request-id']
-
-    console.log('x-signature:', signature)
-    console.log('x-request-id:', requestId)
-    console.log('body data id:', req.body?.data?.id)
-    console.log('MP_WEBHOOK_SECRET definido:', !!process.env.MP_WEBHOOK_SECRET)
-
-    if (!signature || !requestId || !process.env.MP_WEBHOOK_SECRET) {
-      console.log('Faltando campos obrigatórios — signature:', !!signature, 'requestId:', !!requestId, 'secret:', !!process.env.MP_WEBHOOK_SECRET)
-      return false
-    }
-
-    const parts = {}
-    signature.split(',').forEach(part => {
-      const [key, value] = part.split('=')
-      if (key && value) parts[key.trim()] = value.trim()
-    })
-
-    console.log('Partes da assinatura:', JSON.stringify(parts))
-
-    const ts = parts['ts']
-    const v1 = parts['v1']
-
-    if (!ts || !v1) {
-      console.log('ts ou v1 ausentes')
-      return false
-    }
-
-    const dataId = req.body?.data?.id || ''
-    const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
-
-    console.log('Manifest:', manifest)
-
-    const hmac = crypto
-      .createHmac('sha256', process.env.MP_WEBHOOK_SECRET)
-      .update(manifest)
-      .digest('hex')
-
-    console.log('HMAC calculado:', hmac)
-    console.log('v1 recebido:', v1)
-    console.log('Match:', hmac === v1)
-
     return crypto.timingSafeEqual(
-      Buffer.from(hmac),
-      Buffer.from(v1)
+      Buffer.from(token),
+      Buffer.from(process.env.MP_WEBHOOK_SECRET)
     )
-  } catch (err) {
-    console.error('Erro na verificação:', err)
+  } catch {
     return false
   }
 }
 
+// ─── Extrai o payment ID independente do formato (novo ou legado) ─────────────
+// Formato novo:  { type: 'payment', data: { id: '123' } }
+// Formato legado: { topic: 'payment', resource: 'https://.../v1/payments/123' }
+function extractPaymentId(body) {
+  if (body.type === 'payment' && body.data?.id) {
+    return String(body.data.id)
+  }
+  if (body.topic === 'payment' && body.resource) {
+    const parts = body.resource.split('/')
+    return parts[parts.length - 1]
+  }
+  return null
+}
+
 // ─── Handler principal ────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
-  console.log('Webhook recebido:', req.method)
-  console.log('Body:', JSON.stringify(req.body))
-  console.log('Headers:', JSON.stringify(req.headers))
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || '')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Vary', 'Origin')
 
   if (req.method === 'OPTIONS') {
     return res.status(204).send('')
@@ -82,21 +52,31 @@ module.exports = async (req, res) => {
     try { req.body = JSON.parse(req.body) } catch { req.body = {} }
   }
 
-  // ── Rejeitar requisições sem assinatura válida ──
-  if (!verifyMercadoPagoSignature(req)) {
-    console.warn('mpWebhook: assinatura inválida rejeitada')
+  // ── Rejeitar requisições sem secret válido ──
+  if (!verifySecret(req)) {
+    console.warn('mpWebhook: secret inválido rejeitado')
     return res.status(401).send('Unauthorized')
   }
 
-  const { type, data } = req.body || {}
+  const body = req.body || {}
 
-  if (type !== 'payment') {
+  // ── Ignorar eventos que não sejam de pagamento ──
+  const isPaymentEvent = body.type === 'payment' || body.topic === 'payment'
+  if (!isPaymentEvent) {
+    return res.status(200).send('OK')
+  }
+
+  // ── Extrair payment ID dos dois formatos possíveis ──
+  const paymentId = extractPaymentId(body)
+  if (!paymentId) {
+    console.warn('mpWebhook: payment ID não encontrado no body', JSON.stringify(body))
     return res.status(200).send('OK')
   }
 
   try {
+    // ── Buscar detalhes do pagamento na API do MP ──
     const response = await axios.get(
-      `https://api.mercadopago.com/v1/payments/${data.id}`,
+      `https://api.mercadopago.com/v1/payments/${paymentId}`,
       {
         headers: {
           Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
@@ -108,6 +88,7 @@ module.exports = async (req, res) => {
     const orderId = payment.external_reference
 
     if (!orderId) {
+      console.warn('mpWebhook: external_reference vazio para payment', paymentId)
       return res.status(200).send('OK')
     }
 
@@ -126,11 +107,14 @@ module.exports = async (req, res) => {
 
     await orderRef.update({
       status: newStatus,
-      'payment.paymentId': String(data.id),
+      'payment.paymentId': String(paymentId),
       'payment.method': payment.payment_type_id || null,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     })
 
+    console.log(`mpWebhook: pedido ${orderId} atualizado para ${newStatus}`)
+
+    // ── Enviar e-mail de confirmação apenas quando pago ──
     if (newStatus === 'paid') {
       try {
         const orderSnap = await orderRef.get()
@@ -215,6 +199,7 @@ module.exports = async (req, res) => {
             </html>
           `
         })
+
       } catch (emailErr) {
         console.error('Erro ao enviar e-mail:', emailErr)
       }
