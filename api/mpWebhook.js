@@ -5,7 +5,6 @@ const { Resend } = require('resend')
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// ─── Verificação Oficial do Mercado Pago (HMAC x-signature) ──────────────────
 function verifySignature(req) {
   try {
     const signature = req.headers['x-signature']
@@ -29,7 +28,6 @@ function verifySignature(req) {
     const hmac = crypto.createHmac('sha256', process.env.MP_WEBHOOK_SECRET).update(manifest).digest('hex')
     let isValid = crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(v1))
 
-    // Fallback caso o MP envie o manifesto sem ID
     if (!isValid && dataId === '') {
       const fallbackManifest = `id:;request-id:${requestId};ts:${ts};`
       const fallbackHmac = crypto.createHmac('sha256', process.env.MP_WEBHOOK_SECRET).update(fallbackManifest).digest('hex')
@@ -42,14 +40,11 @@ function verifySignature(req) {
   }
 }
 
-// ─── Extrai o payment ID independente do formato (novo, legado ou query) ──────
 function extractPaymentId(req) {
   const body = req.body || {}
   const query = req.query || {}
 
-  if (body.type === 'payment' && body.data?.id) {
-    return String(body.data.id)
-  }
+  if (body.type === 'payment' && body.data?.id) return String(body.data.id)
   if (body.topic === 'payment' && body.resource) {
     const parts = body.resource.split('/')
     return parts[parts.length - 1]
@@ -60,65 +55,44 @@ function extractPaymentId(req) {
   return null
 }
 
-// ─── Handler principal ────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || '')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-signature, x-request-id')
   res.setHeader('Vary', 'Origin')
 
-  if (req.method === 'OPTIONS') {
-    return res.status(204).send('')
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).send('Method not allowed')
-  }
+  if (req.method === 'OPTIONS') return res.status(204).send('')
+  if (req.method !== 'POST') return res.status(405).send('Method not allowed')
 
   if (typeof req.body === 'string') {
     try { req.body = JSON.parse(req.body) } catch { req.body = {} }
   }
 
-  // ── Rejeitar requisições sem assinatura válida ──
   if (!verifySignature(req)) {
-    console.warn('mpWebhook: assinatura HMAC inválida rejeitada')
+    console.warn('mpWebhook: assinatura inválida rejeitada')
     return res.status(401).send('Unauthorized')
   }
 
   const body = req.body || {}
   const query = req.query || {}
 
-  // ── Ignorar eventos que não sejam de pagamento ──
-  const isPaymentEvent = body.type === 'payment' || body.topic === 'payment' || query.type === 'payment' || query.topic === 'payment'
-  if (!isPaymentEvent) {
-    return res.status(200).send('OK')
-  }
+  const isPaymentEvent = body.type === 'payment' || body.topic === 'payment'
+    || query.type === 'payment' || query.topic === 'payment'
+  if (!isPaymentEvent) return res.status(200).send('OK')
 
-  // ── Extrair payment ID garantindo varredura completa ──
   const paymentId = extractPaymentId(req)
-  if (!paymentId) {
-    console.warn('mpWebhook: payment ID não encontrado', JSON.stringify(body))
-    return res.status(200).send('OK')
-  }
+  if (!paymentId) return res.status(200).send('OK')
 
   try {
-    // ── Buscar detalhes do pagamento na API do MP ──
     const response = await axios.get(
       `https://api.mercadopago.com/v1/payments/${paymentId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
-        }
-      }
+      { headers: { Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}` } }
     )
 
     const payment = response.data
     const orderId = payment.external_reference
 
-    if (!orderId) {
-      console.warn('mpWebhook: external_reference vazio para payment', paymentId)
-      return res.status(200).send('OK')
-    }
+    if (!orderId) return res.status(200).send('OK')
 
     const statusMap = {
       approved: 'paid',
@@ -130,7 +104,6 @@ module.exports = async (req, res) => {
     }
 
     const newStatus = statusMap[payment.status] || 'pending'
-
     const orderRef = admin.firestore().collection('orders').doc(orderId)
 
     await orderRef.update({
@@ -140,18 +113,14 @@ module.exports = async (req, res) => {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     })
 
-    console.log(`mpWebhook: pedido ${orderId} atualizado para ${newStatus}`)
+    console.log(`mpWebhook: pedido ${orderId} → ${newStatus}`)
 
-    // ── Enviar e-mail de confirmação apenas quando pago ──
     if (newStatus === 'paid') {
       try {
-        console.log('Iniciando envio de e-mail para pedido:', orderId)
         const orderSnap = await orderRef.get()
         const order = orderSnap.data()
-
         const itemsSnap = await orderRef.collection('items').get()
         const items = itemsSnap.docs.map(d => d.data())
-
         const userRecord = await admin.auth().getUser(order.userId)
         const userEmail = userRecord.email
 
@@ -170,76 +139,65 @@ module.exports = async (req, res) => {
         const shippingPrice = order.shipping?.price || 0
         const total = order.total || 0
 
-        console.log('Enviando e-mail para:', userEmail)
         await resend.emails.send({
           from: 'Street Stars <onboarding@resend.dev>',
           to: userEmail,
           subject: `Pedido confirmado — #${orderId.slice(0, 8).toUpperCase()}`,
-          html: `
-            <!DOCTYPE html>
+          html: `<!DOCTYPE html>
             <html>
               <head><meta charset="UTF-8"></head>
-              <body style="background:#000; color:#fff; font-family: sans-serif; padding: 40px 20px; margin: 0;">
-                <div style="max-width: 520px; margin: 0 auto;">
-                  <h1 style="font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
-                    Street Stars ⭐
-                  </h1>
-                  <p style="color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 32px;">
-                    Confirmação de Pedido
-                  </p>
-                  <div style="background: #111; border: 1px solid #222; padding: 24px; margin-bottom: 24px;">
-                    <p style="color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; margin: 0 0 4px;">Pedido</p>
-                    <p style="color: #fff; font-size: 16px; font-weight: 700; margin: 0;">#${orderId.slice(0, 8).toUpperCase()}</p>
+              <body style="background:#000;color:#fff;font-family:sans-serif;padding:40px 20px;margin:0;">
+                <div style="max-width:520px;margin:0 auto;">
+                  <h1 style="font-size:22px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Street Stars ⭐</h1>
+                  <p style="color:#888;font-size:12px;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:32px;">Confirmação de Pedido</p>
+                  <div style="background:#111;border:1px solid #222;padding:24px;margin-bottom:24px;">
+                    <p style="color:#888;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;margin:0 0 4px;">Pedido</p>
+                    <p style="color:#fff;font-size:16px;font-weight:700;margin:0;">#${orderId.slice(0, 8).toUpperCase()}</p>
                   </div>
-                  <div style="background: #111; border: 1px solid #222; padding: 24px; margin-bottom: 24px;">
-                    <p style="color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; margin: 0 0 16px;">Itens</p>
-                    <table style="width: 100%; border-collapse: collapse;">
-                      ${itemsHtml}
-                    </table>
-                    <table style="width: 100%; margin-top: 16px;">
+                  <div style="background:#111;border:1px solid #222;padding:24px;margin-bottom:24px;">
+                    <p style="color:#888;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;margin:0 0 16px;">Itens</p>
+                    <table style="width:100%;border-collapse:collapse;">${itemsHtml}</table>
+                    <table style="width:100%;margin-top:16px;">
                       <tr>
-                        <td style="color: #888; font-size: 12px;">Subtotal</td>
-                        <td style="text-align: right; color: #888; font-size: 12px;">R$ ${(total - shippingPrice).toFixed(2).replace('.', ',')}</td>
+                        <td style="color:#888;font-size:12px;">Subtotal</td>
+                        <td style="text-align:right;color:#888;font-size:12px;">R$ ${(total - shippingPrice).toFixed(2).replace('.', ',')}</td>
                       </tr>
                       <tr>
-                        <td style="color: #888; font-size: 12px; padding-top: 4px;">Frete (${order.shipping?.name || ''})</td>
-                        <td style="text-align: right; color: #888; font-size: 12px; padding-top: 4px;">R$ ${shippingPrice.toFixed(2).replace('.', ',')}</td>
+                        <td style="color:#888;font-size:12px;padding-top:4px;">Frete (${order.shipping?.name || ''})</td>
+                        <td style="text-align:right;color:#888;font-size:12px;padding-top:4px;">R$ ${shippingPrice.toFixed(2).replace('.', ',')}</td>
                       </tr>
                       <tr>
-                        <td style="color: #fff; font-size: 14px; font-weight: 700; padding-top: 12px; border-top: 1px solid #333;">Total</td>
-                        <td style="text-align: right; color: #fff; font-size: 14px; font-weight: 700; padding-top: 12px; border-top: 1px solid #333;">R$ ${total.toFixed(2).replace('.', ',')}</td>
+                        <td style="color:#fff;font-size:14px;font-weight:700;padding-top:12px;border-top:1px solid #333;">Total</td>
+                        <td style="text-align:right;color:#fff;font-size:14px;font-weight:700;padding-top:12px;border-top:1px solid #333;">R$ ${total.toFixed(2).replace('.', ',')}</td>
                       </tr>
                     </table>
                   </div>
-                  <div style="background: #111; border: 1px solid #222; padding: 24px; margin-bottom: 32px;">
-                    <p style="color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; margin: 0 0 8px;">Endereço de Entrega</p>
-                    <p style="color: #fff; font-size: 13px; margin: 0; line-height: 1.6;">
-                      ${order.address?.street}, ${order.address?.number}
-                      ${order.address?.complement ? ` — ${order.address.complement}` : ''}<br/>
+                  <div style="background:#111;border:1px solid #222;padding:24px;margin-bottom:32px;">
+                    <p style="color:#888;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;margin:0 0 8px;">Endereço de Entrega</p>
+                    <p style="color:#fff;font-size:13px;margin:0;line-height:1.6;">
+                      ${order.address?.street}, ${order.address?.number}${order.address?.complement ? ` — ${order.address.complement}` : ''}<br/>
                       ${order.address?.neighborhood} — ${order.address?.city}/${order.address?.state}<br/>
                       CEP: ${order.address?.cep}
                     </p>
                   </div>
-                  <p style="color: #555; font-size: 11px; text-align: center; text-transform: uppercase; letter-spacing: 0.15em;">
-                    Street Stars — São Paulo, SP<br/>
-                    streetstarsco@gmail.com
+                  <p style="color:#555;font-size:11px;text-align:center;text-transform:uppercase;letter-spacing:0.15em;">
+                    Street Stars — São Paulo, SP<br/>streetstarsco@gmail.com
                   </p>
                 </div>
               </body>
-            </html>
-          `
+            </html>`
         })
-      
-      console.log('E-mail enviado com sucesso')
+
+        console.log(`mpWebhook: e-mail enviado para ${userEmail}`)
       } catch (emailErr) {
-        console.error('Erro ao enviar e-mail:', emailErr)
+        console.error('mpWebhook: erro ao enviar e-mail:', emailErr.message)
       }
     }
 
     return res.status(200).send('OK')
 
   } catch (err) {
-    console.error('Erro mpWebhook:', err)
+    console.error('mpWebhook: erro:', err.message)
     return res.status(500).send('Error')
   }
 }
