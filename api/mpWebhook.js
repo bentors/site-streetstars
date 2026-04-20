@@ -11,7 +11,14 @@ function verifySignature(req) {
     const signature = req.headers['x-signature']
     const requestId = req.headers['x-request-id']
 
-    if (!signature || !requestId || !process.env.MP_WEBHOOK_SECRET) return false
+    if (!signature || !requestId) {
+      console.warn('❌ Falha HMAC: Faltam headers (x-signature ou x-request-id).')
+      return false
+    }
+    if (!process.env.MP_WEBHOOK_SECRET) {
+      console.warn('❌ Falha HMAC: Variável MP_WEBHOOK_SECRET não existe na Vercel.')
+      return false
+    }
 
     const parts = {}
     signature.split(',').forEach(part => {
@@ -21,9 +28,12 @@ function verifySignature(req) {
 
     const ts = parts['ts']
     const v1 = parts['v1']
-    if (!ts || !v1) return false
+    if (!ts || !v1) {
+      console.warn('❌ Falha HMAC: Formato do x-signature está incompleto.')
+      return false
+    }
 
-    // Busca o ID onde quer que ele esteja (URL ou Body)
+    // Busca o ID onde quer que ele esteja
     const dataId = req.query?.['data.id'] || req.query?.id || req.body?.data?.id || ''
     const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
 
@@ -32,9 +42,17 @@ function verifySignature(req) {
       .update(manifest)
       .digest('hex')
 
-    return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(v1))
+    const isValid = crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(v1))
+
+    if (!isValid) {
+      console.warn('❌ Falha HMAC: As assinaturas não bateram.')
+      console.warn('📝 Manifesto gerado pelo código:', manifest)
+      console.warn('🔑 Tamanho da Secret sendo usada:', process.env.MP_WEBHOOK_SECRET.length, 'caracteres.')
+    }
+
+    return isValid
   } catch (err) {
-    console.error('Erro ao verificar assinatura:', err)
+    console.error('Erro na função de verificação:', err)
     return false
   }
 }
