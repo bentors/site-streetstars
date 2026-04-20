@@ -6,6 +6,7 @@ import { app } from '../../services/firebase'
 import { motion } from 'framer-motion'
 import { formatCurrency } from '../../utils/format'
 import Logo from '../../components/ui/Logo'
+import { useCart } from '../../context/CartContext'
 
 const db = getFirestore(app)
 
@@ -52,6 +53,13 @@ export default function OrderConfirmation() {
   const [order, setOrder] = useState(null)
   const [status, setStatus] = useState(initialStatus)
   const [items, setItems] = useState([])
+  const { clearCart } = useCart()
+
+  useEffect(() => {
+    if (status === 'paid') {
+      clearCart()
+    }
+  }, [status])
 
   useEffect(() => {
     if (!orderId) return

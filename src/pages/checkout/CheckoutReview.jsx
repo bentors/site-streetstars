@@ -15,7 +15,7 @@ export default function CheckoutReview() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, userProfile } = useAuth()
-  const { cartItems, cartTotal, clearCart } = useCart()
+  const { cartItems, cartTotal } = useCart()
 
   const address = location.state?.address
   const shipping = location.state?.shipping
@@ -82,8 +82,6 @@ export default function CheckoutReview() {
         userId: user.uid,
         email: user.email,
       })
-
-      clearCart()
 
       window.location.href = initPoint
 
