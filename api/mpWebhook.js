@@ -11,36 +11,52 @@ function verifyMercadoPagoSignature(req) {
     const signature = req.headers['x-signature']
     const requestId = req.headers['x-request-id']
 
-    if (!signature || !requestId || !process.env.MP_WEBHOOK_SECRET) return false
+    console.log('x-signature:', signature)
+    console.log('x-request-id:', requestId)
+    console.log('body data id:', req.body?.data?.id)
+    console.log('MP_WEBHOOK_SECRET definido:', !!process.env.MP_WEBHOOK_SECRET)
 
-    // Extrai ts e v1 do header x-signature
+    if (!signature || !requestId || !process.env.MP_WEBHOOK_SECRET) {
+      console.log('Faltando campos obrigatórios — signature:', !!signature, 'requestId:', !!requestId, 'secret:', !!process.env.MP_WEBHOOK_SECRET)
+      return false
+    }
+
     const parts = {}
     signature.split(',').forEach(part => {
       const [key, value] = part.split('=')
       if (key && value) parts[key.trim()] = value.trim()
     })
 
+    console.log('Partes da assinatura:', JSON.stringify(parts))
+
     const ts = parts['ts']
     const v1 = parts['v1']
 
-    if (!ts || !v1) return false
+    if (!ts || !v1) {
+      console.log('ts ou v1 ausentes')
+      return false
+    }
 
-    // Monta a string de verificação
     const dataId = req.body?.data?.id || ''
     const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
 
-    // Calcula o HMAC
+    console.log('Manifest:', manifest)
+
     const hmac = crypto
       .createHmac('sha256', process.env.MP_WEBHOOK_SECRET)
       .update(manifest)
       .digest('hex')
+
+    console.log('HMAC calculado:', hmac)
+    console.log('v1 recebido:', v1)
+    console.log('Match:', hmac === v1)
 
     return crypto.timingSafeEqual(
       Buffer.from(hmac),
       Buffer.from(v1)
     )
   } catch (err) {
-    console.error('Erro na verificação de assinatura:', err)
+    console.error('Erro na verificação:', err)
     return false
   }
 }
