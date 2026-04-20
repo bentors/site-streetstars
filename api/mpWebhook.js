@@ -30,7 +30,7 @@ function verifySignature(req) {
     let isValid = crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(v1))
 
     // Fallback caso o MP envie o manifesto sem ID
-    if (!isValid && dataId !== '') {
+    if (!isValid && dataId === '') {
       const fallbackManifest = `id:;request-id:${requestId};ts:${ts};`
       const fallbackHmac = crypto.createHmac('sha256', process.env.MP_WEBHOOK_SECRET).update(fallbackManifest).digest('hex')
       if (crypto.timingSafeEqual(Buffer.from(fallbackHmac), Buffer.from(v1))) isValid = true
