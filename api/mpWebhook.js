@@ -11,14 +11,7 @@ function verifySignature(req) {
     const signature = req.headers['x-signature']
     const requestId = req.headers['x-request-id']
 
-    if (!signature || !requestId) {
-      console.warn('❌ Falha HMAC: Faltam headers (x-signature ou x-request-id).')
-      return false
-    }
-    if (!process.env.MP_WEBHOOK_SECRET) {
-      console.warn('❌ Falha HMAC: Variável MP_WEBHOOK_SECRET não existe na Vercel.')
-      return false
-    }
+    if (!signature || !requestId || !process.env.MP_WEBHOOK_SECRET) return false
 
     const parts = {}
     signature.split(',').forEach(part => {
@@ -28,31 +21,40 @@ function verifySignature(req) {
 
     const ts = parts['ts']
     const v1 = parts['v1']
-    if (!ts || !v1) {
-      console.warn('❌ Falha HMAC: Formato do x-signature está incompleto.')
-      return false
+    if (!ts || !v1) return false
+
+    // 🚀 O SEGREDO ESTÁ AQUI: 
+    // O Mercado Pago envia o ID na URL como ?data.id=123 ou ?id=123
+    // Vamos garantir que estamos pegando da URL primeiro, ignorando o Body para o manifesto.
+    let dataId = ''
+    if (req.query) {
+      dataId = req.query['data.id'] || req.query.id || req.query.topic || ''
     }
 
-    // Busca o ID onde quer que ele esteja
-    const dataId = req.query?.['data.id'] || req.query?.id || req.body?.data?.id || ''
-    const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
+    // Monta o manifesto padrão
+    let manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
+    let hmac = crypto.createHmac('sha256', process.env.MP_WEBHOOK_SECRET).update(manifest).digest('hex')
 
-    const hmac = crypto
-      .createHmac('sha256', process.env.MP_WEBHOOK_SECRET)
-      .update(manifest)
-      .digest('hex')
+    let isValid = crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(v1))
 
-    const isValid = crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(v1))
+    // PLANO B: Em alguns webhooks de 'merchant_order', o MP manda o manifesto com 'id' VAZIO
+    if (!isValid && dataId !== '') {
+      const fallbackManifest = `id:;request-id:${requestId};ts:${ts};`
+      const fallbackHmac = crypto.createHmac('sha256', process.env.MP_WEBHOOK_SECRET).update(fallbackManifest).digest('hex')
+      if (crypto.timingSafeEqual(Buffer.from(fallbackHmac), Buffer.from(v1))) {
+        isValid = true
+        console.log('✅ Assinatura validada com Fallback (ID vazio no manifesto)')
+      }
+    }
 
     if (!isValid) {
-      console.warn('❌ Falha HMAC: As assinaturas não bateram.')
-      console.warn('📝 Manifesto gerado pelo código:', manifest)
-      console.warn('🔑 Tamanho da Secret sendo usada:', process.env.MP_WEBHOOK_SECRET.length, 'caracteres.')
+      console.warn('❌ Falha HMAC. Manifest tentado:', manifest)
+      // Removemos os outros avisos para limpar o console
     }
 
     return isValid
   } catch (err) {
-    console.error('Erro na função de verificação:', err)
+    console.error('Erro ao verificar assinatura:', err)
     return false
   }
 }
