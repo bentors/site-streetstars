@@ -145,6 +145,7 @@ module.exports = async (req, res) => {
     // ── Enviar e-mail de confirmação apenas quando pago ──
     if (newStatus === 'paid') {
       try {
+        console.log('Iniciando envio de e-mail para pedido:', orderId)
         const orderSnap = await orderRef.get()
         const order = orderSnap.data()
 
@@ -169,6 +170,7 @@ module.exports = async (req, res) => {
         const shippingPrice = order.shipping?.price || 0
         const total = order.total || 0
 
+        console.log('Enviando e-mail para:', userEmail)
         await resend.emails.send({
           from: 'Street Stars <onboarding@resend.dev>',
           to: userEmail,
@@ -227,7 +229,8 @@ module.exports = async (req, res) => {
             </html>
           `
         })
-
+      
+      console.log('E-mail enviado com sucesso')
       } catch (emailErr) {
         console.error('Erro ao enviar e-mail:', emailErr)
       }
