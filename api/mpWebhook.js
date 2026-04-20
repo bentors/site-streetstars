@@ -5,39 +5,66 @@ const { Resend } = require('resend')
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-// ─── Verificação por secret token na URL ─────────────────────────────────────
-function verifySecret(req) {
-  const token = req.query?.secret
-  if (!token || !process.env.MP_WEBHOOK_SECRET) return false
+// ─── Verificação Oficial do Mercado Pago (HMAC x-signature) ──────────────────
+function verifySignature(req) {
   try {
-    return crypto.timingSafeEqual(
-      Buffer.from(token),
-      Buffer.from(process.env.MP_WEBHOOK_SECRET)
-    )
-  } catch {
+    const signature = req.headers['x-signature']
+    const requestId = req.headers['x-request-id']
+
+    if (!signature || !requestId || !process.env.MP_WEBHOOK_SECRET) return false
+
+    const parts = {}
+    signature.split(',').forEach(part => {
+      const [key, value] = part.split('=')
+      if (key && value) parts[key.trim()] = value.trim()
+    })
+
+    const ts = parts['ts']
+    const v1 = parts['v1']
+    if (!ts || !v1) return false
+
+    // Busca o ID onde quer que ele esteja (URL ou Body)
+    const dataId = req.query?.['data.id'] || req.query?.id || req.body?.data?.id || ''
+    const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
+
+    const hmac = crypto
+      .createHmac('sha256', process.env.MP_WEBHOOK_SECRET)
+      .update(manifest)
+      .digest('hex')
+
+    return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(v1))
+  } catch (err) {
+    console.error('Erro ao verificar assinatura:', err)
     return false
   }
 }
 
-// ─── Extrai o payment ID independente do formato (novo ou legado) ─────────────
-// Formato novo:  { type: 'payment', data: { id: '123' } }
-// Formato legado: { topic: 'payment', resource: 'https://.../v1/payments/123' }
-function extractPaymentId(body) {
-  if (body.type === 'payment' && body.data?.id) {
-    return String(body.data.id)
-  }
+// ─── Extrai o payment ID de TODAS as fontes possíveis ─────────────────────────
+function extractPaymentId(req) {
+  const body = req.body || {}
+  const query = req.query || {}
+
+  // 1. Formato novo (JSON Body)
+  if (body.type === 'payment' && body.data?.id) return String(body.data.id)
+  
+  // 2. Formato legado (JSON Body)
   if (body.topic === 'payment' && body.resource) {
     const parts = body.resource.split('/')
     return parts[parts.length - 1]
   }
+
+  // 3. Fallback (Via Query Params / URL)
+  if (query['data.id']) return String(query['data.id'])
+  if (query['id']) return String(query['id'])
+
   return null
 }
 
 // ─── Handler principal ────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || '')
+  res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-signature, x-request-id')
   res.setHeader('Vary', 'Origin')
 
   if (req.method === 'OPTIONS') {
@@ -52,35 +79,36 @@ module.exports = async (req, res) => {
     try { req.body = JSON.parse(req.body) } catch { req.body = {} }
   }
 
-  // ── Rejeitar requisições sem secret válido ──
-  if (!verifySecret(req)) {
-    console.warn('mpWebhook: secret inválido rejeitado')
+  // ── 1. Rejeitar requisições falsas ou sem assinatura válida ──
+  if (!verifySignature(req)) {
+    console.warn('mpWebhook: Assinatura HMAC inválida ou ausente. Rejeitado.')
     return res.status(401).send('Unauthorized')
   }
 
   const body = req.body || {}
+  const query = req.query || {}
 
-  // ── Ignorar eventos que não sejam de pagamento ──
-  const isPaymentEvent = body.type === 'payment' || body.topic === 'payment'
-  if (!isPaymentEvent) {
-    return res.status(200).send('OK')
+  // ── 2. Ignorar eventos que não sejam de pagamento ──
+  // Considera tanto o body quanto a URL para saber do que se trata
+  const eventType = body.type || body.topic || query.type || query.topic
+  
+  if (eventType !== 'payment') {
+    return res.status(200).send('OK') // Retorna 200 pro MP parar de enviar
   }
 
-  // ── Extrair payment ID dos dois formatos possíveis ──
-  const paymentId = extractPaymentId(body)
+  // ── 3. Extrair payment ID de forma à prova de balas ──
+  const paymentId = extractPaymentId(req)
   if (!paymentId) {
-    console.warn('mpWebhook: payment ID não encontrado no body', JSON.stringify(body))
+    console.warn('mpWebhook: payment ID não encontrado na requisição')
     return res.status(200).send('OK')
   }
 
   try {
-    // ── Buscar detalhes do pagamento na API do MP ──
+    // ── 4. Buscar detalhes do pagamento na API do MP ──
     const response = await axios.get(
       `https://api.mercadopago.com/v1/payments/${paymentId}`,
       {
-        headers: {
-          Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
-        }
+        headers: { Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}` }
       }
     )
 
@@ -88,7 +116,7 @@ module.exports = async (req, res) => {
     const orderId = payment.external_reference
 
     if (!orderId) {
-      console.warn('mpWebhook: external_reference vazio para payment', paymentId)
+      console.warn(`mpWebhook: Pagamento ${paymentId} não tem external_reference (orderId)`)
       return res.status(200).send('OK')
     }
 
@@ -102,7 +130,6 @@ module.exports = async (req, res) => {
     }
 
     const newStatus = statusMap[payment.status] || 'pending'
-
     const orderRef = admin.firestore().collection('orders').doc(orderId)
 
     await orderRef.update({
@@ -112,14 +139,13 @@ module.exports = async (req, res) => {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     })
 
-    console.log(`mpWebhook: pedido ${orderId} atualizado para ${newStatus}`)
+    console.log(`✅ Pedido ${orderId} atualizado com sucesso para: ${newStatus}`)
 
-    // ── Enviar e-mail de confirmação apenas quando pago ──
+    // ── 5. Enviar e-mail de confirmação apenas quando pago ──
     if (newStatus === 'paid') {
       try {
         const orderSnap = await orderRef.get()
         const order = orderSnap.data()
-
         const itemsSnap = await orderRef.collection('items').get()
         const items = itemsSnap.docs.map(d => d.data())
 
@@ -151,55 +177,36 @@ module.exports = async (req, res) => {
               <head><meta charset="UTF-8"></head>
               <body style="background:#000; color:#fff; font-family: sans-serif; padding: 40px 20px; margin: 0;">
                 <div style="max-width: 520px; margin: 0 auto;">
-                  <h1 style="font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
-                    Street Stars ⭐
-                  </h1>
-                  <p style="color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 32px;">
-                    Confirmação de Pedido
-                  </p>
+                  <h1 style="font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">Street Stars ⭐</h1>
+                  <p style="color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 32px;">Confirmação de Pedido</p>
+                  
                   <div style="background: #111; border: 1px solid #222; padding: 24px; margin-bottom: 24px;">
                     <p style="color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; margin: 0 0 4px;">Pedido</p>
                     <p style="color: #fff; font-size: 16px; font-weight: 700; margin: 0;">#${orderId.slice(0, 8).toUpperCase()}</p>
                   </div>
+                  
                   <div style="background: #111; border: 1px solid #222; padding: 24px; margin-bottom: 24px;">
                     <p style="color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; margin: 0 0 16px;">Itens</p>
-                    <table style="width: 100%; border-collapse: collapse;">
-                      ${itemsHtml}
-                    </table>
+                    <table style="width: 100%; border-collapse: collapse;">${itemsHtml}</table>
                     <table style="width: 100%; margin-top: 16px;">
-                      <tr>
-                        <td style="color: #888; font-size: 12px;">Subtotal</td>
-                        <td style="text-align: right; color: #888; font-size: 12px;">R$ ${(total - shippingPrice).toFixed(2).replace('.', ',')}</td>
-                      </tr>
-                      <tr>
-                        <td style="color: #888; font-size: 12px; padding-top: 4px;">Frete (${order.shipping?.name || ''})</td>
-                        <td style="text-align: right; color: #888; font-size: 12px; padding-top: 4px;">R$ ${shippingPrice.toFixed(2).replace('.', ',')}</td>
-                      </tr>
-                      <tr>
-                        <td style="color: #fff; font-size: 14px; font-weight: 700; padding-top: 12px; border-top: 1px solid #333;">Total</td>
-                        <td style="text-align: right; color: #fff; font-size: 14px; font-weight: 700; padding-top: 12px; border-top: 1px solid #333;">R$ ${total.toFixed(2).replace('.', ',')}</td>
-                      </tr>
+                      <tr><td style="color: #888; font-size: 12px;">Subtotal</td><td style="text-align: right; color: #888; font-size: 12px;">R$ ${(total - shippingPrice).toFixed(2).replace('.', ',')}</td></tr>
+                      <tr><td style="color: #888; font-size: 12px; padding-top: 4px;">Frete (${order.shipping?.name || ''})</td><td style="text-align: right; color: #888; font-size: 12px; padding-top: 4px;">R$ ${shippingPrice.toFixed(2).replace('.', ',')}</td></tr>
+                      <tr><td style="color: #fff; font-size: 14px; font-weight: 700; padding-top: 12px; border-top: 1px solid #333;">Total</td><td style="text-align: right; color: #fff; font-size: 14px; font-weight: 700; padding-top: 12px; border-top: 1px solid #333;">R$ ${total.toFixed(2).replace('.', ',')}</td></tr>
                     </table>
                   </div>
+                  
                   <div style="background: #111; border: 1px solid #222; padding: 24px; margin-bottom: 32px;">
                     <p style="color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; margin: 0 0 8px;">Endereço de Entrega</p>
                     <p style="color: #fff; font-size: 13px; margin: 0; line-height: 1.6;">
-                      ${order.address?.street}, ${order.address?.number}
-                      ${order.address?.complement ? ` — ${order.address.complement}` : ''}<br/>
-                      ${order.address?.neighborhood} — ${order.address?.city}/${order.address?.state}<br/>
-                      CEP: ${order.address?.cep}
+                      ${order.address?.street}, ${order.address?.number} ${order.address?.complement ? ` — ${order.address.complement}` : ''}<br/>
+                      ${order.address?.neighborhood} — ${order.address?.city}/${order.address?.state}<br/>CEP: ${order.address?.cep}
                     </p>
                   </div>
-                  <p style="color: #555; font-size: 11px; text-align: center; text-transform: uppercase; letter-spacing: 0.15em;">
-                    Street Stars — São Paulo, SP<br/>
-                    streetstarsco@gmail.com
-                  </p>
                 </div>
               </body>
             </html>
           `
         })
-
       } catch (emailErr) {
         console.error('Erro ao enviar e-mail:', emailErr)
       }
