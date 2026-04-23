@@ -1,5 +1,4 @@
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -20,6 +19,17 @@ export const validateImageFile = (file) => {
   return { valid: true, error: null };
 };
 
+// Busca assinatura temporária do servidor — API_SECRET nunca toca o cliente
+async function getUploadSignature() {
+  const res = await fetch('/api/signUpload', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!res.ok) throw new Error('Falha ao obter assinatura de upload');
+  return res.json(); // { timestamp, signature, api_key }
+}
+
 export const uploadImageToCloudinary = async (file, options = {}) => {
   if (!file) return null;
 
@@ -32,15 +42,20 @@ export const uploadImageToCloudinary = async (file, options = {}) => {
     return uploadCache.get(fileKey);
   }
 
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('upload_preset', UPLOAD_PRESET);
-
-  if (options.quality) formData.append('quality', options.quality);
-  if (options.format) formData.append('format', options.format);
-
   const uploadPromise = (async () => {
     try {
+      // Obtém assinatura do servidor
+      const { timestamp, signature, api_key } = await getUploadSignature();
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+      formData.append('api_key', api_key);
+
+      if (options.quality) formData.append('quality', options.quality);
+      if (options.format) formData.append('format', options.format);
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
