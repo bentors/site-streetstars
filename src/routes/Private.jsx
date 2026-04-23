@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Navigate } from 'react-router-dom'
 import { onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore/lite'
-import { auth, db } from '../services/firebase'
+import { auth } from '../services/firebase'
 
 export default function Private({ children }) {
   const [loading, setLoading] = useState(true)
@@ -12,25 +11,14 @@ export default function Private({ children }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          const adminRef = doc(db, 'admins', user.uid)
-          const adminSnap = await getDoc(adminRef)
-
-          if (adminSnap.exists() && adminSnap.data().isAdmin === true) {
-            localStorage.setItem('@streetstars_detail', JSON.stringify({
-              uid: user.uid,
-              email: user.email,
-            }))
-            setIsAdmin(true)
-          } else {
-            localStorage.removeItem('@streetstars_detail')
-            setIsAdmin(false)
-          }
+          // Verifica a custom claim do JWT — não pode ser alterada pelo cliente
+          const idTokenResult = await user.getIdTokenResult()
+          setIsAdmin(idTokenResult.claims.admin === true)
         } catch (error) {
-          console.error('Erro ao verificar admin:', error)
+          console.error('Erro ao verificar token:', error)
           setIsAdmin(false)
         }
       } else {
-        localStorage.removeItem('@streetstars_detail')
         setIsAdmin(false)
       }
 
