@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useLocation, Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore/lite'
 import { motion } from 'framer-motion'
 import { db } from '../../services/firebase'
@@ -11,14 +11,25 @@ import { optimizeImage } from '../../utils/image'
 import { createPayment } from '../../services/api'
 import Logo from '../../components/ui/Logo'
 
+const CHECKOUT_SESSION_KEY = 'streetstars_checkout'
+
 export default function CheckoutReview() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { user, userProfile } = useAuth()
   const { cartItems, cartTotal } = useCart()
 
-  const address = location.state?.address
-  const shipping = location.state?.shipping
+  // Lê do sessionStorage — sobrevive a F5, não depende de location.state
+  const saved = (() => {
+    try {
+      const raw = sessionStorage.getItem(CHECKOUT_SESSION_KEY)
+      return raw ? JSON.parse(raw) : null
+    } catch {
+      return null
+    }
+  })()
+
+  const address = saved?.address
+  const shipping = saved?.shipping
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -82,6 +93,9 @@ export default function CheckoutReview() {
         userId: user.uid,
         email: user.email,
       })
+
+      // Limpa o estado do checkout após criar o pedido com sucesso
+      sessionStorage.removeItem(CHECKOUT_SESSION_KEY)
 
       window.location.href = initPoint
 

@@ -9,6 +9,8 @@ import Logo from '../../components/ui/Logo'
 import { formatCEP } from '../../utils/validators'
 import { calculateShipping } from '../../services/api'
 
+const CHECKOUT_SESSION_KEY = 'streetstars_checkout'
+
 export default function CheckoutAddress() {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -141,12 +143,14 @@ export default function CheckoutAddress() {
   function handleContinue() {
     const selected = addresses.find(a => a.id === selectedAddressId)
     if (!selected || !selectedShipping) return
-    navigate('/checkout/revisao', {
-        state: {
-        address: selected,
-        shipping: selectedShipping
-        }
-    })
+
+    // Persiste no sessionStorage — sobrevive a F5, não vaza entre abas
+    sessionStorage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify({
+      address: selected,
+      shipping: selectedShipping,
+    }))
+
+    navigate('/checkout/revisao')
   }
 
   const selectedAddress = addresses.find(a => a.id === selectedAddressId)
