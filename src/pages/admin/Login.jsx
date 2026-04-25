@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore/lite'
-import { db, auth } from '../../services/firebase'
+import { auth } from '../../services/firebase'
 import { motion } from 'framer-motion'
 import Logo from '../../components/ui/Logo'
 
@@ -18,13 +17,12 @@ export default function Login() {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          const adminRef = doc(db, 'admins', user.uid)
-          const adminSnap = await getDoc(adminRef)
-          if (adminSnap.exists() && adminSnap.data().isAdmin === true) {
+          const idTokenResult = await user.getIdTokenResult()
+          if (idTokenResult.claims.admin === true) {
             navigate('/admin/dashboard', { replace: true })
           }
         } catch (error) {
-          console.error('Erro ao verificar admin:', error)
+          console.error('Erro ao verificar token:', error)
         }
       }
     })
