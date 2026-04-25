@@ -63,6 +63,10 @@
 |---|---|---|---|
 | isAdmin | boolean | sim | criado manualmente via Firebase Console |
 
+> **Atenção:** a verificação de admin em rotas protegidas usa **Custom Claims** do Firebase Auth
+> (`idTokenResult.claims.admin === true`), não este documento. A collection `admins/` serve
+> apenas como referência humana de quem tem acesso.
+
 ---
 
 ## Fluxo de status de pedido

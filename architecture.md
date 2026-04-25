@@ -38,10 +38,13 @@ produto virar prioridade crítica de crescimento.
 ### Autenticação e Autorização
 | Camada | Mecanismo |
 |---|---|
-| Rotas admin (front-end) | `Private.jsx` verifica documento `admins/{uid}` com `isAdmin: true` no Firestore |
+| Rotas admin (front-end) | `Private.jsx` verifica custom claim `admin === true` via `getIdTokenResult()` — sem leitura adicional ao Firestore |
 | Rotas de usuário (front-end) | `PrivateUser.jsx` verifica sessão Firebase ativa |
 | API Routes (back-end) | `_authMiddleware.js` verifica e decodifica o ID Token via Firebase Admin SDK |
 | Firestore | Security Rules com whitelist por uid e custom claim |
+
+> Custom claims são setadas via script `scripts/setAdminClaim.js` usando Firebase Admin SDK.
+> O usuário precisa fazer logout e login após a claim ser setada para o JWT atualizar.
 
 ### Fluxo de Token nas API Routes
 ```
