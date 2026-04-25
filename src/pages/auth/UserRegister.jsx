@@ -5,7 +5,13 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore/lite'
 import { motion } from 'framer-motion'
 import { auth, db } from '../../services/firebase'
 import Logo from '../../components/ui/Logo'
-import { validateEmail, validateCPF, formatCPF } from '../../utils/validators'
+import { validateEmail, validateCPF, validatePassword, passwordStrength, formatCPF } from '../../utils/validators'
+
+const STRENGTH_CONFIG = {
+  fraca:  { color: 'bg-red-500',    label: 'Fraca',  width: 'w-1/3' },
+  média:  { color: 'bg-yellow-400', label: 'Média',  width: 'w-2/3' },
+  forte:  { color: 'bg-green-500',  label: 'Forte',  width: 'w-full' },
+}
 
 export default function UserRegister() {
   const navigate = useNavigate()
@@ -17,11 +23,12 @@ export default function UserRegister() {
     phone: '',
     password: '',
     confirmPassword: '',
-    marketingConsent: false
+    marketingConsent: false,
   })
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState(null)
+  const [pwStrength, setPwStrength] = useState(null)
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target
@@ -31,9 +38,13 @@ export default function UserRegister() {
       return
     }
 
+    if (name === 'password') {
+      setPwStrength(value ? passwordStrength(value) : null)
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }))
   }
 
@@ -41,7 +52,10 @@ export default function UserRegister() {
     if (!formData.name.trim()) return 'Informe seu nome completo.'
     if (!validateEmail(formData.email)) return 'E-mail inválido.'
     if (formData.cpf && !validateCPF(formData.cpf)) return 'CPF inválido.'
-    if (formData.password.length < 6) return 'A senha deve ter ao menos 6 caracteres.'
+
+    const { valid, error: pwError } = validatePassword(formData.password)
+    if (!valid) return pwError
+
     if (formData.password !== formData.confirmPassword) return 'As senhas não coincidem.'
     return null
   }
@@ -66,13 +80,13 @@ export default function UserRegister() {
       )
 
       await setDoc(doc(db, 'users', user.uid), {
-        name: formData.name.trim(),
-        email: formData.email,
-        cpf: formData.cpf.replace(/\D/g, '') || '',
-        phone: formData.phone.trim() || '',
-        marketingConsent: formData.marketingConsent,
+        name:                formData.name.trim(),
+        email:               formData.email,
+        cpf:                 formData.cpf.replace(/\D/g, '') || '',
+        phone:               formData.phone.trim() || '',
+        marketingConsent:    formData.marketingConsent,
         marketingConsentDate: serverTimestamp(),
-        created_at: serverTimestamp()
+        created_at:          serverTimestamp(),
       })
 
       navigate('/', { replace: true })
@@ -82,7 +96,7 @@ export default function UserRegister() {
       if (err.code === 'auth/email-already-in-use') {
         setError('Este e-mail já está cadastrado.')
       } else if (err.code === 'auth/weak-password') {
-        setError('Senha muito fraca. Use ao menos 6 caracteres.')
+        setError('Senha muito fraca. Use ao menos 8 caracteres com letras e números.')
       } else {
         setError('Erro ao criar conta. Tente novamente.')
       }
@@ -90,6 +104,8 @@ export default function UserRegister() {
       setLoading(false)
     }
   }
+
+  const strength = pwStrength ? STRENGTH_CONFIG[pwStrength] : null
 
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6 py-12 relative overflow-hidden selection:bg-white selection:text-black">
@@ -132,14 +148,10 @@ export default function UserRegister() {
                 Nome Completo
               </label>
               <input
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                autoComplete="name"
+                name="name" type="text" value={formData.name}
+                onChange={handleChange} autoComplete="name"
                 className="w-full bg-black/50 border border-white/10 text-white p-3 text-sm focus:border-white outline-none transition-colors font-mono placeholder:text-zinc-800"
-                placeholder="Seu nome"
-                required
+                placeholder="Seu nome" required
               />
             </div>
 
@@ -148,14 +160,10 @@ export default function UserRegister() {
                 E-mail
               </label>
               <input
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                autoComplete="email"
+                name="email" type="email" value={formData.email}
+                onChange={handleChange} autoComplete="email"
                 className="w-full bg-black/50 border border-white/10 text-white p-3 text-sm focus:border-white outline-none transition-colors font-mono placeholder:text-zinc-800"
-                placeholder="seu@email.com"
-                required
+                placeholder="seu@email.com" required
               />
             </div>
 
@@ -164,12 +172,8 @@ export default function UserRegister() {
                 CPF <span className="text-white/20">(opcional)</span>
               </label>
               <input
-                name="cpf"
-                type="text"
-                value={formData.cpf}
-                onChange={handleChange}
-                maxLength={14}
-                autoComplete="off"
+                name="cpf" type="text" value={formData.cpf}
+                onChange={handleChange} maxLength={14} autoComplete="off"
                 className="w-full bg-black/50 border border-white/10 text-white p-3 text-sm focus:border-white outline-none transition-colors font-mono placeholder:text-zinc-800"
                 placeholder="000.000.000-00"
               />
@@ -180,11 +184,8 @@ export default function UserRegister() {
                 Telefone <span className="text-white/20">(opcional)</span>
               </label>
               <input
-                name="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                autoComplete="tel"
+                name="phone" type="tel" value={formData.phone}
+                onChange={handleChange} autoComplete="tel"
                 className="w-full bg-black/50 border border-white/10 text-white p-3 text-sm focus:border-white outline-none transition-colors font-mono placeholder:text-zinc-800"
                 placeholder="(11) 99999-9999"
               />
@@ -195,15 +196,23 @@ export default function UserRegister() {
                 Senha
               </label>
               <input
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                autoComplete="new-password"
+                name="password" type="password" value={formData.password}
+                onChange={handleChange} autoComplete="new-password"
                 className="w-full bg-black/50 border border-white/10 text-white p-3 text-sm focus:border-white outline-none transition-colors font-mono placeholder:text-zinc-800"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres com letras e números"
                 required
               />
+              {/* Barra de força da senha */}
+              {strength && (
+                <div className="mt-2">
+                  <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all duration-300 ${strength.color} ${strength.width}`} />
+                  </div>
+                  <p className="text-[10px] text-white/30 mt-1 font-mono">
+                    Força: <span className="text-white/60">{strength.label}</span>
+                  </p>
+                </div>
+              )}
             </div>
 
             <div>
@@ -211,11 +220,8 @@ export default function UserRegister() {
                 Confirmar Senha
               </label>
               <input
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                autoComplete="new-password"
+                name="confirmPassword" type="password" value={formData.confirmPassword}
+                onChange={handleChange} autoComplete="new-password"
                 className="w-full bg-black/50 border border-white/10 text-white p-3 text-sm focus:border-white outline-none transition-colors font-mono placeholder:text-zinc-800"
                 placeholder="Repita a senha"
                 required
@@ -224,8 +230,7 @@ export default function UserRegister() {
 
             <label className="flex items-start gap-3 cursor-pointer group mt-1">
               <input
-                name="marketingConsent"
-                type="checkbox"
+                name="marketingConsent" type="checkbox"
                 checked={formData.marketingConsent}
                 onChange={handleChange}
                 className="mt-0.5 accent-white"
@@ -247,8 +252,7 @@ export default function UserRegister() {
             </p>
 
             <button
-              type="submit"
-              disabled={loading}
+              type="submit" disabled={loading}
               className="mt-2 w-full bg-white text-black font-black uppercase tracking-[0.2em] py-4 hover:bg-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs flex items-center justify-center gap-3 relative overflow-hidden group"
             >
               {loading ? (

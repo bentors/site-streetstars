@@ -1,9 +1,20 @@
+import { auth } from './firebase'
+
 const BASE_URL = '/api'
 
+async function getAuthHeader() {
+  const user = auth.currentUser
+  if (!user) throw new Error('Usuário não autenticado')
+  const idToken = await user.getIdToken()
+  return { 'Authorization': `Bearer ${idToken}` }
+}
+
 export const calculateShipping = async (cep) => {
+  const authHeader = await getAuthHeader()
+
   const res = await fetch(`${BASE_URL}/calculateShipping`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...authHeader },
     body: JSON.stringify({ cep }),
   })
 
@@ -11,11 +22,17 @@ export const calculateShipping = async (cep) => {
   return res.json()
 }
 
-export const createPayment = async ({ orderId, userId, email }) => {
+export const createPayment = async ({ orderId }) => {
+  const authHeader = await getAuthHeader()
+  const user = auth.currentUser
+
   const res = await fetch(`${BASE_URL}/createPayment`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ orderId, userId, email }),
+    headers: { 'Content-Type': 'application/json', ...authHeader },
+    body: JSON.stringify({
+      orderId,
+      email: user?.email || '',
+    }),
   })
 
   if (!res.ok) throw new Error('Erro ao criar pagamento')

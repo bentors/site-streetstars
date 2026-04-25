@@ -88,11 +88,8 @@ export default function CheckoutReview() {
         )
       )
 
-      const { initPoint } = await createPayment({
-        orderId: orderRef.id,
-        userId: user.uid,
-        email: user.email,
-      })
+      // userId e email são extraídos do token verificado pelo servidor
+      const { initPoint } = await createPayment({ orderId: orderRef.id })
 
       // Limpa o estado do checkout após criar o pedido com sucesso
       sessionStorage.removeItem(CHECKOUT_SESSION_KEY)

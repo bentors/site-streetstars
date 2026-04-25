@@ -1,23 +1,39 @@
+/**
+ * Cria uma preferência de pagamento no Mercado Pago após:
+ *   1. Verificar o ID Token Firebase do usuário (não confia no body)
+ *   2. Confirmar que o pedido pertence ao uid verificado
+ *   3. Revalidar preços contra o catálogo do servidor
+ */
+
 const admin = require('./_firebase.js')
 const { MercadoPagoConfig, Preference } = require('mercadopago')
+const { requireAuth } = require('./_authMiddleware.js')
+const { checkRateLimit } = require('./_rateLimiter.js')
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || '')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  res.setHeader('Vary', 'Origin')
 
-  if (req.method === 'OPTIONS') {
-    return res.status(204).send('')
-  }
+  if (req.method === 'OPTIONS') return res.status(204).send('')
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
+  // Rate limit: 5 criações de pagamento/minuto por IP
+  if (!checkRateLimit(req, res, { limit: 5, window: 60 })) return
 
-  const { orderId, userId, email } = req.body
+  // ── Autenticação: uid vem do token ─────────────────────────
+  const caller = await requireAuth(req, res)
+  if (!caller) return
 
-  if (!orderId || !userId) {
-    return res.status(400).json({ error: 'orderId e userId são obrigatórios' })
+  const { uid: userId, email: tokenEmail } = caller
+
+  // orderId vem do body
+  const { orderId } = req.body
+  const email = tokenEmail || req.body.email || ''
+
+  if (!orderId) {
+    return res.status(400).json({ error: 'orderId é obrigatório' })
   }
 
   try {
@@ -30,6 +46,7 @@ module.exports = async (req, res) => {
 
     const order = orderSnap.data()
 
+    // Confirma que o pedido pertence ao usuário autenticado
     if (order.userId !== userId) {
       return res.status(403).json({ error: 'Acesso negado' })
     }
@@ -38,11 +55,11 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Pedido já processado' })
     }
 
-    // ── Buscar itens do pedido ──
+    // ── Buscar itens do pedido ──────────────────────────────────────────────
     const itemsSnap = await orderRef.collection('items').get()
     const orderItems = itemsSnap.docs.map(d => d.data())
 
-    // ── CRÍTICO: buscar preços reais do catálogo, nunca confiar no cliente ──
+    // ── Revalidar preços contra o catálogo — nunca confiar no cliente ───────
     const itemsWithRealPrices = await Promise.all(
       orderItems.map(async (item) => {
         const productRef = admin.firestore().collection('products').doc(item.productId)
@@ -58,7 +75,6 @@ module.exports = async (req, res) => {
           throw new Error(`Preço inválido para produto: ${item.productId}`)
         }
 
-        // Atualizar o preço salvo no item do pedido para refletir o catálogo
         await itemsSnap.docs
           .find(d => d.data().productId === item.productId)
           ?.ref.update({ price: catalogPrice })
@@ -67,13 +83,13 @@ module.exports = async (req, res) => {
           id: item.productId,
           title: item.name,
           quantity: item.quantity,
-          unit_price: catalogPrice, // ← preço do servidor, nunca do cliente
+          unit_price: catalogPrice,
           currency_id: 'BRL',
         }
       })
     )
 
-    // ── Recalcular total real e atualizar pedido ──
+    // ── Recalcular total real ───────────────────────────────────────────────
     const realSubtotal = itemsWithRealPrices.reduce(
       (acc, item) => acc + item.unit_price * item.quantity, 0
     )
@@ -85,7 +101,7 @@ module.exports = async (req, res) => {
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     })
 
-    // ── Criar preferência no Mercado Pago ──
+    // ── Criar preferência no Mercado Pago ───────────────────────────────────
     const client = new MercadoPagoConfig({
       accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN
     })
@@ -95,9 +111,7 @@ module.exports = async (req, res) => {
     const preferenceData = await preference.create({
       body: {
         items: itemsWithRealPrices,
-        payer: {
-          email: email || '',
-        },
+        payer: { email },
         shipments: {
           cost: shippingPrice,
           mode: 'not_specified',

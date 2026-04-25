@@ -1,19 +1,34 @@
+/**
+ * Gera uma assinatura temporária para upload direto ao Cloudinary.
+ *
+ * SEGURANÇA:
+ *   - Requer Firebase ID Token válido (usuário autenticado)
+ *   - CLOUDINARY_API_SECRET nunca sai do servidor
+ *   - A assinatura expira em ~1 minuto (timestamp do Cloudinary)
+ */
+
 const crypto = require('crypto')
+const { requireAuth } = require('./_authMiddleware.js')
+const { checkRateLimit } = require('./_rateLimiter.js')
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGIN || '')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.setHeader('Vary', 'Origin')
 
-  if (req.method === 'OPTIONS') {
-    return res.status(204).send('')
-  }
+  if (req.method === 'OPTIONS') return res.status(204).send('')
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
-  }
+  // Rate limit: 10 uploads/minuto por IP
+  if (!checkRateLimit(req, res, { limit: 10, window: 60 })) return
 
+  // ── Autenticação obrigatória ──────────────────────────────────────────────
+  // Apenas usuários com sessão Firebase ativa podem assinar uploads.
+  const caller = await requireAuth(req, res)
+  if (!caller) return // requireAuth já respondeu 401
+
+  // ── Credenciais Cloudinary ────────────────────────────────────────────────
   const apiSecret = process.env.CLOUDINARY_API_SECRET
   const apiKey = process.env.CLOUDINARY_API_KEY
 
@@ -22,9 +37,11 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: 'Configuração de upload indisponível' })
   }
 
+  // ── Geração da assinatura ─────────────────────────────────────────────────
+  // O timestamp em segundos limita a validade da assinatura a ~1 minuto
+  // no lado do Cloudinary (janela padrão de aceitação).
   const timestamp = Math.round(Date.now() / 1000)
 
-  // Assina apenas timestamp — sem upload_preset (signed upload não usa preset)
   const signature = crypto
     .createHash('sha256')
     .update(`timestamp=${timestamp}${apiSecret}`)
