@@ -130,7 +130,6 @@ A Street Stars respeita a sua privacidade e está comprometida em proteger seus 
 1.1 Dados Fornecidos por Você
 Ao criar uma conta ou realizar uma compra, coletamos:
 • Nome completo
-• CPF
 • E-mail
 • Telefone
 • Endereço completo (para entrega)

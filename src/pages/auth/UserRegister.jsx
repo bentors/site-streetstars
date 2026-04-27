@@ -5,10 +5,11 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore/lite'
 import { motion } from 'framer-motion'
 import { auth, db } from '../../services/firebase'
 import Logo from '../../components/ui/Logo'
-import { validateEmail, validateCPF, validatePassword, passwordStrength, formatCPF } from '../../utils/validators'
+// Alteração: validateCPF e formatCPF removidos dos imports
+import { validateEmail, validatePassword, passwordStrength } from '../../utils/validators'
 
 const STRENGTH_CONFIG = {
-  fraca:  { color: 'bg-red-500',    label: 'Fraca',  width: 'w-1/3' },
+  fraca:  { color: 'bg-red-500',   label: 'Fraca',  width: 'w-1/3' },
   média:  { color: 'bg-yellow-400', label: 'Média',  width: 'w-2/3' },
   forte:  { color: 'bg-green-500',  label: 'Forte',  width: 'w-full' },
 }
@@ -19,7 +20,6 @@ export default function UserRegister() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    cpf: '',
     phone: '',
     password: '',
     confirmPassword: '',
@@ -32,11 +32,6 @@ export default function UserRegister() {
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target
-
-    if (name === 'cpf') {
-      setFormData(prev => ({ ...prev, cpf: formatCPF(value) }))
-      return
-    }
 
     if (name === 'password') {
       setPwStrength(value ? passwordStrength(value) : null)
@@ -51,7 +46,6 @@ export default function UserRegister() {
   function validate() {
     if (!formData.name.trim()) return 'Informe seu nome completo.'
     if (!validateEmail(formData.email)) return 'E-mail inválido.'
-    if (formData.cpf && !validateCPF(formData.cpf)) return 'CPF inválido.'
 
     const { valid, error: pwError } = validatePassword(formData.password)
     if (!valid) return pwError
@@ -82,8 +76,7 @@ export default function UserRegister() {
       await setDoc(doc(db, 'users', user.uid), {
         name:                formData.name.trim(),
         email:               formData.email,
-        cpf:                 formData.cpf.replace(/\D/g, '') || '',
-        phone:               formData.phone.trim() || '',
+        phone:               formData.phone.trim(),
         marketingConsent:    formData.marketingConsent,
         marketingConsentDate: serverTimestamp(),
         created_at:          serverTimestamp(),
@@ -169,19 +162,7 @@ export default function UserRegister() {
 
             <div>
               <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block font-mono">
-                CPF <span className="text-white/20">(opcional)</span>
-              </label>
-              <input
-                name="cpf" type="text" value={formData.cpf}
-                onChange={handleChange} maxLength={14} autoComplete="off"
-                className="w-full bg-black/50 border border-white/10 text-white p-3 text-sm focus:border-white outline-none transition-colors font-mono placeholder:text-zinc-800"
-                placeholder="000.000.000-00"
-              />
-            </div>
-
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-white/40 mb-2 block font-mono">
-                Telefone <span className="text-white/20">(opcional)</span>
+                Telefone
               </label>
               <input
                 name="phone" type="tel" value={formData.phone}
@@ -199,10 +180,9 @@ export default function UserRegister() {
                 name="password" type="password" value={formData.password}
                 onChange={handleChange} autoComplete="new-password"
                 className="w-full bg-black/50 border border-white/10 text-white p-3 text-sm focus:border-white outline-none transition-colors font-mono placeholder:text-zinc-800"
-                placeholder="Mínimo 8 caracteres com letras e números"
+                placeholder="Mínimo 8 caracteres"
                 required
               />
-              {/* Barra de força da senha */}
               {strength && (
                 <div className="mt-2">
                   <div className="h-1 bg-white/10 rounded-full overflow-hidden">

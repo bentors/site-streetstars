@@ -236,21 +236,6 @@ export default function CheckoutReview() {
             </div>
           </section>
 
-          {!userProfile?.cpf && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="border border-yellow-500/20 bg-yellow-500/5 rounded-sm px-5 py-4"
-            >
-              <p className="text-[10px] uppercase tracking-widest text-yellow-500/70 font-mono leading-relaxed">
-                Seu CPF não está cadastrado. Ele será necessário para processar o pagamento.{' '}
-                <Link to="/minha-conta" className="underline hover:text-yellow-400 transition-colors">
-                  Adicionar agora
-                </Link>
-              </p>
-            </motion.div>
-          )}
-
           {error && (
             <p className="text-red-400 text-xs uppercase tracking-wide font-mono text-center">
               {error}
