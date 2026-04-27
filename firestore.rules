@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Funções Auxiliares ───────────────────────────────────────────
+    // Usando Custom Claims
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // ── Produtos ─────────────────────────────────────────────────────
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update: if isAdmin()
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.price is number
+        && request.resource.data.price > 0;
+      allow delete: if isAdmin();
+    }
+
+    // ── Usuários ─────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow update: if isOwner(userId)
+        && request.resource.data.keys().hasOnly([
+          'email', 'name', 'phone', 'cpf',
+          'marketingConsent', 'marketingConsentDate', 'created_at'
+        ]);
+      allow create: if isOwner(userId)
+        && request.resource.data.email is string
+        && request.resource.data.marketingConsent is bool
+        && request.resource.data.keys().hasOnly([
+          'email', 'name', 'phone', 'cpf',
+          'marketingConsent', 'marketingConsentDate', 'created_at'
+        ]);
+      allow delete: if false;
+
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // ── Pedidos ──────────────────────────────────────────────────────
+    match /orders/{orderId} {
+      allow read: if isAdmin() || isOwner(resource.data.userId);
+      allow create: if isOwner(request.resource.data.userId)
+        && request.resource.data.total is number
+        && request.resource.data.total > 0
+        && request.resource.data.status == 'pending';
+      allow update, delete: if false;
+
+      // Subcoleção de Itens
+      match /items/{itemId} {
+        allow read: if isAdmin() || isOwner(get(/databases/$(database)/documents/orders/$(orderId)).data.userId);
+        
+        // CORREÇÃO: Apenas o dono do pedido pai pode adicionar itens nele
+        allow create: if isOwner(get(/databases/$(database)/documents/orders/$(orderId)).data.userId);
+        
+        allow update, delete: if false;
+      }
+    }
+
+    // ── Admins ───────────────────────────────────────────────────────
+    match /admins/{adminId} {
+      allow read: if isOwner(adminId);
+      allow write: if false;
+    }
+  }
+}
