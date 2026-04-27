@@ -8,7 +8,7 @@
  */
 
 const crypto = require('crypto')
-const { requireAuth } = require('./_authMiddleware.js')
+const { requireAdmin } = require('./_authMiddleware.js')
 const { checkRateLimit } = require('./_rateLimiter.js')
 
 module.exports = async (req, res) => {
@@ -23,10 +23,10 @@ module.exports = async (req, res) => {
   // Rate limit: 10 uploads/minuto por IP
   if (!checkRateLimit(req, res, { limit: 10, window: 60 })) return
 
-  // ── Autenticação obrigatória ──────────────────────────────────────────────
-  // Apenas usuários com sessão Firebase ativa podem assinar uploads.
-  const caller = await requireAuth(req, res)
-  if (!caller) return // requireAuth já respondeu 401
+  // ── Autenticação obrigatória (Apenas admins) ──────────────────────────────────────────────
+  // Chama required Admin, Qualquer cliente sem a claim admin receberá um 403 Forbidden automaticamente.
+  const caller = await requireAdmin(req, res)
+  if (!caller) return // requireAdmin já respondeu 401 ou 403
 
   // ── Credenciais Cloudinary ────────────────────────────────────────────────
   const apiSecret = process.env.CLOUDINARY_API_SECRET
