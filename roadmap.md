@@ -63,7 +63,7 @@
 
 ## 🔭 Backlog Futuro
 
-### Segurança (próximos passos recomendados)
+### Segurança
 - [ ] Verificação de e-mail obrigatória antes do primeiro checkout (`sendEmailVerification`)
 - [ ] Rate limiting externo com Upstash Redis (substitui o limiter em memória ao escalar)
 - [ ] Firestore Security Rules auditadas e documentadas (ver `schema.md`)
