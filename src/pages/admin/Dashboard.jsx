@@ -1,14 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from 'firebase/auth'
-import { auth, db } from '../../services/firebase'
 import { Link, useNavigate } from 'react-router-dom'
 import { collection, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore/lite'
-import { getFirestore, collection as col, query as q, orderBy as ob, onSnapshot } from 'firebase/firestore'
-import { app } from '../../services/firebase'
+import { collection as col, query as q, orderBy as ob, onSnapshot } from 'firebase/firestore'
+import { db, dbRealtime, auth } from '../../services/firebase'
 import { formatCurrency } from '../../utils/format'
 import Logo from '../../components/ui/Logo'
-
-const dbFull = getFirestore(app)
 
 const TABS = [
   { id: 'products', label: 'Produtos' },
@@ -67,7 +64,7 @@ export default function Dashboard() {
   // Listener em tempo real para pedidos
   useEffect(() => {
     const ordersQuery = q(
-      col(dbFull, 'orders'),
+      col(dbRealtime, 'orders'),
       ob('created_at', 'desc')
     )
 

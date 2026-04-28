@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { doc, onSnapshot } from 'firebase/firestore'
-import { getFirestore } from 'firebase/firestore'
-import { app } from '../../services/firebase'
 import { motion } from 'framer-motion'
 import { formatCurrency } from '../../utils/format'
 import Logo from '../../components/ui/Logo'
 import { useCart } from '../../context/CartContext'
-
-const db = getFirestore(app)
+import { doc, onSnapshot } from 'firebase/firestore'
+import { dbRealtime as db } from '../../services/firebase'
 
 const STATUS_CONFIG = {
   pending: {

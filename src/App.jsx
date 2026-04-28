@@ -49,10 +49,13 @@ export default function App() {
   const location = useLocation()
   
   useEffect(() => {
-    const timer = setTimeout(() => {
-      initGA();
-    }, 3000);
-    return () => clearTimeout(timer);
+    if ('requestIdleCallback' in window) {
+      const id = requestIdleCallback(initGA)
+      return () => cancelIdleCallback(id)
+    } else {
+      const timer = setTimeout(initGA, 1000)
+      return () => clearTimeout(timer)
+    }
   }, [])
 
   useEffect(() => {

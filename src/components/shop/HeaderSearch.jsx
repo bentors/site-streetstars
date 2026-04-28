@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { formatCurrency } from '../../utils/format'
 import { optimizeImage } from '../../utils/image'
-import { collection, getDocs, query } from 'firebase/firestore/lite'
+import { collection, getDocs, query, where, limit } from 'firebase/firestore'
 import { db } from '../../services/firebase'
 
 let productsCache = null
@@ -24,7 +24,11 @@ export default function HeaderSearch() {
       async function loadSearchData() {
         try {
           const productsRef = collection(db, "products")
-          const q = query(productsRef)
+          const q = query(
+            productsRef,
+            where('isActive', '==', true),
+            limit(100)
+          )
           const snapshot = await getDocs(q)
           
           const list = []
@@ -63,7 +67,7 @@ export default function HeaderSearch() {
         const matchCategory = p.category?.toLowerCase().includes(term)
         return matchName || matchCategory
       })
-      .slice(0, 50)
+      .slice(0, 10)
   }, [queryText, productsList])
 
   useEffect(() => {

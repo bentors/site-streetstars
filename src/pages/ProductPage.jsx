@@ -8,7 +8,16 @@ import Loading from '../components/Loading'
 import { formatCurrency } from '../utils/format'
 import { optimizeImage, generateSrcSet } from '../utils/image'
 
+const MAX_CACHE_SIZE = 20
 const relatedCache = new Map()
+
+function setRelatedCache(key, value) {
+  if (relatedCache.size >= MAX_CACHE_SIZE) {
+    // Remove a entrada mais antiga (primeira inserida)
+    relatedCache.delete(relatedCache.keys().next().value)
+  }
+  relatedCache.set(key, value)
+}
 
 export default function ProductPage() {
   const { id } = useParams()
@@ -88,7 +97,7 @@ export default function ProductPage() {
       
       const related = list.slice(0, 4)
       setRelatedProducts(related)
-      relatedCache.set(cacheKey, related)
+      setRelatedCache(cacheKey, related)
     } catch(err) {
       console.error("Erro ao carregar relacionados", err)
     }
