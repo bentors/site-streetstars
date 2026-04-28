@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom', 'react-helmet-async'],
           framer: ['framer-motion'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore/lite'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore/lite', 'firebase/firestore'],
           analytics: ['react-ga4']
         }
       }
