@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // Rate limit: 5 criações de pagamento/minuto por IP
-  if (!checkRateLimit(req, res, { limit: 5, window: 60 })) return
+  if (!await checkRateLimit(req, res, { limit: 5, window: 60 })) return
 
   // ── Autenticação: uid vem do token ─────────────────────────
   const caller = await requireAuth(req, res)

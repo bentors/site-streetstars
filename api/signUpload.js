@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // Rate limit: 10 uploads/minuto por IP
-  if (!checkRateLimit(req, res, { limit: 10, window: 60 })) return
+  if (!await checkRateLimit(req, res, { limit: 10, window: 60 })) return
 
   // ── Autenticação obrigatória (Apenas admins) ──────────────────────────────────────────────
   // Chama required Admin, Qualquer cliente sem a claim admin receberá um 403 Forbidden automaticamente.

@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   // Rate limit: 30 cálculos/minuto por IP (evita abuso do token Melhor Envio)
-  if (!checkRateLimit(req, res, { limit: 30, window: 60 })) return
+  if (!await checkRateLimit(req, res, { limit: 30, window: 60 })) return
 
   if (typeof req.body === 'string') {
     try { req.body = JSON.parse(req.body) } catch { req.body = {} }
