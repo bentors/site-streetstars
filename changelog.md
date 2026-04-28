@@ -1,5 +1,34 @@
 # Changelog — Street Stars
 
+## [1.4.0] — 2026
+### Segurança
+- `signUpload` corrigido: `requireAuth` substituído por `requireAdmin` — qualquer usuário autenticado podia fazer upload para o Cloudinary da empresa
+- CPF removido do cadastro, checkout e páginas legais — delegado ao Checkout Pro do Mercado Pago (conformidade LGPD)
+- `firestore.rules` adicionado ao repositório com regras completas: `isAdmin`, `isOwner`, validação de schema por coleção
+- Rate limiter migrado de memória para Upstash Redis (`@upstash/ratelimit` + `@upstash/redis`) — estado agora persiste entre instâncias serverless
+- Algoritmo `slidingWindow` no rate limiter — elimina brecha de boundary entre janelas fixas
+- `calculateShipping`, `createPayment`, `signUpload`: `await` adicionado na chamada do rate limiter (sem await, a Promise era sempre truthy e o limite nunca funcionava)
+
+### Arquitetura
+- `AuthLoading.jsx` extraído como componente compartilhado — elimina duplicação entre `Private.jsx` e `PrivateUser.jsx`
+- `firebase.js`: exporta `dbRealtime` (SDK completo) além de `db` (lite) — instância centralizada para `onSnapshot`
+- `Dashboard.jsx`: instância `dbFull` local removida — usa `dbRealtime` do `firebase.js`
+- `Dashboard.jsx`: imports duplicados de `auth` e `db` removidos
+- `OrderConfirmation.jsx`: instância `getFirestore` local removida — usa `dbRealtime` do `firebase.js`
+- `ProductPage.jsx`: cache `relatedCache` limitado a 20 entradas (`MAX_CACHE_SIZE`) — previne memory leak em sessões longas
+- `api/package.json`: dependências de servidor isoladas (`firebase-admin`, `mercadopago`, `resend`, `axios`, `dotenv`)
+- `package.json` raiz: dependências exclusivas do servidor removidas do bundle do frontend
+- `vite.config.js`: `firebase/firestore` (completo) adicionado ao `manualChunks` do chunk firebase
+
+### Performance e SEO
+- `HeaderSearch.jsx`: query Firestore filtrada por `isActive == true` com `limit(100)` — era full scan do catálogo
+- `HeaderSearch.jsx`: resultados visíveis limitados a 8 — era 50
+- `HeaderSearch.jsx`: corrigido para importar de `firebase/firestore/lite` (estava usando SDK completo desnecessariamente)
+- `App.jsx`: GA4 inicializado com `requestIdleCallback` — substitui `setTimeout` de 3s fixo; dados de sessão não são mais perdidos
+- `scripts/generate-sitemap.cjs`: geração dinâmica do sitemap a partir dos produtos ativos do Firestore
+- Sitemap integrado ao pipeline de build — gerado automaticamente antes do `vite build`
+- `robots.txt`: `/sitemap.xml` agora resolve corretamente (era 404)
+
 ## [1.3.0] — 2026
 ### Segurança
 - Middleware centralizado de autenticação Firebase (`_authMiddleware.js`)

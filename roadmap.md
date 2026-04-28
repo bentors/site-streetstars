@@ -14,7 +14,7 @@
 - [x] Documentação: README, SCHEMA, ARCHITECTURE, ROADMAP, .env.example
 
 ## ✅ Sprint 1 — Autenticação de Usuário (Concluída)
-- [x] Página de cadastro (email, senha, nome, CPF, consentimento LGPD)
+- [x] Página de cadastro (email, senha, nome, consentimento LGPD)
 - [x] Página de login de usuário
 - [x] Recuperação de senha
 - [x] Área do usuário: perfil e endereços salvos
@@ -61,12 +61,36 @@
 - [x] `UserRegister.jsx`: barra de força de senha com feedback visual em tempo real
 - [x] `UserRegister.jsx`: mensagens de erro de senha atualizadas
 
+## ✅ Sprint 6 — Code Review e Production Readiness (Concluída)
+- [x] CPF removido do cadastro, checkout e páginas legais — delegado ao Checkout Pro do Mercado Pago
+- [x] `signUpload` corrigido: `requireAuth` substituído por `requireAdmin` — impede upload por qualquer usuário autenticado
+- [x] `firestore.rules` criado no repositório com regras completas por coleção (isAdmin, isOwner, validação de schema)
+- [x] `AuthLoading.jsx` extraído como componente compartilhado — elimina duplicação entre `Private.jsx` e `PrivateUser.jsx`
+- [x] `firebase.js`: exporta `dbRealtime` (SDK completo) além de `db` (lite) — suporte a `onSnapshot` sem duplicar instâncias
+- [x] `Dashboard.jsx`: instância `dbFull` local removida — usa `dbRealtime` centralizado
+- [x] `OrderConfirmation.jsx`: instância `getFirestore` local removida — usa `dbRealtime` centralizado
+- [x] `Dashboard.jsx`: imports duplicados de `auth` e `db` removidos
+- [x] `ProductPage.jsx`: cache `relatedCache` limitado a 20 entradas (MAX_CACHE_SIZE) — previne memory leak
+- [x] `HeaderSearch.jsx`: query Firestore filtrada por `isActive == true` com `limit(100)` — era full scan
+- [x] `HeaderSearch.jsx`: resultados visíveis limitados a 8 — era 50
+- [x] `HeaderSearch.jsx`: corrigido para importar de `firebase/firestore/lite` (estava usando SDK completo)
+- [x] `App.jsx`: GA4 inicializado com `requestIdleCallback` — era `setTimeout` de 3s fixo
+- [x] `api/package.json`: dependências de servidor isoladas (`firebase-admin`, `mercadopago`, `resend`, `axios`, `dotenv`)
+- [x] `package.json` raiz: dependências exclusivas do servidor removidas do bundle do frontend
+- [x] `vite.config.js`: `firebase/firestore` (completo) adicionado ao `manualChunks` do chunk firebase
+- [x] `scripts/generate-sitemap.cjs`: geração dinâmica do sitemap a partir dos produtos ativos do Firestore
+- [x] `sitemap.xml` gerado automaticamente a cada build com produtos + rotas estáticas
+- [x] `robots.txt`: `/sitemap.xml` agora resolve corretamente (era 404)
+- [x] Rate limiter migrado de memória para Upstash Redis (`@upstash/ratelimit` + `@upstash/redis`)
+  - Estado persiste entre instâncias serverless — rate limit garantido em produção
+  - Algoritmo `slidingWindow` — elimina brecha de boundary entre janelas fixas
+  - Fallback gracioso: loga erro mas não derruba o endpoint se Redis estiver indisponível
+- [x] `calculateShipping`, `createPayment`, `signUpload`: `await` adicionado na chamada do rate limiter
+
 ## 🔭 Backlog Futuro
 
 ### Segurança
 - [ ] Verificação de e-mail obrigatória antes do primeiro checkout (`sendEmailVerification`)
-- [ ] Rate limiting externo com Upstash Redis (substitui o limiter em memória ao escalar)
-- [ ] Firestore Security Rules auditadas e documentadas (ver `schema.md`)
 - [ ] Logs de auditoria para ações admin (criação/edição/exclusão de produtos)
 - [ ] Política de renovação de tokens de API de terceiros (MP, Melhor Envio, Cloudinary)
 

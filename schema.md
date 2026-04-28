@@ -6,10 +6,12 @@
 | email | string | sim | |
 | name | string | sim | |
 | phone | string | não | |
-| cpf | string | não | obrigatório antes do primeiro checkout |
 | marketingConsent | boolean | sim | registrado no cadastro |
 | marketingConsentDate | timestamp | sim | registrado no cadastro — conformidade LGPD |
 | created_at | timestamp | sim | |
+
+> **Nota:** CPF não é coletado nem armazenado pela plataforma. A coleta ocorre exclusivamente
+> no ambiente do Mercado Pago Checkout Pro, sob responsabilidade do processador de pagamentos.
 
 ### users/{uid}/addresses/{addressId}
 | Campo | Tipo | Obrigatório | Observação |
@@ -70,12 +72,9 @@
 ---
 
 ## Fluxo de status de pedido
-
-```
 pending → paid → processing → shipped → delivered
-   ↓          ↓        ↓          ↓
+↓          ↓        ↓          ↓
 cancelled  cancelled cancelled  cancelled
-```
 
 | Status | Responsável pela transição |
 |---|---|
@@ -99,7 +98,7 @@ cancelled  cancelled cancelled  cancelled
 | `orders/{orderId}/items` | dono do pedido ou admin | dono do pedido (criação) — update e delete bloqueados |
 | `admins` | apenas admin | apenas Admin SDK |
 
-> As regras completas devem ser mantidas no arquivo `firestore.rules` na raiz do projeto.
+> As regras completas estão no arquivo `firestore.rules` na raiz do projeto.
 > **Nunca confie apenas nas regras do Firestore** — o servidor sempre re-valida ownership
 > e preços antes de processar pagamentos.
 
@@ -111,7 +110,7 @@ cancelled  cancelled cancelled  cancelled
   em `createPayment.js` consultando o catálogo — o cliente não pode alterar preços.
 - `userId` em `orders` é definido pelo front-end na criação, mas verificado contra o token
   autenticado pelo servidor em `createPayment.js` antes de qualquer processamento.
-- `cpf` é armazenado em plain text. Para conformidade LGPD em escala, considere criptografia
-  em repouso (AES-256) ou uso de tokenização antes de armazenar.
+- CPF não é coletado nem armazenado pela plataforma — responsabilidade delegada ao Mercado Pago
+  Checkout Pro, em conformidade com a LGPD (Art. 8º).
 - `marketingConsent` deve sempre ser acompanhado de `marketingConsentDate` para evidência
   de consentimento conforme Art. 8º da LGPD.
