@@ -5,6 +5,20 @@ const { Resend } = require('resend')
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+/**
+ * Sanitiza strings antes de interpolar em HTML.
+ * Previne HTML injection / CSS injection em e-mails transacionais.
+ */
+function escapeHtml(value) {
+  if (value === null || value === undefined) return ''
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function verifySignature(req) {
   try {
     const signature = req.headers['x-signature']
@@ -127,8 +141,8 @@ module.exports = async (req, res) => {
         const itemsHtml = items.map(item => `
           <tr>
             <td style="padding: 8px 0; border-bottom: 1px solid #222;">
-              <span style="color: #fff; font-size: 13px;">${item.name}</span><br/>
-              <span style="color: #888; font-size: 11px;">Tam: ${item.size}${item.color ? ` · Cor: ${item.color}` : ''} · Qtd: ${item.quantity}</span>
+              <span style="color: #fff; font-size: 13px;">${escapeHtml(item.name)}</span><br/>
+              <span style="color: #888; font-size: 11px;">Tam: ${escapeHtml(item.size)}${item.color ? ` · Cor: ${escapeHtml(item.color)}` : ''} · Qtd: ${escapeHtml(item.quantity)}</span>
             </td>
             <td style="padding: 8px 0; border-bottom: 1px solid #222; text-align: right; color: #fff; font-size: 13px;">
               R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}
@@ -163,7 +177,7 @@ module.exports = async (req, res) => {
                         <td style="text-align:right;color:#888;font-size:12px;">R$ ${(total - shippingPrice).toFixed(2).replace('.', ',')}</td>
                       </tr>
                       <tr>
-                        <td style="color:#888;font-size:12px;padding-top:4px;">Frete (${order.shipping?.name || ''})</td>
+                        <td style="color:#888;font-size:12px;padding-top:4px;">Frete (${escapeHtml(order.shipping?.name || '')})</td>
                         <td style="text-align:right;color:#888;font-size:12px;padding-top:4px;">R$ ${shippingPrice.toFixed(2).replace('.', ',')}</td>
                       </tr>
                       <tr>
@@ -175,9 +189,9 @@ module.exports = async (req, res) => {
                   <div style="background:#111;border:1px solid #222;padding:24px;margin-bottom:32px;">
                     <p style="color:#888;font-size:11px;text-transform:uppercase;letter-spacing:0.15em;margin:0 0 8px;">Endereço de Entrega</p>
                     <p style="color:#fff;font-size:13px;margin:0;line-height:1.6;">
-                      ${order.address?.street}, ${order.address?.number}${order.address?.complement ? ` — ${order.address.complement}` : ''}<br/>
-                      ${order.address?.neighborhood} — ${order.address?.city}/${order.address?.state}<br/>
-                      CEP: ${order.address?.cep}
+                      ${escapeHtml(order.address?.street)}, ${escapeHtml(order.address?.number)}${order.address?.complement ? ` — ${escapeHtml(order.address.complement)}` : ''}<br/>
+                      ${escapeHtml(order.address?.neighborhood)} — ${escapeHtml(order.address?.city)}/${escapeHtml(order.address?.state)}<br/>
+                      CEP: ${escapeHtml(order.address?.cep)}
                     </p>
                   </div>
                   <p style="color:#555;font-size:11px;text-align:center;text-transform:uppercase;letter-spacing:0.15em;">

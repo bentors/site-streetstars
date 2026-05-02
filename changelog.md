@@ -1,5 +1,19 @@
 # Changelog — Street Stars
 
+## [1.5.0] — 2026
+### Segurança
+- `mpWebhook.js`: função `escapeHtml()` adicionada — sanitiza todos os valores de usuário antes de interpolar no template HTML do e-mail transacional, prevenindo HTML/CSS injection
+- `vercel.json`: `unsafe-inline` removido de `script-src` e `style-src` no CSP — substituído por hashes SHA-256 dos blocos inline do `index.html` (loader + `removeLoader`); qualquer script inline não autorizado é bloqueado pelo browser
+
+### Arquitetura
+- `AuthContext.jsx`: `isAdmin` adicionado ao estado e exposto no `value` do contexto — claims e perfil buscados em paralelo via `Promise.all` no único listener `onAuthStateChanged`
+- `Private.jsx`: listener `onAuthStateChanged` próprio removido — consome `{ loading, isAdmin }` diretamente do `AuthContext`
+- `PrivateUser.jsx`: listener `onAuthStateChanged` próprio removido — consome `{ loading, isAuthenticated }` diretamente do `AuthContext`; app passa de 3 para 1 listener WebSocket simultâneo com o Firebase
+- `CartContext.jsx`: TTL de 7 dias adicionado ao carrinho persistido em `localStorage` — itens salvos há mais de 7 dias são descartados na inicialização; compatibilidade retroativa com formato legado (array puro) mantida
+- `Dashboard.jsx`: paginação com cursor implementada nos produtos (`limit(20)` + `startAfter`) — carregamento sob demanda via botão "Carregar mais"
+- `Dashboard.jsx`: `onSnapshot` de pedidos limitado a `limit(30)` — elimina tráfego desnecessário de pedidos históricos a cada atualização
+- `Dashboard.jsx`: `alert()` e `confirm()` nativos substituídos por toast inline e dialog de confirmação com visual consistente com o painel admin
+
 ## [1.4.0] — 2026
 ### Segurança
 - `signUpload` corrigido: `requireAuth` substituído por `requireAdmin` — qualquer usuário autenticado podia fazer upload para o Cloudinary da empresa

@@ -8,6 +8,7 @@ const AuthContext = createContext()
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [userProfile, setUserProfile] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -16,17 +17,25 @@ export function AuthProvider({ children }) {
         setUser(firebaseUser)
 
         try {
-          const profileRef = doc(db, 'users', firebaseUser.uid)
-          const profileSnap = await getDoc(profileRef)
+          // Busca claims de admin e perfil em paralelo — um único listener para toda a app
+          const [idTokenResult, profileSnap] = await Promise.all([
+            firebaseUser.getIdTokenResult(),
+            getDoc(doc(db, 'users', firebaseUser.uid)),
+          ])
+
+          setIsAdmin(idTokenResult.claims.admin === true)
+
           if (profileSnap.exists()) {
             setUserProfile(profileSnap.data())
           }
         } catch (error) {
-          console.error('Erro ao carregar perfil:', error)
+          console.error('Erro ao carregar perfil/claims:', error)
+          setIsAdmin(false)
         }
       } else {
         setUser(null)
         setUserProfile(null)
+        setIsAdmin(false)
       }
 
       setLoading(false)
@@ -55,11 +64,12 @@ export function AuthProvider({ children }) {
   const value = useMemo(() => ({
     user,
     userProfile,
+    isAdmin,
     loading,
     logout,
     refreshProfile,
     isAuthenticated: !!user
-  }), [user, userProfile, loading])
+  }), [user, userProfile, isAdmin, loading])
 
   return (
     <AuthContext.Provider value={value}>

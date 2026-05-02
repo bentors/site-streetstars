@@ -40,8 +40,8 @@ produto virar prioridade crítica de crescimento.
 
 | Camada | Mecanismo |
 |---|---|
-| Rotas admin (front-end) | `Private.jsx` verifica custom claim `admin === true` via `getIdTokenResult()` — sem leitura adicional ao Firestore |
-| Rotas de usuário (front-end) | `PrivateUser.jsx` verifica sessão Firebase ativa |
+| Rotas admin (front-end) | `Private.jsx` consome `isAdmin` do `AuthContext` — claim verificada uma única vez no listener centralizado |
+| Rotas de usuário (front-end) | `PrivateUser.jsx` consome `isAuthenticated` do `AuthContext` — sem listener próprio |
 | API Routes (back-end) | `_authMiddleware.js` verifica e decodifica o ID Token via Firebase Admin SDK |
 | Upload de imagens | `signUpload.js` exige custom claim `admin === true` — usuários comuns não podem fazer upload |
 | Firestore | Security Rules com whitelist por uid e custom claim — arquivo `firestore.rules` na raiz |
@@ -87,7 +87,7 @@ Fallback gracioso: se o Redis estiver indisponível, loga o erro e libera o requ
 
 | Header | Valor | Proteção |
 |---|---|---|
-| `Content-Security-Policy` | whitelist de origens | XSS, injeção de script |
+| `Content-Security-Policy` | whitelist de origens + hashes SHA-256 para inline blocks (sem `unsafe-inline`) | XSS, injeção de script |
 | `X-Frame-Options` | `DENY` | Clickjacking |
 | `X-Content-Type-Options` | `nosniff` | MIME sniffing |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Vazamento de URL |
@@ -107,6 +107,11 @@ Fallback gracioso: se o Redis estiver indisponível, loga o erro e libera o requ
 | Sitemap gerado no build (`scripts/generate-sitemap.cjs`) | Sitemap estático manual | Produtos novos aparecem automaticamente a cada deploy |
 | react-helmet-async para SEO | Next.js SSR | Evita rewrite completo da stack; sitemap dinâmico cobre indexação de produtos |
 | Resend para e-mail transacional | Firebase Extensions / SendGrid | SDK simples, plano gratuito generoso, fácil customização do HTML |
+| `escapeHtml()` no template de e-mail | Biblioteca DOMPurify | Sem dependência extra; cobre todos os vetores de HTML injection em strings simples |
+| Hashes SHA-256 no CSP em vez de `unsafe-inline` | Manter `unsafe-inline` | Blocos inline do loader autorizados por hash exato — scripts injetados por XSS são bloqueados |
+| `isAdmin` centralizado no `AuthContext` | Listener separado em cada guard | Um único `onAuthStateChanged` + `Promise.all` para claims e perfil — reduz de 3 para 1 conexão WebSocket com Firebase |
+| TTL de 7 dias no `localStorage` do carrinho | Persistência indefinida | Evita exibição de preços stale; compatibilidade retroativa com formato legado mantida |
+| Paginação com cursor no Dashboard (`startAfter`) | Carregar tudo de uma vez | Leitura e custo Firestore proporcionais ao que o admin realmente visualiza |
 | Mercado Pago Checkout Pro | Checkout Transparente | Menor esforço de conformidade com PCI DSS; MP absorve dados de cartão e CPF |
 
 ---

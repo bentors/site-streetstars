@@ -96,7 +96,7 @@
 
 ### Performance e Escalabilidade
 - [ ] TanStack Query / SWR para cache de requisições Firestore
-- [ ] Paginação com cursor no Dashboard admin e na loja (`startAfter` + `limit`)
+- [x] Paginação com cursor no Dashboard admin e na loja (`startAfter` + `limit`)
 - [ ] `loading="lazy"` e `fetchpriority="high"` padronizados em todas as imagens de produto
 - [ ] Migração para Next.js (quando SEO orgânico de produto virar prioridade crítica)
 

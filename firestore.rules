@@ -28,14 +28,14 @@ service cloud.firestore {
       allow read: if isOwner(userId);
       allow update: if isOwner(userId)
         && request.resource.data.keys().hasOnly([
-          'email', 'name', 'phone', 'cpf',
+          'email', 'name', 'phone',
           'marketingConsent', 'marketingConsentDate', 'created_at'
         ]);
       allow create: if isOwner(userId)
         && request.resource.data.email is string
         && request.resource.data.marketingConsent is bool
         && request.resource.data.keys().hasOnly([
-          'email', 'name', 'phone', 'cpf',
+          'email', 'name', 'phone',
           'marketingConsent', 'marketingConsentDate', 'created_at'
         ]);
       allow delete: if false;
@@ -57,8 +57,7 @@ service cloud.firestore {
       // Subcoleção de Itens
       match /items/{itemId} {
         allow read: if isAdmin() || isOwner(get(/databases/$(database)/documents/orders/$(orderId)).data.userId);
-        
-        // CORREÇÃO: Apenas o dono do pedido pai pode adicionar itens nele
+
         allow create: if isOwner(get(/databases/$(database)/documents/orders/$(orderId)).data.userId);
         
         allow update, delete: if false;

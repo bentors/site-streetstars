@@ -3,12 +3,30 @@ import { createContext, useContext, useState, useEffect, useMemo, useCallback } 
 const CartContext = createContext()
 
 const CART_STORAGE_KEY = 'streetstars_cart'
+const CART_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 dias
 
 const storage = {
   get: (key) => {
     try {
-      const item = localStorage.getItem(key)
-      return item ? JSON.parse(item) : null
+      const raw = localStorage.getItem(key)
+      if (!raw) return null
+
+      const parsed = JSON.parse(raw)
+
+      // Suporte ao formato legado (array puro, sem envelope)
+      if (Array.isArray(parsed)) return parsed
+
+      // Formato novo: { items, savedAt }
+      const { items, savedAt } = parsed
+      if (!Array.isArray(items) || !savedAt) return null
+
+      const expired = Date.now() - savedAt > CART_TTL_MS
+      if (expired) {
+        localStorage.removeItem(key)
+        return null
+      }
+
+      return items
     } catch (error) {
       console.error('Erro ao ler localStorage:', error)
       return null
@@ -16,7 +34,10 @@ const storage = {
   },
   set: (key, value) => {
     try {
-      localStorage.setItem(key, JSON.stringify(value))
+      localStorage.setItem(key, JSON.stringify({
+        items: value,
+        savedAt: Date.now(),
+      }))
       return true
     } catch (error) {
       console.error('Erro ao salvar localStorage:', error)
@@ -49,7 +70,9 @@ export function CartProvider({ children }) {
     const handleStorageChange = (e) => {
       if (e.key === CART_STORAGE_KEY && e.newValue) {
         try {
-          setCartItems(JSON.parse(e.newValue))
+          const parsed = JSON.parse(e.newValue)
+          const items = Array.isArray(parsed) ? parsed : parsed?.items ?? []
+          setCartItems(items)
         } catch (error) {
           console.error('Erro ao sincronizar carrinho:', error)
         }
