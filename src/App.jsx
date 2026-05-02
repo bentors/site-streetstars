@@ -13,11 +13,9 @@ import DefaultLayout from './components/layout/DefaultLayout'
 // Páginas Estáticas
 import Home from './pages/Home'
 
-
-
 // Rotas de Segurança
-const Private = lazy(() => import('./routes/Private'))
-const PrivateUser = lazy(() => import('./routes/PrivateUser'))
+import Private from './routes/Private'
+import PrivateUser from './routes/PrivateUser'
 
 // Lazy Loading - Páginas Públicas
 const ProductPage = lazy(() => import('./pages/ProductPage'))
