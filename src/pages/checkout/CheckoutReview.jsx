@@ -34,7 +34,34 @@ export default function CheckoutReview() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const orderTotal = cartTotal + (shipping?.price || 0)
+  // ── Cupom de desconto ──────────────────────────────────────────────────────
+  const [couponInput, setCouponInput] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponLoading, setCouponLoading] = useState(false)
+  const [couponError, setCouponError] = useState(null)
+
+  // Mova para Firestore/API em produção para segurança real
+  const VALID_COUPONS = {
+    'ESTRELA10': { discount: 0.10, label: '10% de desconto' },
+    'LAUNCH15':  { discount: 0.15, label: '15% de desconto' },
+  }
+
+  async function handleApplyCoupon() {
+    const code = couponInput.trim().toUpperCase()
+    if (!code) return
+    setCouponLoading(true); setCouponError(null)
+    await new Promise(r => setTimeout(r, 500))
+    if (VALID_COUPONS[code]) {
+      setAppliedCoupon({ code, ...VALID_COUPONS[code] })
+    } else {
+      setCouponError('Cupom inválido ou expirado.')
+      setAppliedCoupon(null)
+    }
+    setCouponLoading(false)
+  }
+
+  const discountAmount = appliedCoupon ? cartTotal * appliedCoupon.discount : 0
+  const orderTotal = cartTotal - discountAmount + (shipping?.price || 0)
 
   useEffect(() => {
     if (!address || !shipping || cartItems.length === 0) {
@@ -216,15 +243,52 @@ export default function CheckoutReview() {
 
           <section className="border border-white/10 rounded-sm overflow-hidden">
             <div className="px-5 py-3 border-b border-white/5 bg-zinc-900/50">
-              <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">
-                Resumo
-              </p>
+              <p className="text-[10px] uppercase tracking-widest text-white/50 font-mono">Resumo</p>
             </div>
             <div className="px-5 py-4 flex flex-col gap-3">
+              {/* Campo de cupom */}
+              <div className="flex gap-2 pb-3 border-b border-white/5">
+                <input
+                  type="text" value={couponInput}
+                  onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null) }}
+                  onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                  placeholder="CUPOM DE DESCONTO"
+                  disabled={!!appliedCoupon}
+                  className="flex-1 bg-black/50 border border-white/10 text-white px-3 py-2 text-xs font-mono focus:border-white outline-none transition-colors placeholder:text-zinc-700 disabled:opacity-50"
+                />
+                {appliedCoupon ? (
+                  <button onClick={() => { setAppliedCoupon(null); setCouponInput('') }}
+                    className="px-3 py-2 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase hover:bg-red-500/10 transition-all">
+                    Remover
+                  </button>
+                ) : (
+                  <button onClick={handleApplyCoupon} disabled={couponLoading || !couponInput}
+                    className="px-4 py-2 bg-white/10 hover:bg-white hover:text-black text-white text-[10px] font-bold uppercase border border-white/10 hover:border-white transition-all disabled:opacity-40 flex items-center justify-center min-w-[64px]">
+                    {couponLoading
+                      ? <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                      : 'Aplicar'}
+                  </button>
+                )}
+              </div>
+              {couponError && <p className="text-[10px] text-red-400 font-mono -mt-1">{couponError}</p>}
+              {appliedCoupon && (
+                <div className="flex items-center -mt-1 mb-1">
+                  <span className="text-[9px] bg-green-500/10 border border-green-500/20 text-green-400 px-2 py-1 font-mono uppercase tracking-widest">
+                    {appliedCoupon.code} — {appliedCoupon.label}
+                  </span>
+                </div>
+              )}
+
               <div className="flex items-center justify-between">
                 <p className="text-xs text-white/50 font-mono uppercase tracking-wider">Subtotal</p>
                 <p className="text-xs font-mono text-white/70">{formatCurrency(cartTotal)}</p>
               </div>
+              {appliedCoupon && (
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-green-400 font-mono uppercase tracking-wider">Desconto ({appliedCoupon.code})</p>
+                  <p className="text-xs font-mono text-green-400">- {formatCurrency(discountAmount)}</p>
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <p className="text-xs text-white/50 font-mono uppercase tracking-wider">Frete</p>
                 <p className="text-xs font-mono text-white/70">{formatCurrency(shipping.price)}</p>

@@ -194,9 +194,11 @@ export default function Shop() {
                         <p className="text-sm font-semibold text-white/90">
                           {formatCurrency(product.price || 0)}
                         </p>
-                        <span className="text-[11px] text-white/50 uppercase tracking-wider">
-                          Em até 6x sem juros
-                        </span>
+                        {product.price > 0 && (
+                          <span className="text-[10px] text-white/40 uppercase tracking-wider">
+                            6x de {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price / 6)}
+                          </span>
+                        )}
                       </div>
                     </div>
 

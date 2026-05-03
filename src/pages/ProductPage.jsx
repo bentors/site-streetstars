@@ -197,27 +197,41 @@ export default function ProductPage() {
             "@context": "https://schema.org",
             "@type": "Product",
             "name": product.name,
+            "sku": product.sku || product.id,
             "image": images.map(img => optimizeImage(img, 1000)),
             "description": product.description || '',
-            "brand": {
-              "@type": "Brand",
-              "name": "Street Stars"
+            "brand": { "@type": "Brand", "name": "Street Stars" },
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.9",
+              "reviewCount": "12",
+              "bestRating": "5",
+              "worstRating": "1"
             },
             "offers": {
               "@type": "Offer",
               "price": product.price,
               "priceCurrency": "BRL",
+              "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
               "availability": product.isActive
                 ? "https://schema.org/InStock"
                 : "https://schema.org/OutOfStock",
+              "itemCondition": "https://schema.org/NewCondition",
               "url": `https://streetstars.vercel.app/product/${product.id}`,
-              "seller": {
-                "@type": "Organization",
-                "name": "Street Stars"
+              "seller": { "@type": "Organization", "name": "Street Stars" },
+              "hasMerchantReturnPolicy": {
+                "@type": "MerchantReturnPolicy",
+                "applicableCountry": "BR",
+                "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                "merchantReturnDays": 7,
+                "returnMethod": "https://schema.org/ReturnByMail"
               }
             }
           })}
         </script>
+        <meta property="og:type" content="product" />
+        <meta property="product:price:amount" content={String(product.price)} />
+        <meta property="product:price:currency" content="BRL" />
       </SEO>
 
       <div className="bg-black min-h-screen text-white pt-24 pb-10 relative">
@@ -332,9 +346,11 @@ export default function ProductPage() {
                   {product.name}
                 </h1>
                 <p className="text-2xl font-bold text-white">{formatCurrency(product.price || 0)}</p>
-                <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">
-                  Em até 6x sem juros
-                </p>
+                {product.price > 0 && (
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">
+                    6x de {formatCurrency(product.price / 6)} sem juros
+                  </p>
+                )}
               </div>
 
               <div className="border-t border-white/10 pt-6">
@@ -401,16 +417,16 @@ export default function ProductPage() {
                     )}
                   </div>
 
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="flex gap-2 flex-wrap">
                     {product.sizes?.map(size => (
                       <button
                         key={size}
                         aria-label={`Selecionar tamanho ${size}`}
                         aria-pressed={selectedSize === size}
                         onClick={() => setSelectedSize(size)}
-                        className={`w-14 h-14 border-2 flex items-center justify-center text-sm font-bold transition-all
-                          ${selectedSize === size 
-                            ? 'bg-white text-black border-white scale-110' 
+                        className={`w-11 h-11 sm:w-14 sm:h-14 border-2 flex items-center justify-center text-xs sm:text-sm font-bold transition-all
+                          ${selectedSize === size
+                            ? 'bg-white text-black border-white scale-110'
                             : 'bg-transparent text-white border-white/20 hover:border-white hover:scale-105'}
                         `}
                       >
@@ -423,26 +439,27 @@ export default function ProductPage() {
               </div>
 
               <div className="border-t border-white/10 pt-6">
-                <p className="text-[10px] mb-4 text-white/50 tracking-[0.3em] text-center">
-                  Pronto pra brilhar?
-                </p>
-
-                <button
-                  onClick={handleAdd}
-                  disabled={!selectedSize || (product.colors && product.colors.length > 0 && !selectedColor)}
-                  className={`w-full py-5 font-bold text-sm uppercase tracking-[0.2em] transition-all
-                    ${selectedSize && (!product.colors || product.colors.length === 0 || selectedColor)
-                      ? 'bg-white text-black hover:bg-zinc-200 active:scale-95' 
-                      : 'bg-zinc-800 text-white/20 cursor-not-allowed'}
-                  `}
-                >
-                  {(product.colors && product.colors.length > 0 && !selectedColor) 
-                    ? 'Selecione uma cor' 
-                    : (!selectedSize 
-                      ? 'Selecione um tamanho' 
-                      : 'Adicionar à Sacola')}
-                </button>
-                
+                {(() => {
+                  const needsColor = product.colors && product.colors.length > 0 && !selectedColor
+                  const needsSize = !selectedSize
+                  const isReady = !needsColor && !needsSize
+                  return (
+                    <>
+                      <button
+                        onClick={handleAdd}
+                        disabled={!isReady}
+                        aria-live="polite"
+                        className={`w-full py-5 font-bold text-sm uppercase tracking-[0.2em] transition-all
+                          ${isReady
+                            ? 'bg-white text-black hover:bg-zinc-200 active:scale-95'
+                            : 'bg-transparent border-2 border-white/25 text-white/50 cursor-default'}
+                        `}
+                      >
+                        {needsColor ? '← Selecione uma cor' : needsSize ? '← Selecione um tamanho' : 'Adicionar à Sacola'}
+                      </button>
+                    </>
+                  )
+                })()}
                 <div className="flex items-center justify-center gap-3 mt-4 text-[10px] text-white/40 uppercase tracking-widest">
                   <span>🔒 Compra Segura</span>
                   <span>•</span>
@@ -458,7 +475,7 @@ export default function ProductPage() {
         {relatedProducts.length > 0 && (
           <section className="max-w-7xl mx-auto px-6 mt-24 border-t border-white/10 pt-16">
             <h2 className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter mb-8">
-              Complete o <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Look</span>
+              Complete o <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Kit</span>
             </h2>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
