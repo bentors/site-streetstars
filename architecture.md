@@ -113,6 +113,10 @@ Fallback gracioso: se o Redis estiver indisponível, loga o erro e libera o requ
 | TTL de 7 dias no `localStorage` do carrinho | Persistência indefinida | Evita exibição de preços stale; compatibilidade retroativa com formato legado mantida |
 | Paginação com cursor no Dashboard (`startAfter`) | Carregar tudo de uma vez | Leitura e custo Firestore proporcionais ao que o admin realmente visualiza |
 | Mercado Pago Checkout Pro | Checkout Transparente | Menor esforço de conformidade com PCI DSS; MP absorve dados de cartão e CPF |
+| `MotionConfig reducedMotion="user"` na raiz | Prop `reducedMotion` por componente | Um único ponto de controle; garante que animações de spring e layout também respeitam a preferência do sistema |
+| `useProductCache()` hook com `useRef` no Shop | Variável de módulo (`let cachedProducts`) | Variáveis de módulo nunca são GC'd e ficam stale entre HMR reloads; hook tem lifecycle correto com o componente |
+| Focus trap manual via `useEffect` no CartDrawer | `focus-trap-react` | Sem dependência extra; o comportamento necessário é simples (Tab/Shift+Tab) e a implementação tem ~15 linhas |
+| `AggregateRating` ausente do schema.org de produto | Dados hardcoded | Dados de rating fabricados geram risco de penalidade nos rich results do Google; reintroduzir apenas com sistema real de reviews |
 
 ---
 
@@ -159,7 +163,7 @@ Fallback gracioso: se o Redis estiver indisponível, loga o erro e libera o requ
 │   │   └── firebase.js          # Inicialização Firebase — exporta db (lite) e dbRealtime (completo)
 │   └── utils/
 │       ├── analytics.js         # GA4 inicializado com requestIdleCallback (não bloqueia LCP)
-│       ├── format.js            # formatCurrency
+│       ├── format.js            # formatCurrency, formatInstallment (centraliza parcelamento)
 │       ├── image.js             # optimizeImage, generateSrcSet (Cloudinary)
 │       ├── ScrollToTop.jsx      # Reset de scroll na navegação
 │       ├── scrollToSection.js   # Scroll suave para seções da home

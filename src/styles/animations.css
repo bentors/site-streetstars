@@ -27,3 +27,16 @@
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Acessibilidade: respeita preferência do sistema por movimento reduzido.
+   WCAG 2.3.3 — Animation from Interactions (AAA) e boa prática geral.
+   ───────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeUp,
+  .animate-fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

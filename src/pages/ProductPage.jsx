@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext.jsx'
 import { doc, getDoc, getDocs, collection, query, where, limit } from 'firebase/firestore/lite'
 import { db } from '../services/firebase.js'
 import Loading from '../components/Loading'
-import { formatCurrency } from '../utils/format'
+import { formatCurrency, formatInstallment } from '../utils/format'
 import { optimizeImage, generateSrcSet } from '../utils/image'
 
 const MAX_CACHE_SIZE = 20
@@ -13,7 +13,6 @@ const relatedCache = new Map()
 
 function setRelatedCache(key, value) {
   if (relatedCache.size >= MAX_CACHE_SIZE) {
-    // Remove a entrada mais antiga (primeira inserida)
     relatedCache.delete(relatedCache.keys().next().value)
   }
   relatedCache.set(key, value)
@@ -45,7 +44,7 @@ export default function ProductPage() {
     async function loadProduct() {
       setLoading(true)
       setError(null)
-      
+
       try {
         const docRef = doc(db, "products", id)
         const snapshot = await getDoc(docRef)
@@ -56,7 +55,7 @@ export default function ProductPage() {
           setSelectedSize(null)
           setSelectedColor(null)
           setCurrentImageIndex(0)
-          
+
           window.scrollTo(0, 0)
 
           loadRelated(data.category, snapshot.id)
@@ -87,18 +86,18 @@ export default function ProductPage() {
       const productsRef = collection(db, "products")
       const q = query(productsRef, where("category", "==", category), where("isActive", "==", true), limit(5))
       const snapshot = await getDocs(q)
-      
+
       const list = []
       snapshot.forEach(doc => {
-        if(doc.id !== currentId) {
+        if (doc.id !== currentId) {
           list.push({ id: doc.id, ...doc.data() })
         }
       })
-      
+
       const related = list.slice(0, 4)
       setRelatedProducts(related)
       setRelatedCache(cacheKey, related)
-    } catch(err) {
+    } catch (err) {
       console.error("Erro ao carregar relacionados", err)
     }
   }
@@ -112,7 +111,7 @@ export default function ProductPage() {
       if (colorImgIndex !== -1) {
         sliderRef.current.scrollTo({
           left: colorImgIndex * sliderRef.current.clientWidth,
-          behavior: 'smooth'
+          behavior: 'smooth',
         })
       }
     }
@@ -130,7 +129,7 @@ export default function ProductPage() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!sliderRef.current) return
-      
+
       if (e.key === 'ArrowLeft') {
         e.preventDefault()
         sliderRef.current.scrollLeft -= sliderRef.current.clientWidth
@@ -150,7 +149,7 @@ export default function ProductPage() {
       setTimeout(() => setFeedbackMessage(null), 3000)
       return
     }
-    
+
     if (!selectedSize) {
       setFeedbackMessage('Por favor, selecione um tamanho.')
       setTimeout(() => setFeedbackMessage(null), 3000)
@@ -162,12 +161,12 @@ export default function ProductPage() {
   }, [product, selectedSize, selectedColor, addToCart, setIsCartOpen])
 
   if (loading) return <Loading />
-  
+
   if (error || !product) return (
     <div className="h-screen flex flex-col items-center justify-center text-white bg-black gap-4 px-6">
       <p className="text-lg text-white/60">{error || 'Produto não encontrado'}</p>
-      <button 
-        onClick={handleBack} 
+      <button
+        onClick={handleBack}
         className="px-6 py-3 bg-white text-black font-bold hover:bg-white/90 transition"
       >
         Voltar para a loja
@@ -191,7 +190,7 @@ export default function ProductPage() {
             fetchPriority="high"
           />
         )}
-
+        
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -201,13 +200,6 @@ export default function ProductPage() {
             "image": images.map(img => optimizeImage(img, 1000)),
             "description": product.description || '',
             "brand": { "@type": "Brand", "name": "Street Stars" },
-            "aggregateRating": {
-              "@type": "AggregateRating",
-              "ratingValue": "4.9",
-              "reviewCount": "12",
-              "bestRating": "5",
-              "worstRating": "1"
-            },
             "offers": {
               "@type": "Offer",
               "price": product.price,
@@ -224,9 +216,9 @@ export default function ProductPage() {
                 "applicableCountry": "BR",
                 "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
                 "merchantReturnDays": 7,
-                "returnMethod": "https://schema.org/ReturnByMail"
-              }
-            }
+                "returnMethod": "https://schema.org/ReturnByMail",
+              },
+            },
           })}
         </script>
         <meta property="og:type" content="product" />
@@ -237,15 +229,19 @@ export default function ProductPage() {
       <div className="bg-black min-h-screen text-white pt-24 pb-10 relative">
 
         {feedbackMessage && (
-          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white text-black px-6 py-3 text-sm font-bold shadow-lg animate-fade-in rounded-sm">
+          <div
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-50 bg-white text-black px-6 py-3 text-sm font-bold shadow-lg animate-fade-in rounded-sm"
+            role="alert"
+            aria-live="assertive"
+          >
             {feedbackMessage}
           </div>
         )}
 
         <div className="max-w-7xl mx-auto px-6 mb-4">
-          <button 
+          <button
             onClick={handleBack}
-            aria-label='Voltar para a página anterior'
+            aria-label="Voltar para a página anterior"
             className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-colors"
           >
             <span className="group-hover:-translate-x-1 transition-transform">←</span>
@@ -255,8 +251,8 @@ export default function ProductPage() {
 
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 lg:items-start">
 
-          <div className="relative group w-full min-w-0 lg:sticky lg:top-24"> 
-            <div 
+          <div className="relative group w-full min-w-0 lg:sticky lg:top-24">
+            <div
               ref={sliderRef}
               onScroll={handleScroll}
               tabIndex={0}
@@ -266,12 +262,12 @@ export default function ProductPage() {
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {images.map((img, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="snap-start relative flex items-center justify-center bg-[#050505] overflow-hidden"
                   style={{ flex: '0 0 100%' }}
                 >
-                  <img 
+                  <img
                     src={optimizeImage(img, 1000)}
                     srcSet={generateSrcSet(img)}
                     sizes="(max-width: 1024px) 100vw, 50vw"
@@ -281,45 +277,50 @@ export default function ProductPage() {
                     loading={i === 0 ? 'eager' : 'lazy'}
                     fetchPriority={i === 0 ? 'high' : 'auto'}
                     decoding="async"
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-cover"
                   />
                 </div>
               ))}
             </div>
 
             {images.length > 1 && (
-              <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-10 pointer-events-none">
+              <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
                 {images.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => {
                       sliderRef.current?.scrollTo({
                         left: i * sliderRef.current.clientWidth,
-                        behavior: 'smooth'
+                        behavior: 'smooth',
                       })
                     }}
                     aria-label={`Ir para imagem ${i + 1}`}
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm pointer-events-auto
-                      ${currentImageIndex === i ? 'bg-white scale-125' : 'bg-white/30 hover:bg-white/60'}`}
-                  />
+                    aria-current={currentImageIndex === i ? 'true' : undefined}
+                    className="p-3 -m-3 flex items-center justify-center"
+                  >
+                    <span
+                      className={`block w-1.5 h-1.5 rounded-full transition-all duration-300 shadow-sm
+                        ${currentImageIndex === i ? 'bg-white scale-125' : 'bg-white/30 hover:bg-white/60'}`}
+                    />
+                  </button>
                 ))}
               </div>
             )}
 
             {images.length > 1 && (
               <div className="hidden lg:group-hover:flex absolute inset-0 items-center justify-between px-4 pointer-events-none">
-                <button 
+                <button
                   className="pointer-events-auto p-3 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full transition"
-                  aria-label='Imagem anterior'
+                  aria-label="Imagem anterior"
                   onClick={() => {
                     sliderRef.current && (sliderRef.current.scrollLeft -= sliderRef.current.clientWidth)
                   }}
                 >
                   ←
                 </button>
-                <button 
+                <button
                   className="pointer-events-auto p-3 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full transition"
-                  aria-label='Próxima imagem'
+                  aria-label="Próxima imagem"
                   onClick={() => {
                     sliderRef.current && (sliderRef.current.scrollLeft += sliderRef.current.clientWidth)
                   }}
@@ -348,7 +349,7 @@ export default function ProductPage() {
                 <p className="text-2xl font-bold text-white">{formatCurrency(product.price || 0)}</p>
                 {product.price > 0 && (
                   <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">
-                    6x de {formatCurrency(product.price / 6)} sem juros
+                    {formatInstallment(product.price)}
                   </p>
                 )}
               </div>
@@ -391,8 +392,8 @@ export default function ProductPage() {
                           aria-label={`Selecionar cor ${color.name}`}
                           aria-pressed={selectedColor?.name === color.name}
                           className={`w-10 h-10 rounded-full border-2 transition-all relative
-                            ${selectedColor?.name === color.name 
-                              ? 'border-white scale-110 ring-2 ring-white ring-offset-2 ring-offset-black' 
+                            ${selectedColor?.name === color.name
+                              ? 'border-white scale-110 ring-2 ring-white ring-offset-2 ring-offset-black'
                               : 'border-white/20 hover:border-white hover:scale-105'}
                           `}
                           style={{ backgroundColor: color.hex }}
@@ -406,9 +407,9 @@ export default function ProductPage() {
                 <div>
                   <div className="flex justify-between mb-3">
                     <label className="text-[10px] uppercase tracking-[0.2em] font-bold">Tamanho</label>
-                    
+
                     {product.measurements && (
-                      <button 
+                      <button
                         onClick={() => setShowSizeGuide(true)}
                         className="text-[10px] underline text-white/40 hover:text-white transition-colors"
                       >
@@ -461,9 +462,9 @@ export default function ProductPage() {
                   )
                 })()}
                 <div className="flex items-center justify-center gap-3 mt-4 text-[10px] text-white/40 uppercase tracking-widest">
-                  <span>🔒 Compra Segura</span>
+                  <span>Compra Segura</span>
                   <span>•</span>
-                  <span>Entrega Nacional 🇧🇷</span>
+                  <span>Entrega Nacional</span>
                 </div>
               </div>
 
@@ -477,17 +478,17 @@ export default function ProductPage() {
             <h2 className="text-2xl md:text-3xl font-black uppercase italic tracking-tighter mb-8">
               Complete o <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Kit</span>
             </h2>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {relatedProducts.map(related => (
-                <Link 
-                  key={related.id} 
-                  to={`/product/${related.id}`} 
+                <Link
+                  key={related.id}
+                  to={`/product/${related.id}`}
                   className="group"
                   aria-label={`Ver ${related.name}`}
                 >
                   <div className="aspect-[4/5] bg-zinc-900 overflow-hidden mb-3 rounded-sm">
-                    <img 
+                    <img
                       src={optimizeImage(related.img, 500)}
                       srcSet={generateSrcSet(related.img)}
                       sizes="(max-width: 768px) 50vw, 25vw"
@@ -495,7 +496,7 @@ export default function ProductPage() {
                       width={500}
                       height={625}
                       loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   </div>
                   <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">{related.name}</p>
@@ -509,32 +510,32 @@ export default function ProductPage() {
       </div>
 
       {showSizeGuide && product.measurements && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] flex items-center justify-center px-4"
           role="dialog"
           aria-modal="true"
           aria-labelledby="size-guide-title"
         >
-          <div 
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm" 
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setShowSizeGuide(false)}
             aria-hidden="true"
           />
-          
+
           <div className="relative bg-[#0F0F0F] border border-white/10 p-6 md:p-8 max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto">
-            <button 
+            <button
               onClick={() => setShowSizeGuide(false)}
               aria-label="Fechar guia de medidas"
               className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors text-xl w-8 h-8 flex items-center justify-center"
             >
               ✕
             </button>
-            
+
             <h3 id="size-guide-title" className="text-2xl font-black uppercase italic mb-2">
               Guia de Medidas
             </h3>
             <p className="text-xs text-white/50 mb-6 uppercase tracking-widest">{product.name}</p>
-            
+
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-white/80 text-left border-collapse min-w-[300px]">
                 <thead>

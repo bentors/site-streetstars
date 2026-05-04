@@ -1,13 +1,10 @@
 import { memo, useEffect } from 'react'
-import { optimizeImage } from '../../utils/image'
+import { optimizeImage, generateSrcSet } from '../../utils/image'
 import { scrollToSection } from '../../utils/scrollToSection'
 
 const HERO_URL = "https://res.cloudinary.com/dmsvju9ca/image/upload/v1769638546/hero_rb9jvq.jpg"
 
 function Hero() {
-  const mobileSrc = optimizeImage(HERO_URL, 600)
-  const desktopSrc = optimizeImage(HERO_URL, 1500)
-
   useEffect(() => {
     const timer = setTimeout(() => {
       if (window.removeLoader) window.removeLoader()
@@ -22,10 +19,18 @@ function Hero() {
       className="min-h-screen relative overflow-hidden flex items-center text-center justify-center px-6"
     >
       <picture className="absolute inset-0 w-full h-full">
-        <source media="(max-width: 768px)" srcSet={mobileSrc} />
-        <source media="(min-width: 769px)" srcSet={desktopSrc} />
+        <source
+          media="(max-width: 768px)"
+          srcSet={generateSrcSet(HERO_URL)}
+          sizes="100vw"
+        />
+        <source
+          media="(min-width: 769px)"
+          srcSet={generateSrcSet(HERO_URL)}
+          sizes="100vw"
+        />
         <img
-          src={desktopSrc}
+          src={optimizeImage(HERO_URL, 1500)}
           alt="Jovens vestindo roupas Street Stars"
           width={1500}
           height={1000}
@@ -72,7 +77,7 @@ function Hero() {
             </button>
           </div>
 
-          <p className="text-[8px] text-white/30 tracking-[0.2em]">
+          <p className="text-[8px] text-white/30 tracking-[0.2em]" aria-hidden="true">
             ★ Feito por quem vive a rua ★
           </p>
         </div>

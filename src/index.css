@@ -24,16 +24,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #000000; 
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333; 
+  background: #333;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #555;
 }
 
 html {
@@ -43,7 +43,7 @@ html {
 
 @keyframes hero-zoom {
   from { transform: scale(1.1); }
-  to { transform: scale(1.0); }
+  to   { transform: scale(1.0); }
 }
 
 .animate-hero-zoom {
@@ -63,4 +63,27 @@ html {
 
 .animate-fadeInUp {
   animation: fadeInUp 1s ease-out forwards;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Acessibilidade: respeita preferência do sistema por movimento reduzido.
+   Cobre todas as animações definidas neste arquivo e em animations.css.
+   ───────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-hero-zoom,
+  .animate-fadeInUp,
+  .animate-slideDown {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Framer Motion: desativa transições de layout e spring para usuários
+     que preferem movimento reduzido — o próprio Framer respeita isso se
+     você passar `reducedMotion="user"` no MotionConfig (veja App.jsx). */
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

@@ -67,6 +67,7 @@ function UserMenu({ user, userProfile }) {
       <button
         onClick={() => setOpen(prev => !prev)}
         aria-label="Menu da conta"
+        aria-expanded={open}
         className="w-8 h-8 rounded-full bg-white/10 border border-white/20 hover:border-white transition-colors flex items-center justify-center text-[10px] font-bold text-white tracking-widest"
       >
         {initials}
@@ -141,11 +142,11 @@ export default function Header({ setOverlayActive }) {
   const isNavigatingRef = useRef(false)
   const headerRef = useRef(null)
   const menuButtonRef = useRef(null)
-  
+
   const { scrollY } = useScroll()
   const { setIsCartOpen, cartCount } = useCart()
   const { user, userProfile } = useAuth()
-  
+
   const location = useLocation()
   const navigate = useNavigate()
   const isHome = location.pathname === '/'
@@ -349,9 +350,11 @@ export default function Header({ setOverlayActive }) {
               <AnimatePresence>
                 {cartCount > 0 && (
                   <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
+                    key={cartCount}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 20 }}
                     className="absolute top-1 right-1 bg-white text-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center"
                     aria-hidden="true"
                   >

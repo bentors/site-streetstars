@@ -1,25 +1,41 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { formatCurrency } from '../../utils/format'
+import { formatCurrency, formatInstallment } from '../../utils/format'
 import { optimizeImage, generateSrcSet } from '../../utils/image'
 import { CATEGORIES } from '../../data/constants'
 import Loading from '../Loading'
 
-let cachedProducts = null
-let cacheTimestamp = null
-const CACHE_TTL = 5 * 60 * 1000
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutos
+
+function useProductCache() {
+  const cache = useRef({ data: null, ts: 0 })
+
+  const isValid = () =>
+    cache.current.data !== null &&
+    Date.now() - cache.current.ts < CACHE_TTL
+
+  const get = () => cache.current.data
+
+  const set = (data) => {
+    cache.current = { data, ts: Date.now() }
+  }
+
+  return { get, set, isValid }
+}
 
 export default function Shop() {
   const [filter, setFilter] = useState("TODOS")
-  const [products, setProducts] = useState(cachedProducts || [])
-  const [loading, setLoading] = useState(!cachedProducts)
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const productCache = useProductCache()
+
   useEffect(() => {
-    const isCacheValid = cachedProducts && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_TTL)
-    if (isCacheValid) {
+    if (productCache.isValid()) {
+      setProducts(productCache.get())
       setLoading(false)
       return
     }
@@ -28,14 +44,13 @@ export default function Shop() {
 
     async function loadProducts() {
       try {
-        const { collection, getDocs, query, orderBy, where } = await import('firebase/firestore/lite');
-        const { db } = await import('../../services/firebase');
+        const { collection, getDocs, query, orderBy, where } = await import('firebase/firestore/lite')
+        const { db } = await import('../../services/firebase')
 
-        if (!isMounted) return;
+        if (!isMounted) return
 
         const productsRef = collection(db, "products")
         const q = query(productsRef, where("isActive", "==", true), orderBy("created_at", "asc"))
-
         const querySnapshot = await getDocs(q)
 
         const list = []
@@ -45,10 +60,8 @@ export default function Shop() {
 
         if (isMounted) {
           setProducts(list)
-          cachedProducts = list
-          cacheTimestamp = Date.now()
+          productCache.set(list)
         }
-
       } catch (error) {
         console.error("Erro ao buscar produtos:", error)
         if (isMounted) {
@@ -81,7 +94,7 @@ export default function Shop() {
       {!loading && error && (
         <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-6">
           <p className="text-white/60 mb-4">{error}</p>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             className="px-6 py-2 bg-white text-black font-bold hover:bg-white/90 transition"
           >
@@ -96,7 +109,7 @@ export default function Shop() {
           <div className="flex flex-col xl:flex-row xl:items-end justify-between mb-16 gap-10 border-b border-white/10 pb-8">
             <div className="max-w-2xl">
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase italic tracking-tighter leading-[0.9]">
-                Seja uma <br/>
+                Seja uma <br />
                 <span className="text-transparent" style={{ WebkitTextStroke: '1px white' }}>Estrela das Ruas</span>
               </h2>
               <p className="mt-4 text-sm text-white/50 tracking-widest uppercase">
@@ -117,7 +130,7 @@ export default function Shop() {
                 >
                   {cat}
                   {filter === cat && (
-                    <motion.div 
+                    <motion.div
                       layoutId="activeFilter"
                       className="absolute bottom-0 left-0 right-0 h-[1px] bg-white"
                     />
@@ -137,7 +150,7 @@ export default function Shop() {
           {products.length > 0 && filteredProducts.length === 0 && (
             <div className="text-center text-white/40 py-20">
               <p className="text-lg mb-2">Nenhum produto encontrado em "{filter}"</p>
-              <button 
+              <button
                 onClick={() => setFilter("TODOS")}
                 className="text-sm text-white/60 hover:text-white underline"
               >
@@ -146,8 +159,8 @@ export default function Shop() {
             </div>
           )}
 
-          <motion.div 
-            layout 
+          <motion.div
+            layout
             className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-12 sm:gap-x-8"
           >
             <AnimatePresence mode='popLayout'>
@@ -161,14 +174,13 @@ export default function Shop() {
                   transition={{ duration: 0.4 }}
                   className="group select-none"
                 >
-                  <Link 
-                    to={`/product/${product.id}`} 
+                  <Link
+                    to={`/product/${product.id}`}
                     className="block"
                     aria-label={`Ver detalhes de ${product.name}`}
                   >
-
                     <div className="relative aspect-[4/5] bg-[#0a0a0a] overflow-hidden mb-5 rounded-sm">
-                      <img 
+                      <img
                         src={optimizeImage(product.img, 500)}
                         srcSet={generateSrcSet(product.img)}
                         sizes="(max-width: 768px) 50vw, 25vw"
@@ -176,7 +188,7 @@ export default function Shop() {
                         width={500}
                         height={625}
                         loading="lazy"
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" 
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100"
                       />
 
                       <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 to-transparent">
@@ -196,7 +208,7 @@ export default function Shop() {
                         </p>
                         {product.price > 0 && (
                           <span className="text-[10px] text-white/40 uppercase tracking-wider">
-                            6x de {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(product.price / 6)}
+                            {formatInstallment(product.price)}
                           </span>
                         )}
                       </div>

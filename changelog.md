@@ -1,5 +1,43 @@
 # Changelog — Street Stars
 
+## [1.6.0] — 2026
+### Acessibilidade (WCAG)
+- `animations.css`, `index.css`: `@media (prefers-reduced-motion: reduce)` adicionado
+  cobrindo todas as animações CSS da aplicação (WCAG 2.3.3)
+- `App.jsx`: `MotionConfig reducedMotion="user"` adicionado na raiz da árvore —
+  Framer Motion passa a respeitar a preferência do sistema em todos os componentes
+- `CartDrawer.jsx`: focus trap implementado via `useEffect` — foco contido dentro do
+  drawer enquanto aberto; Shift+Tab e Tab ciclam corretamente (WCAG 2.1.1)
+- `ProductPage.jsx`: touch targets dos dots de galeria corrigidos — área clicável
+  expandida para ~32px via padding sem alterar visual (WCAG 2.5.5)
+- `Header.jsx`: `aria-label` do botão do carrinho dinamizado com contagem e plural
+
+### Correções
+- `CartContext.jsx`: bug de closure em `updateQuantity` corrigido — `removeFromCart`
+  declarado antes e adicionado nas deps do `useCallback`
+- `CheckoutAddress.jsx`: erros de save e load de endereço agora expostos ao usuário
+  com `role="alert"` — antes eram silenciosos (`console.error` apenas)
+- `ProductPage.jsx`: `AggregateRating` hardcoded removido do schema.org — valores
+  fabricados (`ratingValue: "4.9"`, `reviewCount: "12"`) geram risco de penalidade
+  nos rich results do Google; será reintroduzido com dados reais de reviews
+
+### Performance
+- `Hero.jsx`: `srcSet` e `sizes="100vw"` adicionados em ambos os `<source>` do
+  `<picture>` — browser agora seleciona resolução ideal por viewport e densidade
+- `Shop.jsx`: cache de produtos migrado de variáveis de módulo para hook `useProductCache()`
+  com `useRef` — evita memory leak e state stale entre HMR reloads em desenvolvimento
+- `package.json`: `lucide-react` e `react-icons` removidos — instalados sem uso (~60 kB
+  gzip a menos no bundle)
+
+### Refactor
+- `format.js`: `formatInstallment(total, installments?)` adicionado — centraliza cálculo
+  de parcelamento; remove `Intl.NumberFormat` inline duplicado em `Shop`, `ProductPage`
+  e `CheckoutAddress`
+- `CartDrawer.jsx`: estado vazio substituído por seção com 3 coleções em destaque —
+  mantém usuário na jornada de compra sem fechar o drawer
+- `Header.jsx`: badge de quantidade com `key={cartCount}` — re-anima via Framer a
+  cada mudança de valor, reforçando feedback visual ao adicionar itens
+  
 ## [1.5.0] — 2026
 ### Segurança
 - `mpWebhook.js`: função `escapeHtml()` adicionada — sanitiza todos os valores de usuário antes de interpolar no template HTML do e-mail transacional, prevenindo HTML/CSS injection

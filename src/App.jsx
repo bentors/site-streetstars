@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
+import { MotionConfig } from 'framer-motion'
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
 // Utils & Analytics
@@ -45,7 +46,7 @@ const EditProduct = lazy(() => import('./pages/admin/EditProduct'))
 export default function App() {
   const [overlayActive, setOverlayActive] = useState(false)
   const location = useLocation()
-  
+
   useEffect(() => {
     if ('requestIdleCallback' in window) {
       const id = requestIdleCallback(initGA)
@@ -61,50 +62,52 @@ export default function App() {
   }, [location.pathname])
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-white selection:text-black">
-      <ScrollToTop />
+    <MotionConfig reducedMotion="user">
+      <div className="min-h-screen bg-black text-white font-sans selection:bg-white selection:text-black">
+        <ScrollToTop />
 
-      <Suspense fallback={<Loading />}>
-        <Routes location={location}>
-          
-          {/* Rotas Públicas com Layout */}
-          <Route element={
-            <DefaultLayout 
-              overlayActive={overlayActive} 
-              setOverlayActive={setOverlayActive} 
-            />
-          }>
-            <Route index element={<Home />} />
-            <Route path="product/:id" element={<ProductPage />} />
-            <Route path="collection/:id" element={<CollectionPage />} />
-            <Route path="legal/:slug" element={<LegalInfo />} />
-          </Route>
+        <Suspense fallback={<Loading />}>
+          <Routes location={location}>
 
-          {/* Rotas de Autenticação */}
-          <Route path="login" element={<UserLogin />} />
-          <Route path="cadastro" element={<UserRegister />} />
-          <Route path="esqueci-senha" element={<ForgotPassword />} />
+            {/* Rotas Públicas com Layout */}
+            <Route element={
+              <DefaultLayout
+                overlayActive={overlayActive}
+                setOverlayActive={setOverlayActive}
+              />
+            }>
+              <Route index element={<Home />} />
+              <Route path="product/:id" element={<ProductPage />} />
+              <Route path="collection/:id" element={<CollectionPage />} />
+              <Route path="legal/:slug" element={<LegalInfo />} />
+            </Route>
 
-          {/* Rotas de Checkout — requer login */}
-          <Route path="checkout/endereco" element={<PrivateUser><CheckoutAddress /></PrivateUser>} />
-          <Route path="checkout/revisao" element={<PrivateUser><CheckoutReview /></PrivateUser>} />
-          <Route path="pedido/:orderId" element={<PrivateUser><OrderConfirmation /></PrivateUser>} />
+            {/* Rotas de Autenticação */}
+            <Route path="login" element={<UserLogin />} />
+            <Route path="cadastro" element={<UserRegister />} />
+            <Route path="esqueci-senha" element={<ForgotPassword />} />
 
-          {/* Rotas Protegidas — Usuário */}
-          <Route path="minha-conta" element={<PrivateUser><MyAccount /></PrivateUser>} />
+            {/* Rotas de Checkout — requer login */}
+            <Route path="checkout/endereco" element={<PrivateUser><CheckoutAddress /></PrivateUser>} />
+            <Route path="checkout/revisao" element={<PrivateUser><CheckoutReview /></PrivateUser>} />
+            <Route path="pedido/:orderId" element={<PrivateUser><OrderConfirmation /></PrivateUser>} />
 
-          {/* Rotas Admin */}
-          <Route path="admin" element={<Login />} />
-          <Route path="admin/dashboard" element={<Private><Dashboard /></Private>} />
-          <Route path="admin/new-product" element={<Private><NewProduct /></Private>} />
-          <Route path="admin/edit-product/:id" element={<Private><EditProduct /></Private>} />
+            {/* Rotas Protegidas — Usuário */}
+            <Route path="minha-conta" element={<PrivateUser><MyAccount /></PrivateUser>} />
 
-          {/* 404 */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+            {/* Rotas Admin */}
+            <Route path="admin" element={<Login />} />
+            <Route path="admin/dashboard" element={<Private><Dashboard /></Private>} />
+            <Route path="admin/new-product" element={<Private><NewProduct /></Private>} />
+            <Route path="admin/edit-product/:id" element={<Private><EditProduct /></Private>} />
 
-      <SpeedInsights />
-    </div>
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+
+        <SpeedInsights />
+      </div>
+    </MotionConfig>
   )
 }

@@ -86,6 +86,23 @@
   - Algoritmo `slidingWindow` — elimina brecha de boundary entre janelas fixas
   - Fallback gracioso: loga erro mas não derruba o endpoint se Redis estiver indisponível
 - [x] `calculateShipping`, `createPayment`, `signUpload`: `await` adicionado na chamada do rate limiter
+- [x] Paginação com cursor no Dashboard admin e na loja (`startAfter` + `limit`)
+
+## ✅ Sprint 7 — Auditoria de UI/UX e Production Readiness (Concluída)
+- [x] Auditoria completa de Design, UX, Código e Performance (4 pilares)
+- [x] `prefers-reduced-motion` em CSS e Framer Motion — conformidade WCAG 2.3.3
+- [x] Focus trap no CartDrawer — conformidade WCAG 2.1.1
+- [x] Touch targets dos dots de galeria corrigidos — conformidade WCAG 2.5.5
+- [x] Bug de closure em `updateQuantity` no CartContext corrigido
+- [x] Erros silenciosos no checkout de endereço corrigidos (save e load)
+- [x] `AggregateRating` hardcoded removido do schema.org — risco de penalidade Google
+- [x] `srcSet` + `sizes` completos no Hero — seleção automática de resolução por browser
+- [x] Cache de produtos no Shop migrado para `useRef` hook — sem memory leak
+- [x] `formatInstallment()` centralizado — remove duplicação de Intl em 3 arquivos
+- [x] Estado vazio do CartDrawer com coleções sugeridas — melhora conversão
+- [x] Badge do carrinho com re-animação por mudança de valor
+- [x] `lucide-react` e `react-icons` removidos do bundle (~60 kB gzip)
+- [x] `loading="lazy"` e `fetchpriority="high"` padronizados em todas as imagens de produto
 
 ## 🔭 Backlog Futuro
 
@@ -96,8 +113,6 @@
 
 ### Performance e Escalabilidade
 - [ ] TanStack Query / SWR para cache de requisições Firestore
-- [x] Paginação com cursor no Dashboard admin e na loja (`startAfter` + `limit`)
-- [ ] `loading="lazy"` e `fetchpriority="high"` padronizados em todas as imagens de produto
 - [ ] Migração para Next.js (quando SEO orgânico de produto virar prioridade crítica)
 
 ### Produto

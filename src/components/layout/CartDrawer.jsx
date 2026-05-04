@@ -1,10 +1,11 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../../context/CartContext.jsx'
 import { Link, useNavigate } from 'react-router-dom'
 import { formatCurrency } from '../../utils/format'
 import { optimizeImage } from '../../utils/image'
 import { useAuth } from '../../context/AuthContext'
+import { collections } from '../../data/collections'
 
 async function estimateShipping(cep) {
   const res = await fetch('/api/calculateShipping', {
@@ -16,6 +17,13 @@ async function estimateShipping(cep) {
   const { options } = await res.json()
   return options || []
 }
+
+// Sugestões de coleções para o estado vazio do carrinho
+const EMPTY_SUGGESTIONS = collections.slice(0, 3).map(c => ({
+  id: c.id,
+  title: c.title,
+  image: c.image,
+}))
 
 export default function CartDrawer() {
   const {
@@ -30,6 +38,9 @@ export default function CartDrawer() {
 
   const navigate = useNavigate()
   const { user } = useAuth()
+
+  // ── Ref para o drawer (focus trap) ──────────────────────────────────────
+  const drawerRef = useRef(null)
 
   // ── Estimativa de frete ──────────────────────────────────────────────────
   const [cepInput, setCepInput] = useState('')
@@ -82,7 +93,54 @@ export default function CartDrawer() {
     return () => document.removeEventListener('keydown', handler)
   }, [isCartOpen, setIsCartOpen])
 
-  // ── Checkout (suporta convidados) ────────────────────────────────────────
+  // ── Focus trap ───────────────────────────────────────────────────────────
+  // Mantém o foco dentro do drawer enquanto ele estiver aberto,
+  // impedindo que o Tab alcance elementos por baixo do overlay.
+  useEffect(() => {
+    if (!isCartOpen || !drawerRef.current) return
+
+    const drawer = drawerRef.current
+    const focusableSelectors = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(', ')
+
+    const getFocusable = () => Array.from(drawer.querySelectorAll(focusableSelectors))
+
+    // Foca o primeiro elemento ao abrir
+    const firstFocusable = getFocusable()[0]
+    firstFocusable?.focus()
+
+    const handleTrap = (e) => {
+      if (e.key !== 'Tab') return
+      const focusable = getFocusable()
+      if (focusable.length === 0) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleTrap)
+    return () => document.removeEventListener('keydown', handleTrap)
+  }, [isCartOpen])
+
+  // ── Checkout ─────────────────────────────────────────────────────────────
   const handleCheckout = useCallback(() => {
     if (cartItems.length === 0) return
     setIsCartOpen(false)
@@ -104,6 +162,7 @@ export default function CartDrawer() {
             aria-hidden="true"
           />
           <motion.aside
+            ref={drawerRef}
             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
             role="dialog" aria-modal="true" aria-label="Carrinho de compras"
@@ -115,8 +174,11 @@ export default function CartDrawer() {
                 Sua Sacola{' '}
                 <span className="not-italic font-sans text-sm text-white/50 ml-2">({cartCount ?? cartItems.length})</span>
               </h2>
-              <button onClick={() => setIsCartOpen(false)} aria-label="Fechar carrinho"
-                className="p-2 text-white/50 hover:text-white hover:rotate-90 transition-all">
+              <button
+                onClick={() => setIsCartOpen(false)}
+                aria-label="Fechar carrinho"
+                className="p-2 text-white/50 hover:text-white hover:rotate-90 transition-all"
+              >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -126,13 +188,52 @@ export default function CartDrawer() {
             {/* Itens */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-track-black scrollbar-thumb-zinc-800">
               {cartItems.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-white/40 space-y-4">
-                  <span className="text-4xl opacity-50" aria-hidden="true">🛒</span>
-                  <p className="uppercase tracking-widest text-xs">Sua sacola está vazia</p>
-                  <button onClick={() => setIsCartOpen(false)}
-                    className="text-white border-b border-white pb-1 text-xs uppercase hover:text-white/80 transition-colors">
-                    Voltar a comprar
-                  </button>
+                // ── Estado vazio com sugestões de coleções ───────────────
+                <div className="flex flex-col gap-8">
+                  <div className="flex flex-col items-center text-white/40 space-y-3 pt-6">
+                    <span className="text-4xl opacity-50" aria-hidden="true">
+                      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                      </svg>
+                    </span>
+                    <p className="uppercase tracking-widest text-xs">Sua sacola está vazia</p>
+                    <p className="text-[10px] text-white/30 text-center leading-relaxed">
+                      Explore nossas coleções e encontre sua próxima peça
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-mono">
+                      Coleções em destaque
+                    </p>
+                    {EMPTY_SUGGESTIONS.map(col => (
+                      <Link
+                        key={col.id}
+                        to={`/collection/${col.id}`}
+                        onClick={() => setIsCartOpen(false)}
+                        className="flex items-center gap-4 group p-2 -mx-2 hover:bg-white/5 transition-colors rounded-sm"
+                      >
+                        <div className="w-14 h-14 bg-zinc-900 overflow-hidden flex-shrink-0 rounded-sm">
+                          <img
+                            src={optimizeImage(col.image, 120)}
+                            alt={col.title}
+                            width={120}
+                            height={120}
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] uppercase tracking-widest font-bold text-white/70 group-hover:text-white transition-colors truncate">
+                            {col.title}
+                          </p>
+                          <p className="text-[9px] text-white/30 mt-0.5 uppercase tracking-wider">
+                            Ver coleção →
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 cartItems.map((item) => (
@@ -241,8 +342,10 @@ export default function CartDrawer() {
                 )}
 
                 {/* CTA principal */}
-                <button onClick={handleCheckout}
-                  className="group relative w-full py-4 bg-white text-black font-black uppercase tracking-[0.2em] overflow-hidden">
+                <button
+                  onClick={handleCheckout}
+                  className="group relative w-full py-4 bg-white text-black font-black uppercase tracking-[0.2em] overflow-hidden"
+                >
                   <span className="relative z-10 group-hover:text-white transition-colors duration-300 flex items-center justify-center gap-2">
                     Finalizar compra
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -253,11 +356,11 @@ export default function CartDrawer() {
                 </button>
 
                 <div className="flex items-center justify-center gap-3 pt-1 text-[9px] text-white/20 uppercase tracking-widest">
-                  <span>🔒 Pagamento seguro</span>
+                  <span>Pagamento seguro</span>
                   <span>·</span>
                   <span>Mercado Pago</span>
                   <span>·</span>
-                  <span>Entrega Nacional 🇧🇷</span>
+                  <span>Entrega Nacional</span>
                 </div>
               </div>
             )}

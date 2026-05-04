@@ -52,7 +52,7 @@ const storage = {
       console.error('Erro ao remover localStorage:', error)
       return false
     }
-  }
+  },
 }
 
 export function CartProvider({ children }) {
@@ -85,14 +85,14 @@ export function CartProvider({ children }) {
 
   const addToCart = useCallback((product, size, color) => {
     setCartItems(prev => {
-      const existingItem = prev.find(item => 
-        item.id === product.id && 
-        item.size === size && 
+      const existingItem = prev.find(item =>
+        item.id === product.id &&
+        item.size === size &&
         item.color === color
       )
 
       if (existingItem) {
-        return prev.map(item => 
+        return prev.map(item =>
           item.id === product.id && item.size === size && item.color === color
             ? { ...item, quantity: item.quantity + 1 }
             : item
@@ -104,39 +104,39 @@ export function CartProvider({ children }) {
     setIsCartOpen(true)
   }, [])
 
+  const removeFromCart = useCallback((id, size, color) => {
+    setCartItems(prev =>
+      prev.filter(item =>
+        !(item.id === id && item.size === size && item.color === color)
+      )
+    )
+  }, [])
+
   const updateQuantity = useCallback((id, size, color, newQuantity) => {
     if (newQuantity < 1) {
       removeFromCart(id, size, color)
       return
     }
 
-    setCartItems(prev => 
-      prev.map(item => 
+    setCartItems(prev =>
+      prev.map(item =>
         item.id === id && item.size === size && item.color === color
           ? { ...item, quantity: newQuantity }
           : item
       )
     )
-  }, [])
-
-  const removeFromCart = useCallback((id, size, color) => {
-    setCartItems(prev => 
-      prev.filter(item => 
-        !(item.id === id && item.size === size && item.color === color)
-      )
-    )
-  }, [])
+  }, [removeFromCart])
 
   const clearCart = useCallback(() => {
     setCartItems([])
   }, [])
 
-  const cartCount = useMemo(() => 
+  const cartCount = useMemo(() =>
     cartItems.reduce((acc, item) => acc + item.quantity, 0),
     [cartItems]
   )
-  
-  const cartTotal = useMemo(() => 
+
+  const cartTotal = useMemo(() =>
     cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0),
     [cartItems]
   )
@@ -150,7 +150,7 @@ export function CartProvider({ children }) {
     updateQuantity,
     clearCart,
     cartCount,
-    cartTotal
+    cartTotal,
   }), [cartItems, isCartOpen, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal])
 
   return (
@@ -162,10 +162,10 @@ export function CartProvider({ children }) {
 
 export const useCart = () => {
   const context = useContext(CartContext)
-  
+
   if (!context) {
     throw new Error('useCart deve ser usado dentro de CartProvider')
   }
-  
+
   return context
 }
