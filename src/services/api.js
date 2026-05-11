@@ -38,3 +38,22 @@ export const createPayment = async ({ orderId }) => {
   if (!res.ok) throw new Error('Erro ao criar pagamento')
   return res.json()
 }
+
+/**
+ * Valida um cupom de desconto no servidor e o persiste no pedido.
+ * Retorna { valid, code, discount, label } ou { valid: false, error }.
+ * Os cupons existem APENAS no servidor — nunca são expostos ao bundle JS.
+ */
+export const validateCoupon = async ({ code, orderId }) => {
+  const authHeader = await getAuthHeader()
+
+  const res = await fetch(`${BASE_URL}/validateCoupon`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeader },
+    body: JSON.stringify({ code, orderId }),
+  })
+
+  // 200 mesmo em cupom inválido — o campo `valid` indica o resultado
+  if (!res.ok) throw new Error('Erro ao validar cupom')
+  return res.json()
+}

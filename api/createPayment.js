@@ -89,15 +89,22 @@ module.exports = async (req, res) => {
       })
     )
 
-    // ── Recalcular total real ───────────────────────────────────────────────
+    // ── Recalcular total real (incluindo desconto de cupom validado) ─────────
     const realSubtotal = itemsWithRealPrices.reduce(
       (acc, item) => acc + item.unit_price * item.quantity, 0
     )
     const shippingPrice = order.shipping?.price || 0
-    const realTotal = realSubtotal + shippingPrice
+
+    // Cupom já foi validado e persistido pelo endpoint /api/validateCoupon
+    // Lê do Firestore — nunca do body da requisição
+    const couponDiscount = order.coupon?.discount || 0
+    const discountAmount = parseFloat((realSubtotal * couponDiscount).toFixed(2))
+    const realTotal = parseFloat((realSubtotal - discountAmount + shippingPrice).toFixed(2))
 
     await orderRef.update({
       total: realTotal,
+      subtotal: realSubtotal,
+      discountAmount,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
     })
 

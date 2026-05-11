@@ -2,12 +2,9 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── Funções Auxiliares ───────────────────────────────────────────
-    // Usando Custom Claims
     function isAdmin() {
       return request.auth != null && request.auth.token.admin == true;
     }
-
     function isOwner(userId) {
       return request.auth != null && request.auth.uid == userId;
     }
@@ -26,14 +23,14 @@ service cloud.firestore {
     // ── Usuários ─────────────────────────────────────────────────────
     match /users/{userId} {
       allow read: if isOwner(userId);
-      allow update: if isOwner(userId)
+      allow create: if isOwner(userId)
+        && request.resource.data.email is string
+        && request.resource.data.marketingConsent is bool
         && request.resource.data.keys().hasOnly([
           'email', 'name', 'phone',
           'marketingConsent', 'marketingConsentDate', 'created_at'
         ]);
-      allow create: if isOwner(userId)
-        && request.resource.data.email is string
-        && request.resource.data.marketingConsent is bool
+      allow update: if isOwner(userId)
         && request.resource.data.keys().hasOnly([
           'email', 'name', 'phone',
           'marketingConsent', 'marketingConsentDate', 'created_at'
@@ -48,18 +45,37 @@ service cloud.firestore {
     // ── Pedidos ──────────────────────────────────────────────────────
     match /orders/{orderId} {
       allow read: if isAdmin() || isOwner(resource.data.userId);
+
+      // ALTERADO: adicionado hasOnly para impedir campos arbitrários
       allow create: if isOwner(request.resource.data.userId)
         && request.resource.data.total is number
         && request.resource.data.total > 0
-        && request.resource.data.status == 'pending';
+        && request.resource.data.status == 'pending'
+        && request.resource.data.keys().hasOnly([
+          'userId', 'status', 'total', 'address', 'shipping',
+          'payment', 'created_at', 'updated_at'
+        ]);
+
       allow update, delete: if false;
 
       // Subcoleção de Itens
       match /items/{itemId} {
         allow read: if isAdmin() || isOwner(get(/databases/$(database)/documents/orders/$(orderId)).data.userId);
 
-        allow create: if isOwner(get(/databases/$(database)/documents/orders/$(orderId)).data.userId);
-        
+        // ALTERADO: validação de campos e limites de quantidade/preço
+        allow create: if isOwner(get(/databases/$(database)/documents/orders/$(orderId)).data.userId)
+          && request.resource.data.productId is string
+          && request.resource.data.productId.size() > 0
+          && request.resource.data.quantity is int
+          && request.resource.data.quantity > 0
+          && request.resource.data.quantity <= 10
+          && request.resource.data.price is number
+          && request.resource.data.price > 0
+          && request.resource.data.name is string
+          && request.resource.data.keys().hasOnly([
+            'productId', 'name', 'price', 'quantity', 'size', 'color', 'img'
+          ]);
+
         allow update, delete: if false;
       }
     }
@@ -69,5 +85,6 @@ service cloud.firestore {
       allow read: if isOwner(adminId);
       allow write: if false;
     }
+
   }
 }

@@ -256,7 +256,7 @@ export default function ProductForm({ productId = null }) {
             <input type="file" onChange={handleMainImage} className="hidden" accept="image/*" />
             {mainPreview ? (
               <>
-                <img src={mainPreview} alt="Preview" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                <img src={mainPreview} alt="Preview da capa do produto" width={800} height={800} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                 <span className="absolute bottom-4 bg-black/50 px-3 py-1 text-xs text-white rounded backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">Trocar Capa</span>
               </>
             ) : (
@@ -277,7 +277,7 @@ export default function ProductForm({ productId = null }) {
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
             {formData.gallery.map((url, index) => (
               <div key={url} className="relative aspect-square bg-zinc-800 rounded overflow-hidden group">
-                <img src={url} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                <img src={url} alt={`Imagem ${index + 1} da galeria`} width={400} height={400} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
                 <button
                   type="button"
                   onClick={() => removeGalleryItem(index, false)}
@@ -291,7 +291,7 @@ export default function ProductForm({ productId = null }) {
 
             {galleryFiles.map((file, index) => (
               <div key={index} className="relative aspect-square bg-zinc-800 rounded overflow-hidden group border border-green-500/50">
-                <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
+                <img src={URL.createObjectURL(file)} alt={`Preview ${index + 1}`} width={400} height={400} className="w-full h-full object-cover" />
                 <button
                   type="button"
                   onClick={() => removeGalleryItem(index, true)}

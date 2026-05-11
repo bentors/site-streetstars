@@ -8,7 +8,7 @@ import { useCart } from '../../context/CartContext'
 import { formatCurrency } from '../../utils/format'
 import { formatCEP } from '../../utils/validators'
 import { optimizeImage } from '../../utils/image'
-import { createPayment } from '../../services/api'
+import { createPayment, validateCoupon } from '../../services/api'
 import Logo from '../../components/ui/Logo'
 
 const CHECKOUT_SESSION_KEY = 'streetstars_checkout'
@@ -36,28 +36,92 @@ export default function CheckoutReview() {
 
   // ── Cupom de desconto ──────────────────────────────────────────────────────
   const [couponInput, setCouponInput] = useState('')
-  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [appliedCoupon, setAppliedCoupon] = useState(null) // { code, discount, label }
   const [couponLoading, setCouponLoading] = useState(false)
   const [couponError, setCouponError] = useState(null)
 
-  // Mova para Firestore/API em produção para segurança real
-  const VALID_COUPONS = {
-    'ESTRELA10': { discount: 0.10, label: '10% de desconto' },
-    'LAUNCH15':  { discount: 0.15, label: '15% de desconto' },
+  // orderId criado antecipadamente para poder passar ao validateCoupon antes de finalizar
+  const [pendingOrderId, setPendingOrderId] = useState(null)
+
+  // Garante que o pedido rascunho existe antes de aplicar o cupom
+  async function ensurePendingOrder() {
+    if (pendingOrderId) return pendingOrderId
+
+    const orderRef = await addDoc(collection(db, 'orders'), {
+      userId: user.uid,
+      status: 'pending',
+      total: cartTotal + (shipping?.price || 0), // será revalidado pelo servidor em createPayment
+      address: { ...address },
+      shipping: {
+        id: shipping.id,
+        name: shipping.name,
+        price: shipping.price,
+        delivery_time: shipping.delivery_time,
+        company: shipping.company,
+      },
+      payment: {
+        provider: 'mercadopago',
+        preferenceId: null,
+        paymentId: null,
+        method: null,
+      },
+      created_at: serverTimestamp(),
+      updated_at: serverTimestamp(),
+    })
+
+    const itemsRef = collection(db, 'orders', orderRef.id, 'items')
+    await Promise.all(
+      cartItems.map(item =>
+        addDoc(itemsRef, {
+          productId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          size: item.size,
+          color: item.color || null,
+          img: item.img || null,
+        })
+      )
+    )
+
+    setPendingOrderId(orderRef.id)
+    return orderRef.id
   }
 
   async function handleApplyCoupon() {
     const code = couponInput.trim().toUpperCase()
     if (!code) return
-    setCouponLoading(true); setCouponError(null)
-    await new Promise(r => setTimeout(r, 500))
-    if (VALID_COUPONS[code]) {
-      setAppliedCoupon({ code, ...VALID_COUPONS[code] })
-    } else {
-      setCouponError('Cupom inválido ou expirado.')
-      setAppliedCoupon(null)
+
+    setCouponLoading(true)
+    setCouponError(null)
+
+    try {
+      // Cria o pedido rascunho se ainda não existe — necessário para o servidor persistir o cupom
+      const orderId = await ensurePendingOrder()
+
+      // Validação ocorre inteiramente no servidor; cupons nunca estão no bundle
+      const result = await validateCoupon({ code, orderId })
+
+      if (result.valid) {
+        setAppliedCoupon({ code: result.code, discount: result.discount, label: result.label })
+      } else {
+        setCouponError(result.error || 'Cupom inválido ou expirado.')
+        setAppliedCoupon(null)
+      }
+    } catch {
+      setCouponError('Erro ao verificar cupom. Tente novamente.')
+    } finally {
+      setCouponLoading(false)
     }
-    setCouponLoading(false)
+  }
+
+  function handleRemoveCoupon() {
+    // Nota: o cupom permanece no Firestore mas o total será recalculado pelo servidor
+    // sem desconto se o campo coupon for removido. Como esta é uma SPA, simplesmente
+    // recarregar a página descartará o pedido rascunho e o usuário começa de novo.
+    setAppliedCoupon(null)
+    setCouponInput('')
+    setPendingOrderId(null) // descarta o rascunho — um novo será criado no próximo apply/finalizar
   }
 
   const discountAmount = appliedCoupon ? cartTotal * appliedCoupon.discount : 0
@@ -78,45 +142,51 @@ export default function CheckoutReview() {
     setError(null)
 
     try {
-      const orderRef = await addDoc(collection(db, 'orders'), {
-        userId: user.uid,
-        status: 'pending',
-        total: orderTotal,
-        address: { ...address },
-        shipping: {
-          id: shipping.id,
-          name: shipping.name,
-          price: shipping.price,
-          delivery_time: shipping.delivery_time,
-          company: shipping.company,
-        },
-        payment: {
-          provider: 'mercadopago',
-          preferenceId: null,
-          paymentId: null,
-          method: null,
-        },
-        created_at: serverTimestamp(),
-        updated_at: serverTimestamp(),
-      })
+      // Reutiliza o pedido rascunho se o cupom já foi aplicado; caso contrário cria um novo
+      const orderId = pendingOrderId ?? await (async () => {
+        const orderRef = await addDoc(collection(db, 'orders'), {
+          userId: user.uid,
+          status: 'pending',
+          total: orderTotal,
+          address: { ...address },
+          shipping: {
+            id: shipping.id,
+            name: shipping.name,
+            price: shipping.price,
+            delivery_time: shipping.delivery_time,
+            company: shipping.company,
+          },
+          payment: {
+            provider: 'mercadopago',
+            preferenceId: null,
+            paymentId: null,
+            method: null,
+          },
+          created_at: serverTimestamp(),
+          updated_at: serverTimestamp(),
+        })
 
-      const itemsRef = collection(db, 'orders', orderRef.id, 'items')
-      await Promise.all(
-        cartItems.map(item =>
-          addDoc(itemsRef, {
-            productId: item.id,
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            size: item.size,
-            color: item.color || null,
-            img: item.img || null,
-          })
+        const itemsRef = collection(db, 'orders', orderRef.id, 'items')
+        await Promise.all(
+          cartItems.map(item =>
+            addDoc(itemsRef, {
+              productId: item.id,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              size: item.size,
+              color: item.color || null,
+              img: item.img || null,
+            })
+          )
         )
-      )
+
+        return orderRef.id
+      })()
 
       // userId e email são extraídos do token verificado pelo servidor
-      const { initPoint } = await createPayment({ orderId: orderRef.id })
+      // O servidor revalida preços e aplica o desconto do cupom (se houver) pelo Firestore
+      const { initPoint } = await createPayment({ orderId })
 
       // Limpa o estado do checkout após criar o pedido com sucesso
       sessionStorage.removeItem(CHECKOUT_SESSION_KEY)
@@ -257,7 +327,7 @@ export default function CheckoutReview() {
                   className="flex-1 bg-black/50 border border-white/10 text-white px-3 py-2 text-xs font-mono focus:border-white outline-none transition-colors placeholder:text-zinc-700 disabled:opacity-50"
                 />
                 {appliedCoupon ? (
-                  <button onClick={() => { setAppliedCoupon(null); setCouponInput('') }}
+                  <button onClick={handleRemoveCoupon}
                     className="px-3 py-2 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase hover:bg-red-500/10 transition-all">
                     Remover
                   </button>
