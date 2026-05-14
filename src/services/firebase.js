@@ -1,6 +1,5 @@
-import { initializeApp } from 'firebase/app'
+import { initializeApp, getApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore/lite'
-import { getFirestore as getFirestoreRealtime } from 'firebase/firestore' // ← adiciona
 import { getAuth } from 'firebase/auth'
 
 const requiredEnvVars = [
@@ -31,12 +30,11 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
-let app, db, dbRealtime, auth
+let app, db, auth
 
 try {
   app = initializeApp(firebaseConfig)
-  db = getFirestore(app)                    // lite — para leituras simples
-  dbRealtime = getFirestoreRealtime(app)    // completo — só para onSnapshot
+  db = getFirestore(app)   // lite — leituras simples, sem cache offline (~30KB menor)
   auth = getAuth(app)
 
   if (import.meta.env.DEV) {
@@ -46,4 +44,14 @@ try {
   console.error('Erro ao inicializar Firebase:', error)
 }
 
-export { db, dbRealtime, auth, app }
+/**
+ * Retorna o Firestore completo (com onSnapshot) de forma lazy.
+ * Usado apenas em Dashboard e OrderConfirmation — não entra no bundle principal.
+ * @returns {Promise<import('firebase/firestore').Firestore>}
+ */
+export async function getRealtimeDb() {
+  const { getFirestore: getFs } = await import('firebase/firestore')
+  return getFs(app)
+}
+
+export { db, auth, app }

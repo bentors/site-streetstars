@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { formatCurrency } from '../../utils/format'
 import Logo from '../../components/ui/Logo'
 import { useCart } from '../../context/CartContext'
+import { useAuth } from '../../context/AuthContext'
 import { doc, onSnapshot } from 'firebase/firestore'
-import { dbRealtime as db } from '../../services/firebase'
+import { getRealtimeDb } from '../../services/firebase'
 
 const STATUS_CONFIG = {
   pending: {
@@ -43,6 +44,8 @@ const STATUS_CONFIG = {
 export default function OrderConfirmation() {
   const { orderId } = useParams()
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
   const initialStatus = searchParams.get('status') === 'success' ? 'paid'
     : searchParams.get('status') === 'failure' ? 'cancelled'
     : 'pending'
@@ -59,22 +62,38 @@ export default function OrderConfirmation() {
   }, [status])
 
   useEffect(() => {
-    if (!orderId) return
+    if (!orderId || !user) return
 
-    const orderRef = doc(db, 'orders', orderId)
-    const unsubscribe = onSnapshot(orderRef, (snap) => {
-      if (snap.exists()) {
+    let unsubscribe = () => {}
+
+    getRealtimeDb().then(dbRt => {
+      const orderRef = doc(dbRt, 'orders', orderId)
+      unsubscribe = onSnapshot(orderRef, (snap) => {
+        if (!snap.exists()) {
+          navigate('/', { replace: true })
+          return
+        }
+
         const data = snap.data()
+
+        // Verifica se o pedido pertence ao usuário autenticado
+        // A Firestore Rule já bloqueia no nível de dados,
+        // mas esta verificação evita exibir dados por milissegundos antes da Rule agir
+        if (data.userId !== user.uid) {
+          navigate('/', { replace: true })
+          return
+        }
+
         setOrder(data)
         setStatus(data.status)
-      }
+      })
     })
 
     return () => unsubscribe()
-  }, [orderId])
+  }, [orderId, user, navigate])
 
   useEffect(() => {
-    if (!orderId) return
+    if (!orderId || !user) return
 
     async function loadItems() {
       try {
@@ -87,7 +106,7 @@ export default function OrderConfirmation() {
       }
     }
     loadItems()
-  }, [orderId])
+  }, [orderId, user])
 
   const current = STATUS_CONFIG[status] || STATUS_CONFIG.pending
 

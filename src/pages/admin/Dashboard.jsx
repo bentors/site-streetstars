@@ -9,7 +9,7 @@ import {
   collection as col, query as q,
   orderBy as ob, limit as lim, onSnapshot
 } from 'firebase/firestore'
-import { db, dbRealtime, auth } from '../../services/firebase'
+import { db, auth, getRealtimeDb } from '../../services/firebase'
 import { formatCurrency } from '../../utils/format'
 import Logo from '../../components/ui/Logo'
 
@@ -106,21 +106,25 @@ export default function Dashboard() {
 
   // ── Listener em tempo real — apenas os 30 pedidos mais recentes ────────────
   useEffect(() => {
-    const ordersQuery = q(
-      col(dbRealtime, 'orders'),
-      ob('created_at', 'desc'),
-      lim(ORDERS_PER_PAGE)
-    )
+    let unsubscribe = () => {}
 
-    const unsubscribe = onSnapshot(ordersQuery, (snapshot) => {
-      const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
-      setOrders(list)
+    getRealtimeDb().then(dbRt => {
+      const ordersQuery = q(
+        col(dbRt, 'orders'),
+        ob('created_at', 'desc'),
+        lim(ORDERS_PER_PAGE)
+      )
 
-      const newCount = list.filter(order => {
-        const createdAt = order.created_at?.toMillis?.() || 0
-        return createdAt > lastSeenRef.current && order.status === 'paid'
-      }).length
-      setNewOrdersCount(newCount)
+      unsubscribe = onSnapshot(ordersQuery, (snapshot) => {
+        const list = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+        setOrders(list)
+
+        const newCount = list.filter(order => {
+          const createdAt = order.created_at?.toMillis?.() || 0
+          return createdAt > lastSeenRef.current && order.status === 'paid'
+        }).length
+        setNewOrdersCount(newCount)
+      })
     })
 
     return () => unsubscribe()

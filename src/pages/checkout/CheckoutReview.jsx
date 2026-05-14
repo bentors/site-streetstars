@@ -240,6 +240,8 @@ export default function CheckoutReview() {
                     <img
                       src={optimizeImage(item.img, 200)}
                       alt={item.name}
+                      width={56}
+                      height={56}
                       className="w-full h-full object-cover"
                     />
                   </div>
