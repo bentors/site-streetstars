@@ -46,7 +46,7 @@ O objetivo é **refazer a aplicação do zero** sobre uma arquitetura nova, mant
 
 ## 2. Arquitetura
 
-Um único projeto **Next.js 15 (App Router) + React 19 + TypeScript strict** na Vercel, substituindo o SPA Vite e as funções em `api/`.
+Um único projeto **Next.js 16 (App Router) + React 19 + TypeScript 5.9 strict** na Vercel, substituindo o SPA Vite e as funções em `api/`. (TypeScript 7 fica para depois, quando o ecossistema Next/ESLint suportar o compilador nativo.)
 
 **Regra central: só o servidor lê e grava o Firestore.** As regras do Firestore negam tudo, e o acesso é feito exclusivamente pelo Admin SDK. No navegador, o Firebase é usado apenas para autenticação (módulo `firebase/auth`).
 
@@ -215,7 +215,7 @@ Se o passo 9 falhar, o pedido fica `pending_payment` e a resposta é um erro; um
 
 ## 6. Admin (`/admin`)
 
-Acesso: middleware redireciona quem não está logado, e **toda** Server Action do admin chama `requireAdmin()`, que confere a claim no session cookie.
+Acesso: o proxy (`src/proxy.ts`, nome do antigo middleware no Next 16) redireciona quem não está logado, e **toda** Server Action do admin chama `requireAdmin()`, que confere a claim no session cookie.
 
 - **Pedidos**
   - Lista filtrável por status, com busca por número ou e-mail e indicador de pagos ainda não vistos.
@@ -266,7 +266,7 @@ Regras:
 - **Erros esperados:** Server Actions devolvem `Result<T> = { ok: true, data: T } | { ok: false, code: string, message: string }`.
 - **Variáveis de ambiente:** validadas por zod em `lib/env.ts`. A aplicação não sobe se faltar alguma. `.env.example` versionado.
 - **`NEXT_PUBLIC_*`:** apenas config do Firebase Auth, ID do GA4 e nome da conta Cloudinary.
-- **Visual:** identidade atual (preto, maiúsculas, itálico, contorno) vira tokens do tema Tailwind v4 e componentes `ui/`. Framer Motion só em Drawer e Modal; o resto usa transições CSS.
+- **Visual:** identidade atual (preto, maiúsculas, itálico, contorno) vira tokens do tema Tailwind v4 e componentes `ui/`. Modal e Drawer usam o `<dialog>` nativo (foco, Escape e backdrop prontos) com transições CSS; Framer Motion só entra se alguma animação exigir.
 - **Fontes:** Inter e Space Grotesk carregadas por `next/font`.
 
 ## 8. Erros e observabilidade
@@ -282,9 +282,9 @@ Regras:
 - `firestore.rules`: `allow read, write: if false` em tudo.
 - Session cookie `httpOnly`, `secure`, `sameSite=lax`, com expiração de 5 dias.
 - Server Actions protegidas pela checagem de origem do Next.
-- `requireAdmin()` em toda ação do admin, além do middleware.
+- `requireAdmin()` em toda ação do admin, além do proxy.
 - Rate limit (Upstash) em `createOrder`, `quoteShipping`, `previewCoupon` e nas ações de autenticação.
-- CSP com nonce via middleware: apenas `self`, Mercado Pago (redirect), Google Auth (`apis.google.com`, `*.firebaseapp.com`), Cloudinary e GA4.
+- CSP estática em `next.config.ts`: apenas `self`, Mercado Pago (redirect), Google Auth (`apis.google.com`, `*.firebaseapp.com`, `accounts.google.com`), Cloudinary e GA4. Não usamos nonce porque ele obriga toda página a ser renderizada a cada requisição e anularia o ISR (prioridade de SEO e performance); por isso `script-src` inclui `'unsafe-inline'`, exigido pelos scripts inline do Next. A mitigação de XSS vem de o React escapar a saída e de nunca injetarmos HTML de usuário (JSON-LD é serializado com `<` escapado).
 - Token de pedido: 32 bytes de `crypto.randomBytes`, salvo como SHA-256, comparado em tempo constante.
 - Toda entrada validada com zod; e-mails gerados com react-email (escapa conteúdo).
 - LGPD: consentimento com data; páginas legais usam dados reais de `settings/store`.
