@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # Valores de mentira: o build não fala com serviços reais.
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      NEXT_PUBLIC_FIREBASE_API_KEY: ci
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: demo-streetstars.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: demo-streetstars
+      NEXT_PUBLIC_FIREBASE_APP_ID: ci
+      FIREBASE_PROJECT_ID: demo-streetstars
+      FIREBASE_CLIENT_EMAIL: ci@demo-streetstars.iam.gserviceaccount.com
+      FIREBASE_PRIVATE_KEY: ci
+      UPSTASH_REDIS_REST_URL: https://ci.upstash.io
+      UPSTASH_REDIS_REST_TOKEN: ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:emulator
+      - run: npm run build
