@@ -34,9 +34,6 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm ci
-      - run: npm run lint
-      - run: npm run format:check
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run test:emulator
-      - run: npm run build
+      # Mesma sequência do `make check` local; com Java disponível, os emuladores rodam sem Docker.
+      - run: make check
+      - run: make lint-sh
