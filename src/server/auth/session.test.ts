@@ -26,7 +26,7 @@ import { createSession, getSessionUser, requireAdmin, requireUser } from './sess
 const nowSec = () => Math.floor(Date.now() / 1000)
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  vi.resetAllMocks()
   cookieStore.get.mockReturnValue(undefined)
 })
 
@@ -94,6 +94,32 @@ describe('createSession', () => {
     const result = await createSession('lixo')
     expect(result.ok).toBe(false)
     expect(cookieStore.set).not.toHaveBeenCalled()
+  })
+
+  it('não grava cookie se o perfil não puder ser garantido', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    auth.verifyIdToken.mockResolvedValue({ uid: 'u1', email: 'a@b.com', auth_time: nowSec() })
+    auth.createSessionCookie.mockResolvedValue('session-cookie')
+    ensureUser.mockRejectedValue(new Error('firestore indisponível'))
+
+    expect(await createSession('token')).toEqual({
+      ok: false,
+      code: 'session_failed',
+      message: 'Não foi possível entrar. Tente novamente.',
+    })
+    expect(cookieStore.set).not.toHaveBeenCalled()
+    spy.mockRestore()
+  })
+
+  it('não grava cookie se o Firebase recusar criar a sessão', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    auth.verifyIdToken.mockResolvedValue({ uid: 'u1', email: 'a@b.com', auth_time: nowSec() })
+    auth.createSessionCookie.mockRejectedValue(new Error('auth/internal-error'))
+
+    const result = await createSession('token')
+    expect(result.ok).toBe(false)
+    expect(cookieStore.set).not.toHaveBeenCalled()
+    spy.mockRestore()
   })
 
   it('grava cookie httpOnly e garante o perfil do usuário', async () => {

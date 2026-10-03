@@ -32,9 +32,19 @@ export async function createSession(idToken: string): Promise<Result<{ uid: stri
     return fail('email_required', 'Sua conta precisa ter um e-mail.')
   }
 
-  const sessionCookie = await adminAuth().createSessionCookie(idToken, {
-    expiresIn: SESSION_MAX_AGE_SEC * 1000,
-  })
+  let sessionCookie: string
+  try {
+    // Perfil primeiro: o cookie só é gravado quando tudo que a sessão precisa já existe.
+    const name = typeof decoded.name === 'string' ? decoded.name : null
+    await ensureUser({ uid: decoded.uid, email: decoded.email, name })
+    sessionCookie = await adminAuth().createSessionCookie(idToken, {
+      expiresIn: SESSION_MAX_AGE_SEC * 1000,
+    })
+  } catch (error) {
+    console.error('createSession: falha ao criar a sessão', { uid: decoded.uid, error })
+    return fail('session_failed', 'Não foi possível entrar. Tente novamente.')
+  }
+
   const store = await cookies()
   store.set(SESSION_COOKIE, sessionCookie, {
     httpOnly: true,
@@ -43,9 +53,6 @@ export async function createSession(idToken: string): Promise<Result<{ uid: stri
     path: '/',
     maxAge: SESSION_MAX_AGE_SEC,
   })
-
-  const name = typeof decoded.name === 'string' ? decoded.name : null
-  await ensureUser({ uid: decoded.uid, email: decoded.email, name })
   return ok({ uid: decoded.uid })
 }
 
