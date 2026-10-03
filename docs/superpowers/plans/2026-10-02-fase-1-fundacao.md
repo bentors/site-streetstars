@@ -37,12 +37,9 @@
 1. Instalar o JDK (emulador do Firestore):
    `! winget install --id Microsoft.OpenJDK.21 -e --source winget --accept-source-agreements --accept-package-agreements`
    Fechar e reabrir o terminal; conferir com `java -version`.
-2. Criar o projeto Firebase **dev** (ex.: `street-stars-dev`) no console:
-   - Authentication → provedores **E-mail/senha** e **Google** ativados.
-   - Firestore → criar banco em modo nativo (região `southamerica-east1`).
-   - Configurações do projeto → registrar um app Web (copiar `apiKey`, `authDomain`, `projectId`, `appId`).
-   - Contas de serviço → gerar chave privada (JSON) para o Admin SDK.
-3. Criar `.env.local` (a partir do `.env.example` da Task 4) com os valores do projeto dev. Upstash é opcional em desenvolvimento.
+2. Projeto Firebase de desenvolvimento: `street-stars-system` (já existente; dados de teste apagados em 2026-10-02).
+   - Authentication → ativar o provedor **Google** (e-mail/senha já está ativo).
+3. `.env.local` já criado a partir do `.env` antigo com as variáveis da Fase 1. Upstash fica de fora em desenvolvimento.
 
 ## Estrutura de arquivos ao fim da fase
 
