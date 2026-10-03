@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
+import { publicEnv } from '@/lib/env'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -10,7 +11,7 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(publicEnv().NEXT_PUBLIC_SITE_URL),
   title: { default: 'Street Stars | Estrelas nascem nas ruas', template: '%s | Street Stars' },
   description: 'Streetwear autêntico nascido em São Paulo.',
 }
