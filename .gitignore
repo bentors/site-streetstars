@@ -49,3 +49,6 @@ coverage/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+
+# Dados dos emuladores em container
+.emulator-data/
