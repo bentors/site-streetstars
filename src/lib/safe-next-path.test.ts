@@ -17,6 +17,13 @@ describe('safeNextPath', () => {
     },
   )
 
+  it.each(['/.//evil.com', '/a/..//evil.com', '/%2e//evil.com'])(
+    'troca %s pelo fallback (segmentos de ponto viram //host)',
+    (input) => {
+      expect(safeNextPath(input, '/conta')).toBe('/conta')
+    },
+  )
+
   it('usa / como fallback padrão para null', () => {
     expect(safeNextPath(null)).toBe('/')
   })
