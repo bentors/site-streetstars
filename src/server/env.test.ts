@@ -22,7 +22,7 @@ describe('parseServerEnv', () => {
       NODE_ENV: 'development',
       FIREBASE_PROJECT_ID: 'street-stars-dev',
       FIREBASE_CLIENT_EMAIL: 'sa@dev.iam.gserviceaccount.com',
-      FIREBASE_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n',
+      FIREBASE_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\\nabc\\n-----END PRIVATE KEY-----\\n',
     })
     expect(env.FIREBASE_PRIVATE_KEY).toBe(
       '-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n',

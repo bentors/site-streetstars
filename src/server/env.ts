@@ -11,7 +11,7 @@ export const serverEnvSchema = z
       .string()
       .min(1)
       .optional()
-      .transform((key) => key?.replace(/\n/g, '\n')),
+      .transform((key) => key?.replace(/\\n/g, '\n')),
     FIRESTORE_EMULATOR_HOST: z.string().min(1).optional(),
     UPSTASH_REDIS_REST_URL: z.url().optional(),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
