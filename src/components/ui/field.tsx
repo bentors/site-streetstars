@@ -26,17 +26,17 @@ export function Field({
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-muted font-mono text-[10px] tracking-widest uppercase">
+      <label htmlFor={id} className="font-mono text-[10px] tracking-widest text-muted uppercase">
         {label}
       </label>
       {children({ id, 'aria-invalid': error ? true : undefined, 'aria-describedby': describedBy })}
       {hint ? (
-        <p id={hintId} className="text-muted text-[10px]">
+        <p id={hintId} className="text-[10px] text-muted">
           {hint}
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} role="alert" className="text-danger font-mono text-[10px]">
+        <p id={errorId} role="alert" className="font-mono text-[10px] text-danger">
           {error}
         </p>
       ) : null}

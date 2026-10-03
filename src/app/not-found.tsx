@@ -6,7 +6,7 @@ export default function NotFound() {
       <h1 className="text-2xl font-bold tracking-widest uppercase">
         Essa estrela se perdeu no caminho
       </h1>
-      <Link href="/" className="text-muted hover:text-paper text-xs tracking-[0.2em] uppercase">
+      <Link href="/" className="text-xs tracking-[0.2em] text-muted uppercase hover:text-paper">
         Voltar para a home
       </Link>
     </main>
