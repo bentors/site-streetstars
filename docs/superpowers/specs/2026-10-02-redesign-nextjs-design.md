@@ -304,7 +304,7 @@ Regras:
 
 ## 11. Ambientes e entrega
 
-- **Firebase:** projeto `dev` (emulador local) e projeto `prod` (`street-stars-system`).
+- **Firebase:** o projeto existente `street-stars-system` passa a ser o de **desenvolvimento** (perfis, pedidos e `admins` de teste foram apagados em 2026-10-02; `products` mantido para a migração; contas do Auth mantidas). Um projeto de **produção limpo** será criado no lançamento. Testes automatizados usam o emulador (`demo-streetstars`).
 - **Vercel:** preview por branch com credenciais de sandbox do Mercado Pago; produção com credenciais reais.
 - **Resend:** domínio próprio verificado antes do lançamento; o domínio de teste não é usado.
 - **Migração:** `scripts/migrate-catalog.ts` converte os produtos atuais e as coleções de `src/data/collections.js` para o novo modelo (preço em centavos, slug, status, imagens). Pedidos e usuários atuais são descartados.
