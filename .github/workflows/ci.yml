@@ -23,6 +23,7 @@ jobs:
       FIREBASE_PRIVATE_KEY: ci
       UPSTASH_REDIS_REST_URL: https://ci.upstash.io
       UPSTASH_REDIS_REST_TOKEN: ci
+      ORDER_TOKEN_SECRET: ci-0123456789abcdef0123456789abcdef
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

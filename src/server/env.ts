@@ -15,6 +15,15 @@ export const serverEnvSchema = z
     FIRESTORE_EMULATOR_HOST: z.string().min(1).optional(),
     UPSTASH_REDIS_REST_URL: z.url().optional(),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
+    VERCEL_ENV: z.enum(['production', 'preview', 'development']).optional(),
+    ORDER_TOKEN_SECRET: z.string().min(32),
+    MERCADOPAGO_ACCESS_TOKEN: z.string().min(1).optional(),
+    MERCADOPAGO_WEBHOOK_SECRET: z.string().min(1).optional(),
+    MELHORENVIO_TOKEN: z.string().min(1).optional(),
+    MELHORENVIO_ENV: z.enum(['sandbox', 'production']).default('sandbox'),
+    RESEND_API_KEY: z.string().min(1).optional(),
+    EMAIL_FROM: z.string().min(1).optional(),
+    CRON_SECRET: z.string().min(16).optional(),
   })
   .superRefine((env, ctx) => {
     const required = (key: keyof typeof env, reason: string) => {
@@ -27,6 +36,17 @@ export const serverEnvSchema = z
     if (env.NODE_ENV === 'production') {
       required('UPSTASH_REDIS_REST_URL', 'obrigatória em produção')
       required('UPSTASH_REDIS_REST_TOKEN', 'obrigatória em produção')
+    }
+    // Só o deploy de produção da Vercel exige as integrações: o build local e o preview
+    // também rodam com NODE_ENV=production e podem ficar sem elas.
+    if (env.VERCEL_ENV === 'production') {
+      const reason = 'obrigatória no deploy de produção'
+      required('MERCADOPAGO_ACCESS_TOKEN', reason)
+      required('MERCADOPAGO_WEBHOOK_SECRET', reason)
+      required('MELHORENVIO_TOKEN', reason)
+      required('RESEND_API_KEY', reason)
+      required('EMAIL_FROM', reason)
+      required('CRON_SECRET', reason)
     }
   })
 
