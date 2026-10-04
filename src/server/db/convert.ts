@@ -28,3 +28,11 @@ export function zodConverter<T extends DocumentData>(
       schema.parse(timestampsToDates(snapshot.data())),
   }
 }
+
+/** Leitura tolerante (vitrine): documento fora do schema é registrado e ignorado, não derruba a página. */
+export function parseDoc<T>(schema: z.ZodType<T>, path: string, data: unknown): T | null {
+  const result = schema.safeParse(timestampsToDates(data))
+  if (result.success) return result.data
+  console.error(`Documento inválido ignorado: ${path}`, result.error.issues)
+  return null
+}

@@ -84,6 +84,34 @@ describe('products repository', () => {
   })
 })
 
+describe('documentos inválidos não derrubam a loja', () => {
+  it('ignora produto fora do schema nas listagens e buscas', async () => {
+    await db().doc('products/p1').set(product())
+    await db().doc('products/ruim').set({ slug: 'ruim', status: 'active', priceCents: 'abc' })
+    expect((await listActiveProducts()).map((p) => p.id)).toEqual(['p1'])
+    expect(await getActiveProductBySlug('ruim')).toBeNull()
+    expect((await getProductsByIds(['p1', 'ruim'])).map((p) => p.id)).toEqual(['p1'])
+  })
+
+  it('ignora coleção fora do schema', async () => {
+    await db()
+      .doc('collections/a')
+      .set(collection({ slug: 'a' }))
+    await db().doc('collections/ruim').set({ slug: 'ruim', status: 'published' })
+    expect((await listPublishedCollections()).map((c) => c.slug)).toEqual(['a'])
+  })
+
+  it('completa settings parcial com os padrões e ignora settings inválido', async () => {
+    await db().doc('settings/store').set({ whatsapp: '5511912345678' })
+    expect(await getStoreSettings()).toEqual({
+      ...DEFAULT_STORE_SETTINGS,
+      whatsapp: '5511912345678',
+    })
+    await db().doc('settings/store').set({ whatsapp: '(11) 91234-5678' })
+    expect(await getStoreSettings()).toEqual(DEFAULT_STORE_SETTINGS)
+  })
+})
+
 describe('collections repository', () => {
   it('lista publicadas em ordem e busca por slug', async () => {
     await db()
