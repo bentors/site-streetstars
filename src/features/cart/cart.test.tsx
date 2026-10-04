@@ -100,6 +100,21 @@ describe('carrinho', () => {
     ).toBeDisabled()
   })
 
+  it('se o preço falhar, permite esvaziar a sacola', async () => {
+    localStorage.setItem(
+      CART_STORAGE_KEY,
+      JSON.stringify([{ productId: 'p1', size: 'M', color: 'Preto', qty: 1 }]),
+    )
+    priceCartAction.mockRejectedValue(new Error('falhou'))
+    renderCart()
+
+    await userEvent.click(screen.getByRole('button', { name: /abrir sacola/i }))
+    await userEvent.click(await screen.findByRole('button', { name: 'Esvaziar sacola' }))
+
+    await waitFor(() => expect(localStorage.getItem(CART_STORAGE_KEY)).toBe('[]'))
+    expect(screen.getByText('Sua sacola está vazia.')).toBeInTheDocument()
+  })
+
   it('carrinho vazio mostra mensagem e não oferece checkout', async () => {
     renderCart()
     await act(async () => {

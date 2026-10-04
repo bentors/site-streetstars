@@ -83,6 +83,30 @@ describe('parseCart / sanitizeLines', () => {
   })
 })
 
+describe('sanitizeLines contra abuso', () => {
+  it('recusa productId que não é um id do Firestore', () => {
+    expect(
+      sanitizeLines([
+        { productId: 'a/b', size: 'M', color: null, qty: 1 },
+        { productId: 'a//b', size: 'M', color: null, qty: 1 },
+        { productId: 'Abc_12-x', size: 'M', color: null, qty: 1 },
+      ]).map((line) => line.productId),
+    ).toEqual(['Abc_12-x'])
+  })
+
+  it('processa entradas enormes em tempo linear', () => {
+    const huge = Array.from({ length: 50_000 }, (_, i) => ({
+      productId: `p${i}`,
+      size: 'M',
+      color: null,
+      qty: 1,
+    }))
+    const start = performance.now()
+    expect(sanitizeLines(huge)).toHaveLength(MAX_LINES)
+    expect(performance.now() - start).toBeLessThan(500)
+  })
+})
+
 describe('cartCount', () => {
   it('soma as quantidades', () => {
     expect(

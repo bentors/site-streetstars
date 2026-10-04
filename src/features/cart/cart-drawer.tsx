@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef, useState, useTransition } from 'react'
 import { Button, Drawer, Spinner } from '@/components/ui'
-import { MAX_QTY } from '@/lib/cart'
+import { lineKey, MAX_QTY } from '@/lib/cart'
 import { formatBRL } from '@/lib/money'
 import type { PricedCart } from '@/server/domain/cart-pricing'
 import { priceCartAction } from './actions'
@@ -53,9 +53,23 @@ export function CartDrawer() {
           </p>
         ) : null}
         {error ? (
-          <p role="alert" className="border border-danger/30 bg-danger/10 p-3 text-xs text-danger">
-            {error}
-          </p>
+          <div
+            role="alert"
+            className="flex flex-col gap-2 border border-danger/30 bg-danger/10 p-3 text-xs text-danger"
+          >
+            <p>{error}</p>
+            {/* Saída para um carrinho que o servidor não consegue precificar (ex.: dado corrompido). */}
+            <button
+              type="button"
+              onClick={() => {
+                removeKeys(lines.map(lineKey))
+                setError(null)
+              }}
+              className="self-start underline hover:text-paper"
+            >
+              Esvaziar sacola
+            </button>
+          </div>
         ) : null}
 
         {empty ? (

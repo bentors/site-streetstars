@@ -7,7 +7,8 @@ export const CART_STORAGE_KEY = 'streetstars:cart:v2'
 export type CartLine = { productId: string; size: string; color: string | null; qty: number }
 
 const lineSchema = z.object({
-  productId: z.string().min(1).max(64),
+  // Formato de id do Firestore: '/' viraria um caminho e quebraria a leitura.
+  productId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
   size: z.string().min(1).max(20),
   color: z.string().min(1).max(40).nullable(),
   qty: z.number().int(),
@@ -41,13 +42,21 @@ export function removeLine(lines: CartLine[], key: string): CartLine[] {
 /** Aceita qualquer coisa vinda do navegador e devolve só linhas válidas, sem repetição. */
 export function sanitizeLines(raw: unknown): CartLine[] {
   if (!Array.isArray(raw)) return []
-  let lines: CartLine[] = []
+  // Map em vez de addLine: entrada adulterada pode ter milhares de itens (O(n), não O(n²)).
+  const lines = new Map<string, CartLine>()
   for (const item of raw) {
     const parsed = lineSchema.safeParse(item)
     if (!parsed.success || parsed.data.qty < 1) continue
-    lines = addLine(lines, parsed.data, parsed.data.qty)
+    const key = lineKey(parsed.data)
+    const existing = lines.get(key)
+    if (existing) {
+      existing.qty = clampQty(existing.qty + parsed.data.qty)
+    } else {
+      if (lines.size === MAX_LINES) break
+      lines.set(key, { ...parsed.data, qty: clampQty(parsed.data.qty) })
+    }
   }
-  return lines.slice(0, MAX_LINES)
+  return [...lines.values()]
 }
 
 export function parseCart(raw: string | null): CartLine[] {
