@@ -16,7 +16,8 @@
     "test": "vitest run --project unit --project dom --passWithNoTests",
     "test:watch": "vitest --project unit --project dom",
     "test:emulator": "firebase emulators:exec --project demo-streetstars --only firestore,auth \"vitest run --project rules --project integration --passWithNoTests\"",
-    "grant-admin": "tsx --env-file=.env.local scripts/grant-admin.ts"
+    "grant-admin": "tsx --env-file=.env.local scripts/grant-admin.ts",
+    "migrate-catalog": "tsx --env-file=.env.local scripts/migrate-catalog.ts"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.2.0",

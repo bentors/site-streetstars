@@ -9,7 +9,8 @@ EMAIL ?=
 SHELLCHECK_IMAGE := koalaman/shellcheck:v0.10.0
 
 .PHONY: help setup doctor dev build start lint format format-check typecheck test test-emulator \
-	check lint-sh emulators-up emulators-down emulators-logs grant-admin clean
+	check lint-sh emulators-up emulators-down emulators-logs grant-admin \
+	migrate-catalog migrate-catalog-apply clean
 
 help: ## Lista os comandos disponíveis
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -76,6 +77,12 @@ emulators-logs: ## Acompanha os logs dos emuladores
 grant-admin: ## Torna um usuário admin: make grant-admin EMAIL=pessoa@exemplo.com
 	@test -n "$(EMAIL)" || { echo "Uso: make grant-admin EMAIL=pessoa@exemplo.com"; exit 1; }
 	npm run grant-admin -- "$(EMAIL)"
+
+migrate-catalog: ## Simula a migração do catálogo antigo (não grava nada)
+	npm run migrate-catalog
+
+migrate-catalog-apply: ## Migra o catálogo antigo (faz backup em .backups/ e grava)
+	npm run migrate-catalog -- --apply
 
 clean: ## Apaga artefatos locais (.next, coverage, dados dos emuladores)
 	rm -rf .next coverage .emulator-data

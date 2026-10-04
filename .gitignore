@@ -52,3 +52,6 @@ ui-debug.log
 
 # Dados dos emuladores em container
 .emulator-data/
+
+# Backups locais de scripts de dados
+.backups/
