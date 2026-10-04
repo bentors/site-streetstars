@@ -76,6 +76,16 @@ describe('handlePaymentNotification', () => {
     expect(sendEmail).toHaveBeenCalledTimes(2)
   })
 
+  it('entregas simultâneas: pago uma vez e cada e-mail com a mesma chave de idempotência', async () => {
+    getPayment.mockResolvedValue(payment())
+    await Promise.all([handlePaymentNotification('9001'), handlePaymentNotification('9001')])
+    expect(await couponUses()).toBe(1)
+    const keys = sendEmail.mock.calls.map(([message]) => message.idempotencyKey)
+    expect(keys.length).toBeGreaterThanOrEqual(2)
+    expect(new Set(keys)).toEqual(new Set(['order-confirmation/o1', 'admin-new-order/o1']))
+    // Transações disputando o mesmo pedido: o SDK repete com backoff.
+  }, 30_000)
+
   it('valor divergente: continua pendente, registra e alerta a loja uma vez', async () => {
     getPayment.mockResolvedValue(payment({ amountCents: 100 }))
     expect(await handlePaymentNotification('9001')).toBe('processed')

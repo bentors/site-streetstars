@@ -6,6 +6,8 @@ export async function sendEmail(message: {
   subject: string
   html: string
   replyTo?: string
+  /** O Resend descarta envios repetidos com a mesma chave por 24 h (webhooks simultâneos). */
+  idempotencyKey?: string
 }): Promise<void> {
   const env = serverEnv()
   if (!env.RESEND_API_KEY || !env.EMAIL_FROM) {
@@ -19,7 +21,11 @@ export async function sendEmail(message: {
 
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+      ...(message.idempotencyKey ? { 'Idempotency-Key': message.idempotencyKey } : {}),
+    },
     body: JSON.stringify({
       from: env.EMAIL_FROM,
       to: [message.to],

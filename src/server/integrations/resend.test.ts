@@ -42,6 +42,15 @@ describe('sendEmail', () => {
     })
   })
 
+  it('repassa a chave de idempotência para o Resend não enviar duas vezes', async () => {
+    env.value = { RESEND_API_KEY: 're_1', EMAIL_FROM: 'x@loja.test' }
+    fetchMock.mockResolvedValue(new Response('{"id":"e1"}'))
+    await sendEmail({ ...message, idempotencyKey: 'order-confirmation/o1' })
+    expect(fetchMock.mock.calls[0]?.[1].headers).toMatchObject({
+      'Idempotency-Key': 'order-confirmation/o1',
+    })
+  })
+
   it('erro do Resend lança (o webhook responde 500 e o MP reenvia)', async () => {
     env.value = { RESEND_API_KEY: 're_1', EMAIL_FROM: 'x@loja.test' }
     fetchMock.mockResolvedValue(new Response('quota', { status: 429 }))

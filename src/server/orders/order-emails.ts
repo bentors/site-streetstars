@@ -20,12 +20,17 @@ export async function sendPaidOrderEmails(orderId: string, now = new Date()): Pr
     await sendEmail({
       to: order.customer.email,
       replyTo: storeEmail,
+      idempotencyKey: `order-confirmation/${orderId}`,
       ...orderConfirmationEmail(order, orderUrl(order.id)),
     })
     await ref.update({ 'notifications.confirmationSentAt': now })
   }
   if (!order.notifications.adminAlertSentAt) {
-    await sendEmail({ to: storeEmail, ...adminNewOrderEmail(order) })
+    await sendEmail({
+      to: storeEmail,
+      idempotencyKey: `admin-new-order/${orderId}`,
+      ...adminNewOrderEmail(order),
+    })
     await ref.update({ 'notifications.adminAlertSentAt': now })
   }
 }
