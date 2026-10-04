@@ -109,6 +109,11 @@ export function ProductPurchase({
       >
         {label}
       </Button>
+      <p className="-mt-3 flex justify-center gap-3 text-[10px] tracking-widest text-paper/40 uppercase">
+        <span>Compra segura</span>
+        <span aria-hidden="true">•</span>
+        <span>Entrega nacional</span>
+      </p>
 
       {product.sizeGuide ? (
         <Modal open={guideOpen} onClose={() => setGuideOpen(false)} title="Guia de medidas">

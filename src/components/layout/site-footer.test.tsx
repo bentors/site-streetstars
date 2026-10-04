@@ -11,7 +11,9 @@ describe('SiteFooter', () => {
       'href',
       'https://www.instagram.com/_streetstars.co/',
     )
-    expect(screen.getByText('streetstars.company@gmail.com')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Copiar e-mail streetstars.company@gmail.com' }),
+    ).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /whatsapp/i })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Trocas e Devoluções' })).toHaveAttribute(
       'href',

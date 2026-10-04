@@ -57,13 +57,20 @@ export default async function HomePage() {
       <Hero />
       <section id="shop" className="min-h-dvh py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6">
-          <h2 className="mb-12 border-b border-line pb-8 text-4xl leading-[0.9] font-black tracking-tighter uppercase italic sm:text-5xl md:text-6xl">
-            Seja uma <br />
-            <span className="text-transparent [-webkit-text-stroke:1px_white]">
-              Estrela das Ruas
-            </span>
-          </h2>
           <ProductGrid
+            heading={
+              <div className="max-w-2xl">
+                <h2 className="text-4xl leading-[0.9] font-black tracking-tighter uppercase italic sm:text-5xl md:text-6xl">
+                  Seja uma <br />
+                  <span className="text-transparent [-webkit-text-stroke:1px_white]">
+                    Estrela das Ruas
+                  </span>
+                </h2>
+                <p className="mt-4 text-sm tracking-widest text-paper/50 uppercase">
+                  com Street Stars ®
+                </p>
+              </div>
+            }
             products={products.map((p) => ({
               id: p.id,
               slug: p.slug,

@@ -29,8 +29,9 @@ export function CartButton() {
       </svg>
       {count > 0 ? (
         <span
+          key={count}
           aria-hidden="true"
-          className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-paper text-[10px] font-bold text-ink"
+          className="absolute top-1 right-1 flex size-4 animate-pop items-center justify-center rounded-full bg-paper text-[10px] font-bold text-ink"
         >
           {count > 99 ? '99+' : count}
         </span>

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { formatBRL } from '@/lib/money'
 import type { StoreProduct } from '@/server/catalog'
@@ -21,10 +22,21 @@ export function ProductView({ product }: { product: StoreProduct }) {
         <ProductGallery images={images} activeUrl={activeUrl} />
       </div>
       <div className="flex min-w-0 flex-col gap-6">
-        <div>
-          <p className="mb-2 text-[10px] tracking-widest text-muted uppercase">
+        <nav
+          aria-label="Breadcrumb"
+          className="text-[10px] tracking-widest text-paper/40 uppercase"
+        >
+          <Link href="/" className="hover:text-paper">
+            Home
+          </Link>
+          {' / '}
+          <Link href="/#shop" className="hover:text-paper">
             {product.category}
-          </p>
+          </Link>
+          {' / '}
+          <span className="text-paper/60">{product.name}</span>
+        </nav>
+        <div>
           <h1 className="mb-2 text-3xl leading-none font-black tracking-tighter uppercase italic md:text-5xl">
             {product.name}
           </h1>
