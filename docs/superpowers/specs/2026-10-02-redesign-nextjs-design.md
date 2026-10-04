@@ -31,7 +31,8 @@ O objetivo é **refazer a aplicação do zero** sobre uma arquitetura nova, mant
 | Estoque | Não há. Produção sob demanda; o pedido passa por "em produção". |
 | Compra | Sem conta (guest) ou com conta, à escolha do cliente. |
 | Login | E-mail e senha + Google. |
-| Pagamento | Mercado Pago Checkout Pro (redirect). |
+| Pagamento | Mercado Pago Checkout Pro (redirect), só Pix e cartão (sem boleto), até 6 parcelas. |
+| Frete | Correios PAC e SEDEX via Melhor Envio. |
 | CPF | Obrigatório no checkout (necessário para a declaração de conteúdo do Melhor Envio). |
 | Etiqueta de frete | Comprada manualmente no painel do Melhor Envio; o rastreio é digitado no admin. |
 | Admin no lançamento | Pedidos, produtos (à venda e destaque), coleções, cupons e configurações da loja. |
@@ -54,7 +55,7 @@ Um único projeto **Next.js 16 (App Router) + React 19 + TypeScript 5.9 strict**
 - **Renderização:** home, produto, coleção e páginas legais são Server Components com ISR. As edições no admin chamam `revalidatePath`/`revalidateTag` na hora. Carrinho, checkout e formulários são Client Components.
 - **Mutações:** Server Actions. Route Handlers só para chamadas externas: webhook do Mercado Pago e cron de expiração.
 - **Sessão:** login no Firebase Auth (e-mail/senha ou Google popup) → `getIdToken()` → Server Action cria um *session cookie* (`createSessionCookie`) httpOnly. Admin = custom claim `admin: true`.
-- **Compra sem conta:** o pedido recebe um token aleatório (32 bytes). O link `/pedido/[token]` é enviado por e-mail, e só o hash SHA-256 fica salvo.
+- **Compra sem conta:** o link `/pedido/<orderId>.<hmac>` é assinado com `ORDER_TOKEN_SECRET` (HMAC-SHA256) e comparado em tempo constante. Nada por pedido fica salvo, e o webhook consegue montar o link do e-mail. Trocar o segredo invalida os links já enviados.
 - **Vínculo guest → conta:** quando o usuário tem e-mail **verificado**, uma Server Action vincula a `customer.uid` os pedidos com `customer.uid == null` e o mesmo e-mail. Contas do Google já vêm verificadas.
 - **Imagens:** Cloudinary com upload assinado (somente admin) e entrega via `next/image` com loader do Cloudinary.
 - **Serviços externos mantidos:** Firebase (Auth + Firestore), Vercel, Mercado Pago, Melhor Envio, Cloudinary, Resend, Upstash Redis (rate limit), ViaCEP.
@@ -105,7 +106,6 @@ users/{uid}
 orders/{id}
   number               'SS-1042' (sequencial via counters/orders em transação)
   idempotencyKey       string (gerada pela página de checkout)
-  accessTokenHash      string (sha256 do token do link)
   customer             { uid | null, email, name, phone, cpf }
   items                { productId, slug, name, image, size, color,
                          unitPriceCents, qty, lineTotalCents }[]
@@ -115,11 +115,12 @@ orders/{id}
   coupon               { code, type, value, discountCents } | null
   totals               { subtotalCents, discountCents, shippingCents, totalCents }
   status               ver máquina de status
-  statusHistory        { status, at, by: 'system' | 'webhook' | uid, note? }[]
+  statusHistory        { status, at, by: 'system' | 'webhook' | uid, note?, paymentId? }[]
   payment              { preferenceId, paymentId, status, method,
                          paidAmountCents, paidAt } (campos nulos até existirem)
   tracking             { carrier, code, url } | null
   notifications        { confirmationSentAt, shippedSentAt, adminAlertSentAt }
+                       (adminAlertSentAt = e-mail de "novo pedido pago" para a loja)
   createdAt, updatedAt, expiresAt
 
 coupons/{CODE}                         (id = código em maiúsculas)
@@ -165,8 +166,8 @@ pending_payment ─► paid ─► in_production ─► shipped ─► delivered
 - `qty` fica entre 1 e 10 por linha.
 
 ### Checkout (`/checkout`, página única em blocos)
-1. **Contato:** e-mail, nome, telefone, CPF (validado). Pré-preenchido se o cliente estiver logado.
-2. **Endereço:** o CEP preenche o resto via ViaCEP. Logado: escolhe um endereço salvo ou marca "salvar endereço".
+1. **Contato:** e-mail, nome, telefone, CPF (validado). Logado: pré-preenche e-mail, nome, telefone e CPF; escolher ou salvar endereços fica na Fase 4.
+2. **Endereço:** o CEP preenche o resto via ViaCEP.
 3. **Frete:** `quoteShipping(cep, lines)` consulta o Melhor Envio com o peso total e as medidas de `settings/store.package`. O prazo exibido é `max(productionDays) + deliveryDays`.
 4. **Cupom:** `previewCoupon(code, lines)` só calcula e exibe o desconto.
 5. **Revisar → Pagar**, que chama `createOrder`.
@@ -179,7 +180,7 @@ pending_payment ─► paid ─► in_production ─► shipped ─► delivered
 5. Revalida o cupom: `active`, janela `startsAt`/`endsAt`, `minSubtotalCents`, `usedCount < maxUses`.
 6. **Cota o frete de novo** e usa o preço do servidor para o `serviceId` escolhido. Se o serviço não estiver disponível, devolve erro.
 7. Calcula os totais com `server/domain/pricing.ts`.
-8. Transação: incrementa `counters/orders` e grava o pedido `pending_payment`, com `expiresAt = agora + 48h`, `statusHistory` inicial e `accessTokenHash`.
+8. Transação: incrementa `counters/orders` e grava o pedido `pending_payment`, com `expiresAt = agora + 48h`, `statusHistory` inicial (o link de acesso é derivado do id).
 9. Cria a preferência no Mercado Pago (itens, frete, desconto, `external_reference = orderId`, `notification_url`, `back_urls = /pedido/[token]`) e salva o `preferenceId`.
 10. Devolve `{ initPoint }`. O cliente limpa o carrinho e redireciona.
 
@@ -257,6 +258,7 @@ src/
                  Badge, Spinner, Container
   lib/           money, cpf, cep, phone, env (zod)
   emails/        order-confirmation, order-shipped, admin-new-order, admin-alert
+                 (templates HTML com escape automático; sem react-email)
 content/legal/   termos-de-uso.ts, politica-de-privacidade.ts, trocas-e-devolucoes.ts
                  (texto puro com marcadores {{whatsapp}}, {{cnpj}}, {{email}}, {{instagram}},
                  {{siteHost}} preenchidos com settings/store)
@@ -277,7 +279,7 @@ Regras:
 - `error.tsx` por segmento (loja, conta, admin) e `not-found.tsx`.
 - Toda chamada externa tem timeout (`AbortSignal.timeout`). Falha do Melhor Envio → "frete indisponível, tente novamente". Falha do MP → pedido pendente reaproveitável.
 - Logs estruturados (`orderId`, `paymentId`, ação) nos logs da Vercel.
-- E-mail de alerta ao admin em: valor pago divergente e falha repetida no webhook.
+- E-mail de alerta ao admin em: valor pago divergente e pagamento aprovado em pedido cancelado ou já pago. Falhas do webhook ficam nos logs da Vercel (o MP reenvia).
 
 ## 9. Segurança
 
@@ -294,13 +296,13 @@ Regras:
 ## 10. Testes
 
 - **Unitários (Vitest), cobertura alta:** `pricing`, `coupons`, `order-status`, `shipping-estimate`, `money`, `cpf`, `cep`.
-- **Integração (Vitest + Firestore Emulator, MP e Melhor Envio simulados com MSW):**
+- **Integração (Vitest + Firestore Emulator, MP, Melhor Envio e Resend simulados com vi.mock (clientes testados à parte com fetch simulado)):**
   - `createOrder` ignora preço de frete vindo do cliente;
   - recusa produto não ativo;
   - mesma `idempotencyKey` devolve o mesmo pedido;
   - cupom expirado ou esgotado é recusado.
   - Webhook: assinatura inválida → 401; evento duplicado não altera nada; valor divergente não marca `paid`; "recusado" após "aprovado" não regride; e-mail enviado uma única vez.
-- **E2E (Playwright):** compra sem conta até o redirect ao MP; admin marca o pedido como enviado com rastreio.
+- **E2E (Playwright):** compra sem conta até o redirect ao MP; admin marca o pedido como enviado com rastreio. (Adiado: Playwright entra junto com o admin.)
 - **CI (GitHub Actions):** lint, typecheck, unitários, integração com emulador e build em todo push; E2E em PRs.
 - Desenvolvimento das regras de `server/domain` e das ações de dinheiro em TDD.
 
@@ -309,6 +311,7 @@ Regras:
 - **Firebase:** o projeto existente `street-stars-system` passa a ser o de **desenvolvimento** (perfis, pedidos e `admins` de teste foram apagados em 2026-10-02; `products` mantido para a migração; contas do Auth mantidas). Um projeto de **produção limpo** será criado no lançamento. Testes automatizados usam o emulador (`demo-streetstars`).
 - **Vercel:** preview por branch com credenciais de sandbox do Mercado Pago; produção com credenciais reais.
 - **Resend:** domínio próprio verificado antes do lançamento; o domínio de teste não é usado.
+- **Variáveis:** as integrações (Mercado Pago, Melhor Envio, Resend, `CRON_SECRET`) são obrigatórias quando `VERCEL_ENV=production`. Preview e build local funcionam sem elas.
 - **Migração:** `scripts/migrate-catalog.ts` converte os produtos atuais e as coleções de `src/data/collections.js` para o novo modelo (preço em centavos, slug, status, imagens). Pedidos e usuários atuais são descartados.
 - O código novo substitui o antigo dentro da própria branch `refactor/nextjs`. O merge na `main` acontece só ao final, após revisão completa contra a `main`.
 
