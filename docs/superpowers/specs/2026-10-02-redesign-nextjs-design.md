@@ -35,6 +35,7 @@ O objetivo é **refazer a aplicação do zero** sobre uma arquitetura nova, mant
 | CPF | Obrigatório no checkout (necessário para a declaração de conteúdo do Melhor Envio). |
 | Etiqueta de frete | Comprada manualmente no painel do Melhor Envio; o rastreio é digitado no admin. |
 | Admin no lançamento | Pedidos, produtos (à venda e destaque), coleções, cupons e configurações da loja. |
+| Parcelamento | Não exibido na vitrine (o Checkout Pro define as parcelas e os juros). |
 
 ### Fora do escopo (YAGNI)
 - Controle de estoque, reservas e pré-venda com limite.
@@ -74,7 +75,7 @@ products/{id}
   weightGrams          int > 0
   productionDays       int >= 0
   sizes                string[]
-  colors               { name, hex }[]
+  colors               { name, hex, image | null }[]   (foto da cor; existia no app antigo)
   images               { url, publicId, alt }[]   (a primeira é a capa)
   highlights           string[]
   sizeGuide            { columns: string[], rows: { size, values: string[] }[] } | null
@@ -256,8 +257,9 @@ src/
                  Badge, Spinner, Container
   lib/           money, cpf, cep, phone, env (zod)
   emails/        order-confirmation, order-shipped, admin-new-order, admin-alert
-content/legal/   termos-de-uso.mdx, politica-de-privacidade.mdx,
-                 trocas-e-devolucoes.mdx
+content/legal/   termos-de-uso.ts, politica-de-privacidade.ts, trocas-e-devolucoes.ts
+                 (texto puro com marcadores {{whatsapp}}, {{cnpj}}, {{email}}, {{instagram}},
+                 {{siteHost}} preenchidos com settings/store)
 scripts/         grant-admin.ts, migrate-catalog.ts
 ```
 

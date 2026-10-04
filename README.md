@@ -3,8 +3,6 @@
 E-commerce de streetwear da Street Stars, em Next.js 16 + Firebase.
 Arquitetura e decisões: [`docs/superpowers/specs/2026-10-02-redesign-nextjs-design.md`](docs/superpowers/specs/2026-10-02-redesign-nextjs-design.md).
 
-> O app antigo (Vite) está em `legacy/` apenas como referência e será removido ao fim da Fase 2.
-
 ## Requisitos
 
 - Node 24
