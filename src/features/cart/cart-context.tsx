@@ -22,6 +22,7 @@ type CartContextValue = {
   setQty: (key: string, qty: number) => void
   remove: (key: string) => void
   removeKeys: (keys: string[]) => void
+  clear: () => void
 }
 
 const CartContext = createContext<CartContextValue | null>(null)
@@ -86,6 +87,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const removeKeys = useCallback((keys: string[]) => {
     update((current) => keys.reduce(removeLine, current))
   }, [])
+  const clear = useCallback(() => {
+    update(() => [])
+  }, [])
 
   const value = useMemo<CartContextValue>(
     () => ({
@@ -98,8 +102,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       setQty,
       remove,
       removeKeys,
+      clear,
     }),
-    [lines, isOpen, add, setQty, remove, removeKeys],
+    [lines, isOpen, add, setQty, remove, removeKeys, clear],
   )
 
   return <CartContext value={value}>{children}</CartContext>
