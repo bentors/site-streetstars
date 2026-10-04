@@ -289,8 +289,8 @@ Regras:
 - `requireAdmin()` em toda ação do admin, além do proxy.
 - Rate limit (Upstash) em `createOrder`, `quoteShipping`, `previewCoupon` e nas ações de autenticação.
 - CSP estática em `next.config.ts`: apenas `self`, Mercado Pago (redirect), Google Auth (`apis.google.com`, `*.firebaseapp.com`, `accounts.google.com`), Cloudinary e GA4. Não usamos nonce porque ele obriga toda página a ser renderizada a cada requisição e anularia o ISR (prioridade de SEO e performance); por isso `script-src` inclui `'unsafe-inline'`, exigido pelos scripts inline do Next. A mitigação de XSS vem de o React escapar a saída e de nunca injetarmos HTML de usuário (JSON-LD é serializado com `<` escapado).
-- Token de pedido: 32 bytes de `crypto.randomBytes`, salvo como SHA-256, comparado em tempo constante.
-- Toda entrada validada com zod; e-mails gerados com react-email (escapa conteúdo).
+- Link de pedido: `<orderId>.<hmac>` com HMAC-SHA256 de `ORDER_TOKEN_SECRET`, comparado em tempo constante (nada por pedido fica salvo).
+- Toda entrada validada com zod; e-mails gerados por templates HTML com escape automático de todo valor interpolado.
 - LGPD: consentimento com data; páginas legais usam dados reais de `settings/store`.
 
 ## 10. Testes
