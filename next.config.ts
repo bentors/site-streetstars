@@ -4,7 +4,8 @@ import { securityHeaders } from './src/lib/security-headers'
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
-    remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com' }],
+    loader: 'custom',
+    loaderFile: './src/lib/cloudinary-loader.ts',
   },
   async headers() {
     return [
