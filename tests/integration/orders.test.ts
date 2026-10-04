@@ -24,7 +24,8 @@ describe('orders repository', () => {
       Array.from({ length: 5 }, () => db().runTransaction((tx) => nextOrderNumber(tx))),
     )
     expect(new Set(numbers).size).toBe(5)
-  })
+    // Transações disputando o mesmo contador: o SDK repete com backoff, o que leva alguns segundos.
+  }, 30_000)
 
   it('grava e lê um pedido validado (datas voltam como Date)', async () => {
     await ordersCollection().doc('o1').set(orderDoc())
