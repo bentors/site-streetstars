@@ -63,7 +63,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals())
 
 describe('buildPreferenceBody', () => {
-  it('sem desconto: itens detalhados + frete, Pix e cartão em até 6x', () => {
+  it('sem desconto: itens detalhados + frete como item, Pix e cartão em até 6x', () => {
     const body = buildPreferenceBody(order, urls)
     expect(body).toMatchObject({
       items: [
@@ -75,6 +75,7 @@ describe('buildPreferenceBody', () => {
           currency_id: 'BRL',
         },
         { id: 'p2', title: 'Boné · UN', quantity: 1, unit_price: 129.9, currency_id: 'BRL' },
+        { id: 'frete', title: 'Frete', quantity: 1, unit_price: 25, currency_id: 'BRL' },
       ],
       payer: {
         name: 'Ana',
@@ -82,7 +83,6 @@ describe('buildPreferenceBody', () => {
         email: 'ana@exemplo.com',
         identification: { type: 'CPF', number: '52998224725' },
       },
-      shipments: { cost: 25, mode: 'not_specified' },
       back_urls: { success: urls.orderUrl, failure: urls.orderUrl, pending: urls.orderUrl },
       auto_return: 'approved',
       external_reference: 'o1',
@@ -94,6 +94,8 @@ describe('buildPreferenceBody', () => {
       expires: true,
       expiration_date_to: '2026-10-06T12:00:00.000Z',
     })
+    // Frete como item: a soma dos itens é o total do pedido, que o webhook confere.
+    expect(body).not.toHaveProperty('shipments')
   })
 
   it('com desconto: um item só com o total (frete incluso), nunca valor zero', () => {

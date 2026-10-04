@@ -17,20 +17,30 @@ export function buildPreferenceBody(
   order: PreferenceOrder,
   urls: { orderUrl: string; notificationUrl: string },
 ): Record<string, unknown> {
-  // O Checkout Pro não aceita item negativo. Com desconto, um item só com o total garante que o
-  // valor cobrado é exatamente totals.totalCents (o webhook confere) e nunca R$ 0.
+  // A soma dos itens é sempre totals.totalCents (o webhook confere o valor pago). O frete vai como
+  // item, não em `shipments`. O Checkout Pro não aceita item negativo: com desconto, vai um item
+  // só com o total.
   const itemized = order.totals.discountCents === 0
   const [firstName = '', ...lastNames] = order.customer.name.trim().split(/\s+/)
 
   return {
     items: itemized
-      ? order.items.map((item) => ({
-          id: item.productId,
-          title: [item.name, item.size, item.color].filter(Boolean).join(' · '),
-          quantity: item.qty,
-          unit_price: reais(item.unitPriceCents),
-          currency_id: 'BRL',
-        }))
+      ? [
+          ...order.items.map((item) => ({
+            id: item.productId,
+            title: [item.name, item.size, item.color].filter(Boolean).join(' · '),
+            quantity: item.qty,
+            unit_price: reais(item.unitPriceCents),
+            currency_id: 'BRL',
+          })),
+          {
+            id: 'frete',
+            title: 'Frete',
+            quantity: 1,
+            unit_price: reais(order.totals.shippingCents),
+            currency_id: 'BRL',
+          },
+        ]
       : [
           {
             id: order.number,
@@ -40,9 +50,6 @@ export function buildPreferenceBody(
             currency_id: 'BRL',
           },
         ],
-    ...(itemized
-      ? { shipments: { cost: reais(order.totals.shippingCents), mode: 'not_specified' } }
-      : {}),
     payer: {
       name: firstName,
       surname: lastNames.join(' '),
