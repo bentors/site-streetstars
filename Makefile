@@ -60,7 +60,7 @@ check: ## Tudo o que o CI roda, na mesma ordem
 	@$(MAKE) typecheck
 	@$(MAKE) test
 	@$(MAKE) test-emulator
-	@$(MAKE) build
+	@if [[ -n "$${CI:-}" ]]; then npm run build:ci; else $(MAKE) build; fi
 
 ## ── Emuladores (Docker) ─────────────────────────────────────
 emulators-up: ## Sobe Firestore (8080), Auth (9099) e a UI (http://localhost:4000)
