@@ -3,6 +3,7 @@ import { adminAlertEmail } from './admin-alert'
 import { adminNewOrderEmail } from './admin-new-order'
 import type { EmailOrder } from './layout'
 import { orderConfirmationEmail } from './order-confirmation'
+import { orderShippedEmail } from './order-shipped'
 
 const order: EmailOrder = {
   number: 'SS-1001',
@@ -85,5 +86,29 @@ describe('e-mails da loja', () => {
     const email = adminAlertEmail({ orderNumber: 'SS-1001', message: 'Valor <divergente>' })
     expect(email.subject).toBe('Alerta no pedido SS-1001')
     expect(email.html).toContain('Valor &lt;divergente&gt;')
+  })
+})
+
+describe('orderShippedEmail', () => {
+  const tracking = {
+    carrier: 'Correios',
+    code: 'AB123456789BR',
+    url: 'https://melhorrastreio.com.br/rastreio/AB123456789BR',
+  }
+
+  it('traz o código, o link de rastreio e o link do pedido', () => {
+    const email = orderShippedEmail({ ...order, tracking }, 'https://loja.test/pedido/x.y')
+    expect(email.subject).toBe('Pedido SS-1001 enviado')
+    expect(email.html).toContain('AB123456789BR')
+    expect(email.html).toContain('href="https://melhorrastreio.com.br/rastreio/AB123456789BR"')
+    expect(email.html).toContain('href="https://loja.test/pedido/x.y"')
+  })
+
+  it('escapa o código', () => {
+    const email = orderShippedEmail(
+      { ...order, tracking: { ...tracking, code: '<b>X</b>' } },
+      'https://loja.test',
+    )
+    expect(email.html).not.toContain('<b>X</b>')
   })
 })

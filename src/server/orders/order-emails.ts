@@ -2,6 +2,7 @@ import 'server-only'
 import { adminAlertEmail } from '@/emails/admin-alert'
 import { adminNewOrderEmail } from '@/emails/admin-new-order'
 import { orderConfirmationEmail } from '@/emails/order-confirmation'
+import { orderShippedEmail } from '@/emails/order-shipped'
 import { isPaidStatus } from '@/lib/order-status'
 import { db } from '@/server/db/firebase-admin'
 import { getOrder } from '@/server/db/orders'
@@ -43,4 +44,20 @@ export async function sendAdminAlert(orderNumber: string, message: string): Prom
   } catch (error) {
     console.error('Alerta à loja não enviado', { orderNumber, message, error })
   }
+}
+
+/** E-mail com o rastreio. true = enviado agora; false = nada a enviar. Lança se o Resend falhar. */
+export async function sendShippedEmail(orderId: string, now = new Date()): Promise<boolean> {
+  const order = await getOrder(orderId)
+  if (!order || order.status !== 'shipped' || !order.tracking) return false
+  if (order.notifications.shippedSentAt) return false
+  const { email: storeEmail } = await getStoreSettings()
+  await sendEmail({
+    to: order.customer.email,
+    replyTo: storeEmail,
+    idempotencyKey: `order-shipped/${orderId}`,
+    ...orderShippedEmail({ ...order, tracking: order.tracking }, orderUrl(order.id)),
+  })
+  await db().doc(`orders/${orderId}`).update({ 'notifications.shippedSentAt': now })
+  return true
 }
