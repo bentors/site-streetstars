@@ -53,6 +53,8 @@ export function ProductForm({
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null)
   const [pending, start] = useTransition()
+  // Salvar no meio do upload perderia as fotos que ainda estão subindo.
+  const [uploading, setUploading] = useState(false)
   const set = (patch: Partial<ProductFormValues>) =>
     setValues((current) => ({ ...current, ...patch }))
   const setColor = (index: number, patch: Partial<ProductFormValues['colors'][number]>) =>
@@ -149,7 +151,8 @@ export function ProductForm({
       <ImageListField
         label="Fotos (a primeira é a capa)"
         value={values.images}
-        onChange={(images) => set({ images })}
+        onChange={(update) => setValues((c) => ({ ...c, images: update(c.images) }))}
+        onUploadingChange={setUploading}
         withAlt
         error={errors.images}
       />
@@ -269,7 +272,7 @@ export function ProductForm({
           {status.text}
         </p>
       ) : null}
-      <Button type="submit" loading={pending} className="self-start">
+      <Button type="submit" loading={pending} disabled={uploading} className="self-start">
         Salvar produto
       </Button>
     </form>

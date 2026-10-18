@@ -6,7 +6,8 @@ const router = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn() }))
 const saveProductAction = vi.hoisted(() => vi.fn())
 vi.mock('next/navigation', () => ({ useRouter: () => router }))
 vi.mock('./catalog-actions', () => ({ saveProductAction }))
-vi.mock('./upload-actions', () => ({ signUploadAction: vi.fn() }))
+const signUploadAction = vi.hoisted(() => vi.fn())
+vi.mock('./upload-actions', () => ({ signUploadAction }))
 
 import { productToForm } from '@/lib/admin-product'
 import { ProductForm } from './product-form'
@@ -77,6 +78,22 @@ describe('ProductForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Salvar produto' }))
     expect(await screen.findByText(/Já existe um produto/)).toBeInTheDocument()
     expect(router.push).not.toHaveBeenCalled()
+  })
+
+  it('não deixa salvar enquanto uma foto está subindo', async () => {
+    signUploadAction.mockImplementation(() => new Promise(() => {}))
+    render(
+      <ProductForm
+        productId={null}
+        initial={{ ...productToForm(null), images: [image] }}
+        collections={[]}
+      />,
+    )
+    await userEvent.upload(
+      screen.getByLabelText('Adicionar fotos'),
+      new File(['x'], 'a.jpg', { type: 'image/jpeg' }),
+    )
+    expect(screen.getByRole('button', { name: 'Salvar produto' })).toBeDisabled()
   })
 
   it('cores: adiciona, escolhe a foto da cor e remove', async () => {

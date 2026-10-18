@@ -29,6 +29,9 @@ export function CollectionForm({
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null)
   const [pending, start] = useTransition()
+  // Salvar no meio do upload perderia as fotos que ainda estão subindo.
+  const [uploading, setUploading] = useState(false)
+  const single = (url: string) => asImages(url ? [url] : [])
   const set = (patch: Partial<CollectionFormValues>) =>
     setValues((current) => ({ ...current, ...patch }))
 
@@ -101,20 +104,29 @@ export function CollectionForm({
       <ImageListField
         label="Capa"
         max={1}
-        value={asImages(values.coverImage ? [values.coverImage] : [])}
-        onChange={(images) => set({ coverImage: asUrls(images)[0] ?? '' })}
+        value={single(values.coverImage)}
+        onChange={(update) =>
+          setValues((c) => ({ ...c, coverImage: asUrls(update(single(c.coverImage)))[0] ?? '' }))
+        }
+        onUploadingChange={setUploading}
         error={errors.coverImage}
       />
       <ImageListField
         label="Foto ao passar o mouse (opcional)"
         max={1}
-        value={asImages(values.hoverImage ? [values.hoverImage] : [])}
-        onChange={(images) => set({ hoverImage: asUrls(images)[0] ?? '' })}
+        value={single(values.hoverImage)}
+        onChange={(update) =>
+          setValues((c) => ({ ...c, hoverImage: asUrls(update(single(c.hoverImage)))[0] ?? '' }))
+        }
+        onUploadingChange={setUploading}
       />
       <ImageListField
         label="Galeria"
         value={asImages(values.gallery)}
-        onChange={(images) => set({ gallery: asUrls(images) })}
+        onChange={(update) =>
+          setValues((c) => ({ ...c, gallery: asUrls(update(asImages(c.gallery))) }))
+        }
+        onUploadingChange={setUploading}
       />
       <div className="grid gap-4 sm:grid-cols-3">
         <Field label="Status">
@@ -148,7 +160,7 @@ export function CollectionForm({
           {status.text}
         </p>
       ) : null}
-      <Button type="submit" loading={pending} className="self-start">
+      <Button type="submit" loading={pending} disabled={uploading} className="self-start">
         Salvar coleção
       </Button>
     </form>

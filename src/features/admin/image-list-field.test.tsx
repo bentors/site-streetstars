@@ -19,7 +19,13 @@ function Harness({ initial, max }: { initial: ProductImage[]; max?: number }) {
   const [value, setValue] = useState(initial)
   return (
     <>
-      <ImageListField label="Fotos" value={value} onChange={setValue} max={max} withAlt />
+      <ImageListField
+        label="Fotos"
+        value={value}
+        onChange={(update) => setValue((current) => update(current))}
+        max={max}
+        withAlt
+      />
       <output data-testid="ids">{value.map((i) => i.publicId).join(',')}</output>
     </>
   )
@@ -75,6 +81,25 @@ describe('ImageListField', () => {
     )
     expect(await screen.findByText(/Não foi possível enviar a foto/)).toBeInTheDocument()
     expect(screen.getByTestId('ids')).toHaveTextContent('1')
+  })
+
+  it('remover uma foto durante o upload não é desfeito quando o upload termina', async () => {
+    let finish: (value: Response) => void = () => {}
+    fetchMock.mockImplementation(() => new Promise<Response>((resolve) => (finish = resolve)))
+    render(<Harness initial={[img(1), img(2)]} />)
+    await userEvent.upload(
+      screen.getByLabelText('Adicionar fotos'),
+      new File(['x'], 'a.jpg', { type: 'image/jpeg' }),
+    )
+    await userEvent.click(screen.getAllByRole('button', { name: 'Remover' })[0]!)
+    expect(screen.getByTestId('ids')).toHaveTextContent('2')
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled())
+    finish(
+      new Response(
+        JSON.stringify({ secure_url: 'https://res.cloudinary.com/demo/n.jpg', public_id: 'n' }),
+      ),
+    )
+    await waitFor(() => expect(screen.getByTestId('ids')).toHaveTextContent('2,n'))
   })
 
   it('com max atingido esconde o upload', () => {

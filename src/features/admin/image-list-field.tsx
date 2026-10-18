@@ -6,17 +6,22 @@ import { Button, Input, Spinner } from '@/components/ui'
 import type { ProductImage } from '@/lib/catalog-schemas'
 import { uploadImage } from './upload-image'
 
+type Update = (current: ProductImage[]) => ProductImage[]
+
 export function ImageListField({
   label,
   value,
   onChange,
+  onUploadingChange,
   max,
   withAlt = false,
   error,
 }: {
   label: string
   value: ProductImage[]
-  onChange: (next: ProductImage[]) => void
+  /** Sempre uma atualização sobre o estado atual: o upload termina depois de outras edições. */
+  onChange: (update: Update) => void
+  onUploadingChange?: (uploading: boolean) => void
   max?: number
   withAlt?: boolean
   error?: string
@@ -27,27 +32,32 @@ export function ImageListField({
   const full = max !== undefined && value.length >= max
 
   function move(index: number, delta: number) {
-    const next = [...value]
-    const [item] = next.splice(index, 1)
-    if (!item) return
-    next.splice(index + delta, 0, item)
-    onChange(next)
+    onChange((current) => {
+      const next = [...current]
+      const [item] = next.splice(index, 1)
+      if (!item) return current
+      next.splice(index + delta, 0, item)
+      return next
+    })
   }
 
   async function upload(files: FileList | null) {
     if (!files?.length) return
+    const queue = Array.from(files).slice(0, max ? max - value.length : undefined)
     setMessage(null)
     setUploading(true)
-    let current = value
+    onUploadingChange?.(true)
     try {
-      for (const file of Array.from(files).slice(0, max ? max - value.length : undefined)) {
-        current = [...current, await uploadImage(file)]
-        onChange(current)
+      for (const file of queue) {
+        const image = await uploadImage(file)
+        // Acrescenta sobre o estado atual: edições feitas durante o upload ficam.
+        onChange((current) => [...current, image])
       }
     } catch (err) {
       setMessage(err instanceof Error ? err.message : 'Não foi possível enviar a foto.')
     } finally {
       setUploading(false)
+      onUploadingChange?.(false)
     }
   }
 
@@ -74,13 +84,12 @@ export function ImageListField({
                 aria-label={`Descrição da foto ${index + 1}`}
                 placeholder="Descrição (acessibilidade)"
                 value={image.alt}
-                onChange={(event) =>
-                  onChange(
-                    value.map((item, i) =>
-                      i === index ? { ...item, alt: event.target.value } : item,
-                    ),
+                onChange={(event) => {
+                  const alt = event.target.value
+                  onChange((current) =>
+                    current.map((item, i) => (i === index ? { ...item, alt } : item)),
                   )
-                }
+                }}
               />
             ) : (
               <span className="flex-1 truncate font-mono text-[10px] text-muted">{image.url}</span>
@@ -106,7 +115,7 @@ export function ImageListField({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => onChange(value.filter((_, i) => i !== index))}
+              onClick={() => onChange((current) => current.filter((_, i) => i !== index))}
             >
               Remover
             </Button>
