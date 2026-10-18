@@ -1,0 +1,89 @@
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { useState, useTransition } from 'react'
+import { Button, Input } from '@/components/ui'
+import { setProductFeaturedAction, setProductStatusAction } from './catalog-actions'
+
+type Status = 'draft' | 'active' | 'archived'
+
+export function ProductRowActions({
+  id,
+  status,
+  featured,
+  featuredOrder,
+}: {
+  id: string
+  status: Status
+  featured: boolean
+  featuredOrder: number | null
+}) {
+  const router = useRouter()
+  const [order, setOrder] = useState(String(featuredOrder ?? 1))
+  const [message, setMessage] = useState<string | null>(null)
+  const [pending, start] = useTransition()
+
+  function run(action: () => Promise<{ ok: boolean; message?: string }>) {
+    setMessage(null)
+    start(async () => {
+      const result = await action()
+      if (!result.ok) setMessage(result.message ?? 'Algo deu errado.')
+      router.refresh()
+    })
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {status !== 'active' ? (
+        <Button
+          size="sm"
+          variant="secondary"
+          disabled={pending}
+          onClick={() => run(() => setProductStatusAction(id, 'active'))}
+        >
+          Ativar
+        </Button>
+      ) : null}
+      {status !== 'archived' ? (
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={pending}
+          onClick={() => run(() => setProductStatusAction(id, 'archived'))}
+        >
+          Arquivar
+        </Button>
+      ) : null}
+      {featured ? (
+        <>
+          <Input
+            aria-label="Ordem do destaque"
+            inputMode="numeric"
+            className="w-16 p-1"
+            value={order}
+            onChange={(e) => setOrder(e.target.value)}
+            onBlur={() => run(() => setProductFeaturedAction(id, true, Number.parseInt(order, 10)))}
+          />
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={pending}
+            onClick={() => run(() => setProductFeaturedAction(id, false, null))}
+          >
+            Tirar destaque
+          </Button>
+        </>
+      ) : (
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={pending}
+          onClick={() => run(() => setProductFeaturedAction(id, true, 1))}
+        >
+          Destacar
+        </Button>
+      )}
+      {message ? <span className="text-[10px] text-danger">{message}</span> : null}
+    </div>
+  )
+}
