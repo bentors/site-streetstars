@@ -172,4 +172,18 @@ describe('OrderView', () => {
     await waitFor(() => expect(redirectTo).toHaveBeenCalled())
     expect(screen.getByRole('button', { name: /Pagar agora/ })).toBeDisabled()
   })
+
+  it('recusa registrada pelo webhook vale mais que o status antigo da URL', () => {
+    render(
+      <OrderView
+        order={{ ...order, payment: { ...order.payment, paymentId: '9', status: 'cancelled' } }}
+        token="o1.mac"
+        payable
+        helpUrl={null}
+        returnStatus="pending"
+      />,
+    )
+    expect(screen.getByText(/não foi aprovado/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Pagar agora' })).toBeInTheDocument()
+  })
 })

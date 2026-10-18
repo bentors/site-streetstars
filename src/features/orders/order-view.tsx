@@ -27,11 +27,10 @@ export function paymentState(
   returnStatus: string | null,
 ): 'processing' | 'rejected' | 'payable' | 'closed' {
   if (order.status !== 'pending_payment' || !payable) return 'closed'
-  // O cliente volta do MP antes do webhook: o status da URL e o do pagamento já valem.
-  if (PROCESSING.includes(order.payment.status ?? '') || PROCESSING.includes(returnStatus ?? '')) {
-    return 'processing'
-  }
-  if (order.payment.status === 'rejected' || order.payment.status === 'cancelled') return 'rejected'
+  // A URL do retorno só vale enquanto o webhook não registrou nada: depois, o servidor manda.
+  const status = order.payment.status ?? returnStatus
+  if (PROCESSING.includes(status ?? '')) return 'processing'
+  if (status === 'rejected' || status === 'cancelled') return 'rejected'
   return 'payable'
 }
 
