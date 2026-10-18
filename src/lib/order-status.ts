@@ -27,3 +27,17 @@ const PAID: readonly OrderStatus[] = ['paid', 'in_production', 'shipped', 'deliv
 export function isPaidStatus(status: OrderStatus): boolean {
   return PAID.includes(status)
 }
+
+export const ORDER_STATUS_TONES: Record<
+  OrderStatus,
+  'neutral' | 'success' | 'warning' | 'danger' | 'info'
+> = {
+  pending_payment: 'warning',
+  paid: 'info',
+  in_production: 'info',
+  shipped: 'success',
+  delivered: 'success',
+  expired: 'neutral',
+  cancelled: 'neutral',
+  refunded: 'danger',
+}

@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { Badge } from '@/components/ui'
 import { formatBRL } from '@/lib/money'
-import { ORDER_STATUS_LABELS, type OrderStatus } from '@/lib/order-status'
+import { formatDate } from '@/lib/format-date'
+import { ORDER_STATUS_LABELS, ORDER_STATUS_TONES, type OrderStatus } from '@/lib/order-status'
 
 export type OrderRow = {
   id: string
@@ -11,22 +12,6 @@ export type OrderRow = {
   itemCount: number
   createdAt: Date
   href: string
-}
-
-const date = new Intl.DateTimeFormat('pt-BR', {
-  dateStyle: 'short',
-  timeZone: 'America/Sao_Paulo',
-})
-
-const tone: Record<OrderStatus, 'neutral' | 'success' | 'warning' | 'danger' | 'info'> = {
-  pending_payment: 'warning',
-  paid: 'info',
-  in_production: 'info',
-  shipped: 'success',
-  delivered: 'success',
-  expired: 'neutral',
-  cancelled: 'neutral',
-  refunded: 'danger',
 }
 
 export function OrderList({ orders }: { orders: OrderRow[] }) {
@@ -53,12 +38,14 @@ export function OrderList({ orders }: { orders: OrderRow[] }) {
                 {order.number}
               </span>
               <span className="font-mono text-[10px] text-muted">
-                {date.format(order.createdAt)} · {order.itemCount}{' '}
+                {formatDate(order.createdAt)} · {order.itemCount}{' '}
                 {order.itemCount === 1 ? 'item' : 'itens'}
               </span>
             </span>
             <span className="flex items-center gap-4">
-              <Badge tone={tone[order.status]}>{ORDER_STATUS_LABELS[order.status]}</Badge>
+              <Badge tone={ORDER_STATUS_TONES[order.status]}>
+                {ORDER_STATUS_LABELS[order.status]}
+              </Badge>
               <span className="font-mono text-sm">{formatBRL(order.totalCents)}</span>
             </span>
           </Link>
