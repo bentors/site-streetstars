@@ -5,6 +5,7 @@ import { cache } from 'react'
 import { fail, ok, type Result } from '@/lib/result'
 import { SESSION_COOKIE, SESSION_MAX_AGE_SEC } from '@/lib/session-cookie'
 import { adminAuth } from '@/server/db/firebase-admin'
+import { linkGuestOrders } from '@/server/db/orders'
 import { ensureUser } from '@/server/db/users'
 
 export type SessionUser = {
@@ -43,6 +44,15 @@ export async function createSession(idToken: string): Promise<Result<{ uid: stri
   } catch (error) {
     console.error('createSession: falha ao criar a sessão', { uid: decoded.uid, error })
     return fail('session_failed', 'Não foi possível entrar. Tente novamente.')
+  }
+
+  if (decoded.email_verified === true) {
+    try {
+      await linkGuestOrders(decoded.uid, decoded.email)
+    } catch (error) {
+      // O vínculo é bônus: o login segue e tenta de novo no próximo.
+      console.error('createSession: falha ao vincular pedidos', { uid: decoded.uid, error })
+    }
   }
 
   const store = await cookies()
@@ -95,5 +105,16 @@ export async function destroySession(): Promise<void> {
     await adminAuth().revokeRefreshTokens(decoded.sub)
   } catch {
     // Cookie já inválido: nada a revogar.
+  }
+}
+
+/** Estado ao vivo no Firebase Auth (o cookie guarda o do momento do login). */
+export async function getAuthAccount(
+  uid: string,
+): Promise<{ emailVerified: boolean; hasPassword: boolean }> {
+  const record = await adminAuth().getUser(uid)
+  return {
+    emailVerified: record.emailVerified,
+    hasPassword: record.providerData.some((provider) => provider.providerId === 'password'),
   }
 }

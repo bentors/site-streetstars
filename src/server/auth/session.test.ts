@@ -6,8 +6,10 @@ const auth = vi.hoisted(() => ({
   createSessionCookie: vi.fn(),
   verifySessionCookie: vi.fn(),
   revokeRefreshTokens: vi.fn(),
+  getUser: vi.fn(),
 }))
 const ensureUser = vi.hoisted(() => vi.fn())
+const linkGuestOrders = vi.hoisted(() => vi.fn())
 
 vi.mock('next/headers', () => ({ cookies: async () => cookieStore }))
 vi.mock('next/navigation', () => ({
@@ -20,8 +22,9 @@ vi.mock('next/navigation', () => ({
 }))
 vi.mock('@/server/db/firebase-admin', () => ({ adminAuth: () => auth }))
 vi.mock('@/server/db/users', () => ({ ensureUser }))
+vi.mock('@/server/db/orders', () => ({ linkGuestOrders }))
 
-import { createSession, getSessionUser, requireAdmin, requireUser } from './session'
+import { createSession, getAuthAccount, getSessionUser, requireAdmin, requireUser } from './session'
 
 const nowSec = () => Math.floor(Date.now() / 1000)
 
@@ -139,5 +142,56 @@ describe('createSession', () => {
       expect.objectContaining({ httpOnly: true, sameSite: 'lax', path: '/', maxAge: 432000 }),
     )
     expect(ensureUser).toHaveBeenCalledWith({ uid: 'u1', email: 'a@b.com', name: 'Ana' })
+  })
+})
+
+describe('createSession: vínculo de pedidos', () => {
+  const token = (emailVerified: boolean) => ({
+    uid: 'u1',
+    email: 'Ana@Exemplo.com',
+    email_verified: emailVerified,
+    auth_time: nowSec(),
+  })
+
+  beforeEach(() => {
+    auth.createSessionCookie.mockResolvedValue('cookie')
+    ensureUser.mockResolvedValue({})
+  })
+
+  it('vincula pedidos sem conta quando o e-mail é verificado', async () => {
+    auth.verifyIdToken.mockResolvedValue(token(true))
+    expect(await createSession('id')).toEqual({ ok: true, data: { uid: 'u1' } })
+    expect(linkGuestOrders).toHaveBeenCalledWith('u1', 'Ana@Exemplo.com')
+  })
+
+  it('não vincula com e-mail não verificado', async () => {
+    auth.verifyIdToken.mockResolvedValue(token(false))
+    await createSession('id')
+    expect(linkGuestOrders).not.toHaveBeenCalled()
+  })
+
+  it('falha no vínculo não impede o login', async () => {
+    auth.verifyIdToken.mockResolvedValue(token(true))
+    linkGuestOrders.mockRejectedValue(new Error('firestore fora'))
+    expect(await createSession('id')).toMatchObject({ ok: true })
+    expect(cookieStore.set).toHaveBeenCalled()
+  })
+})
+
+describe('getAuthAccount', () => {
+  it('lê verificação e provedor de senha do Firebase Auth', async () => {
+    auth.getUser.mockResolvedValue({
+      emailVerified: true,
+      providerData: [{ providerId: 'google.com' }, { providerId: 'password' }],
+    })
+    expect(await getAuthAccount('u1')).toEqual({ emailVerified: true, hasPassword: true })
+  })
+
+  it('conta só do Google não tem senha', async () => {
+    auth.getUser.mockResolvedValue({
+      emailVerified: true,
+      providerData: [{ providerId: 'google.com' }],
+    })
+    expect(await getAuthAccount('u1')).toEqual({ emailVerified: true, hasPassword: false })
   })
 })

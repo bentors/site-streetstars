@@ -131,3 +131,26 @@ export async function nextOrderNumber(tx: Transaction): Promise<string> {
   tx.set(ref, { last: last + 1 })
   return `SS-${last + 1}`
 }
+
+export async function listUserOrders(uid: string): Promise<Order[]> {
+  const snapshot = await ordersCollection()
+    .where('customer.uid', '==', uid)
+    .orderBy('createdAt', 'desc')
+    .limit(50)
+    .get()
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+}
+
+/** Pedidos feitos sem login passam para a conta. Só chame com e-mail verificado. */
+export async function linkGuestOrders(uid: string, email: string): Promise<number> {
+  const query = ordersCollection()
+    .where('customer.email', '==', email.trim().toLowerCase())
+    .where('customer.uid', '==', null)
+  // ponytail: uma transação aguenta 500 escritas; um e-mail nunca terá tantos pedidos sem conta.
+  return db().runTransaction(async (tx) => {
+    const snapshot = await tx.get(query)
+    const now = new Date()
+    for (const doc of snapshot.docs) tx.update(doc.ref, { 'customer.uid': uid, updatedAt: now })
+    return snapshot.size
+  })
+}
