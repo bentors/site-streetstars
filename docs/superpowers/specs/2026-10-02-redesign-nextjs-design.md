@@ -56,7 +56,7 @@ Um único projeto **Next.js 16 (App Router) + React 19 + TypeScript 5.9 strict**
 - **Mutações:** Server Actions. Route Handlers só para chamadas externas: webhook do Mercado Pago e cron de expiração.
 - **Sessão:** login no Firebase Auth (e-mail/senha ou Google popup) → `getIdToken()` → Server Action cria um *session cookie* (`createSessionCookie`) httpOnly. Admin = custom claim `admin: true`.
 - **Compra sem conta:** o link `/pedido/<orderId>.<hmac>` é assinado com `ORDER_TOKEN_SECRET` (HMAC-SHA256) e comparado em tempo constante. Nada por pedido fica salvo, e o webhook consegue montar o link do e-mail. Trocar o segredo invalida os links já enviados.
-- **Vínculo guest → conta:** quando o usuário tem e-mail **verificado**, uma Server Action vincula a `customer.uid` os pedidos com `customer.uid == null` e o mesmo e-mail. Contas do Google já vêm verificadas.
+- **Vínculo guest → conta:** quando o usuário entra com e-mail **verificado**, `createSession` vincula a `customer.uid` os pedidos com `customer.uid == null` e o mesmo e-mail. Contas do Google já vêm verificadas.
 - **Imagens:** Cloudinary com upload assinado (somente admin) e entrega via `next/image` com loader do Cloudinary.
 - **Serviços externos mantidos:** Firebase (Auth + Firestore), Vercel, Mercado Pago, Melhor Envio, Cloudinary, Resend, Upstash Redis (rate limit), ViaCEP.
 
@@ -166,7 +166,7 @@ pending_payment ─► paid ─► in_production ─► shipped ─► delivered
 - `qty` fica entre 1 e 10 por linha.
 
 ### Checkout (`/checkout`, página única em blocos)
-1. **Contato:** e-mail, nome, telefone, CPF (validado). Logado: pré-preenche e-mail, nome, telefone e CPF; escolher ou salvar endereços fica na Fase 4.
+1. **Contato:** e-mail, nome, telefone, CPF (validado). Logado: pré-preenche e-mail, nome, telefone e CPF; escolhe ou salva endereços da conta (Fase 4).
 2. **Endereço:** o CEP preenche o resto via ViaCEP.
 3. **Frete:** `quoteShipping(cep, lines)` consulta o Melhor Envio com o peso total e as medidas de `settings/store.package`. O prazo exibido é `max(productionDays) + deliveryDays`.
 4. **Cupom:** `previewCoupon(code, lines)` só calcula e exibe o desconto.
@@ -214,6 +214,15 @@ Se o passo 9 falhar, o pedido fica `pending_payment` e a resposta é um erro; um
   - Perfil: nome, telefone, CPF e consentimento.
   - Segurança: troca de senha, só para contas com senha.
 - Todas as ações usam `requireUser()` e só tocam o documento do próprio uid.
+
+### Decisões da Fase 4 (2026-10-18)
+- **Vínculo guest → conta** acontece dentro de `createSession` sempre que o ID token traz `email_verified` (login com Google, login depois de confirmar o e-mail). Falha no vínculo não impede o login.
+- **Cookie desatualizado:** o session cookie guarda a verificação do momento do login. O aviso em `/conta` tem "Já confirmei", que consulta o Firebase e pede um novo login (`/entrar?confirmado=1`).
+- **Sem reenvio de verificação nesta fase:** sem e-mail verificado, o cliente só perde o vínculo automático de pedidos antigos. Reenviar fica para quando o domínio do Resend existir.
+- **Troca de senha** no navegador: reautentica com a senha atual, `updatePassword` e cookie novo a partir de `getIdToken(true)` (a troca revoga os tokens antigos).
+- **Endereços:** até 10 por conta, sempre exatamente um padrão (regra pura em `server/domain/addresses.ts`).
+- **Checkout logado:** pré-preenche com o endereço padrão, permite escolher entre os salvos e tem "Salvar este endereço na minha conta" (marcado por padrão quando não há endereços). Telefone e CPF vão para o perfil só se estiverem vazios. Salvar dados da conta nunca derruba o pedido.
+- **Rotas:** `/conta` (pedidos, com link para `/pedido/[token]`), `/conta/enderecos`, `/conta/perfil`, `/conta/seguranca`, dentro do grupo `(loja)`.
 
 ## 6. Admin (`/admin`)
 
