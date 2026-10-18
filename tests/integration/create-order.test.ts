@@ -245,6 +245,51 @@ describe('createOrder', () => {
     ])
   })
 
+  it('reserva o uso do cupom ao criar e recusa o pedido seguinte quando esgota', async () => {
+    await db().doc('coupons/UNICO').set({
+      type: 'percent',
+      value: 10,
+      minSubtotalCents: null,
+      startsAt: null,
+      endsAt: null,
+      maxUses: 1,
+      usedCount: 0,
+      active: true,
+    })
+    const first = await createOrder(input({ couponCode: 'UNICO' }), ctx)
+    expect(first.ok).toBe(true)
+    expect((await db().doc('coupons/UNICO').get()).get('usedCount')).toBe(1)
+
+    const second = await createOrder(
+      input({ couponCode: 'UNICO', idempotencyKey: '3a1c8f3e-7c1a-4d6a-9a3b-1c2d3e4f5a6b' }),
+      ctx,
+    )
+    expect(second).toMatchObject({ ok: false, code: 'coupon_exhausted' })
+    expect(await allOrders()).toHaveLength(1)
+  })
+
+  it('dois pedidos simultâneos com o último uso: só um passa', async () => {
+    await db().doc('coupons/UNICO').set({
+      type: 'percent',
+      value: 10,
+      minSubtotalCents: null,
+      startsAt: null,
+      endsAt: null,
+      maxUses: 1,
+      usedCount: 0,
+      active: true,
+    })
+    const results = await Promise.all([
+      createOrder(input({ couponCode: 'UNICO' }), ctx),
+      createOrder(
+        input({ couponCode: 'UNICO', idempotencyKey: '4b1c8f3e-7c1a-4d6a-9a3b-1c2d3e4f5a6b' }),
+        ctx,
+      ),
+    ])
+    expect(results.filter((r) => r.ok)).toHaveLength(1)
+    expect((await db().doc('coupons/UNICO').get()).get('usedCount')).toBe(1)
+  })
+
   it('recusa entrada inválida sem tocar no banco', async () => {
     const result = await createOrder(input({ customer: { email: 'x' } }), ctx)
     expect(result).toMatchObject({ ok: false, code: 'invalid_input' })

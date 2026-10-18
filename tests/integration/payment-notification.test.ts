@@ -41,7 +41,7 @@ beforeEach(async () => {
 })
 
 describe('handlePaymentNotification', () => {
-  it('aprovado com o valor certo: pago, cupom contado e e-mails enviados uma vez', async () => {
+  it('aprovado com o valor certo: pago e e-mails enviados uma vez; o cupom já foi reservado na criação', async () => {
     getPayment.mockResolvedValue(payment())
     expect(await handlePaymentNotification('9001')).toBe('processed')
 
@@ -63,7 +63,7 @@ describe('handlePaymentNotification', () => {
     })
     expect(order?.notifications.confirmationSentAt).toBeInstanceOf(Date)
     expect(order?.notifications.adminAlertSentAt).toBeInstanceOf(Date)
-    expect(await couponUses()).toBe(1)
+    expect(await couponUses()).toBe(0)
     expect(sendEmail.mock.calls.map(([message]) => message.to)).toEqual([
       'ana@exemplo.com',
       STORE_EMAIL,
@@ -72,14 +72,14 @@ describe('handlePaymentNotification', () => {
 
     // Mesmo evento de novo (o MP reenvia): nada muda.
     expect(await handlePaymentNotification('9001')).toBe('ignored')
-    expect(await couponUses()).toBe(1)
+    expect(await couponUses()).toBe(0)
     expect(sendEmail).toHaveBeenCalledTimes(2)
   })
 
   it('entregas simultâneas: pago uma vez e cada e-mail com a mesma chave de idempotência', async () => {
     getPayment.mockResolvedValue(payment())
     await Promise.all([handlePaymentNotification('9001'), handlePaymentNotification('9001')])
-    expect(await couponUses()).toBe(1)
+    expect(await couponUses()).toBe(0)
     const keys = sendEmail.mock.calls.map(([message]) => message.idempotencyKey)
     expect(keys.length).toBeGreaterThanOrEqual(2)
     expect(new Set(keys)).toEqual(new Set(['order-confirmation/o1', 'admin-new-order/o1']))
@@ -121,11 +121,27 @@ describe('handlePaymentNotification', () => {
     expect(sendEmail).not.toHaveBeenCalled()
   })
 
-  it('pedido expirado ainda vira pago', async () => {
+  it('pedido expirado ainda vira pago e volta a contar o cupom', async () => {
     await db().doc('orders/o1').update({ status: 'expired' })
     getPayment.mockResolvedValue(payment())
     await handlePaymentNotification('9001')
     expect((await getOrder('o1'))?.status).toBe('paid')
+    expect(await couponUses()).toBe(1)
+  })
+
+  it('pago depois de expirar com o cupom esgotado: paga, registra e alerta a loja', async () => {
+    await db().doc('orders/o1').update({ status: 'expired' })
+    await db().doc('coupons/BEMVINDO').set({ usedCount: 1, maxUses: 1 })
+    getPayment.mockResolvedValue(payment())
+    await handlePaymentNotification('9001')
+    const order = await getOrder('o1')
+    expect(order?.status).toBe('paid')
+    expect(order?.statusHistory.some((e) => e.note?.includes('passou do limite'))).toBe(true)
+    expect(
+      sendEmail.mock.calls.some(
+        ([m]) => m.to === STORE_EMAIL && String(m.html).includes('passou do limite'),
+      ),
+    ).toBe(true)
   })
 
   it('estorno do pagamento do pedido → estornado', async () => {
@@ -158,6 +174,6 @@ describe('handlePaymentNotification', () => {
     expect(order?.notifications.confirmationSentAt).toBeInstanceOf(Date)
     expect(order?.notifications.adminAlertSentAt).toBeInstanceOf(Date)
     expect(sendEmail).toHaveBeenCalledTimes(3)
-    expect(await couponUses()).toBe(1)
+    expect(await couponUses()).toBe(0)
   })
 })

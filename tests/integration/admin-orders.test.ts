@@ -115,6 +115,22 @@ describe('applyAdminTransition', () => {
     expect((await getOrder('a'))?.status).toBe('shipped')
   })
 
+  it('cancelar pedido ainda pendente devolve a reserva do cupom', async () => {
+    const coupon = { code: 'BEMVINDO', type: 'percent' as const, value: 10, discountCents: 0 }
+    await db().doc('coupons/BEMVINDO').set({ usedCount: 1 })
+    await seed('a', { status: 'pending_payment', coupon })
+    await applyAdminTransition('a', { to: 'cancelled', note: 'Teste' }, 'adm', LATER)
+    expect((await db().doc('coupons/BEMVINDO').get()).get('usedCount')).toBe(0)
+  })
+
+  it('cancelar pedido pago mantém o uso', async () => {
+    const coupon = { code: 'BEMVINDO', type: 'percent' as const, value: 10, discountCents: 0 }
+    await db().doc('coupons/BEMVINDO').set({ usedCount: 1 })
+    await seed('a', { status: 'paid', coupon })
+    await applyAdminTransition('a', { to: 'cancelled', note: 'Teste' }, 'adm', LATER)
+    expect((await db().doc('coupons/BEMVINDO').get()).get('usedCount')).toBe(1)
+  })
+
   it('pedido inexistente dá not_found', async () => {
     expect(await applyAdminTransition('zzz', { to: 'delivered' }, 'adm', LATER)).toMatchObject({
       code: 'not_found',

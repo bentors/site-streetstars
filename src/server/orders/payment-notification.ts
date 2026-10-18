@@ -2,6 +2,7 @@ import 'server-only'
 import { FieldValue } from 'firebase-admin/firestore'
 import { formatBRL } from '@/lib/money'
 import { ORDER_STATUS_LABELS, type OrderStatus } from '@/lib/order-status'
+import { couponUsageWrite, readCouponUsage } from '@/server/db/coupons'
 import { db } from '@/server/db/firebase-admin'
 import { ordersCollection, type OrderDoc } from '@/server/db/orders'
 import { decidePaymentOutcome, type PaymentOutcome } from '@/server/domain/payment-outcome'
@@ -98,27 +99,48 @@ export async function handlePaymentNotification(
       },
       payment,
     )
-    const couponRef =
-      outcome.kind === 'transition' && outcome.to === 'paid' && order.coupon
-        ? db().doc(`coupons/${order.coupon.code}`)
-        : null
-    const couponExists = couponRef ? (await tx.get(couponRef)).exists : false
+    // pending_payment já reservou o uso ao criar; expired devolveu, então pagar depois reserva de novo.
+    const reReserve =
+      outcome.kind === 'transition' &&
+      outcome.to === 'paid' &&
+      order.status === 'expired' &&
+      order.coupon !== null
+    const usage = reReserve && order.coupon ? await readCouponUsage(tx, order.coupon.code) : null
+    const couponOverLimit = !!usage && usage.maxUses !== null && usage.usedCount >= usage.maxUses
 
     const updates = paymentUpdates(order, payment, outcome, now)
     if (updates) tx.update(db().doc(`orders/${orderId}`), updates)
-    if (couponRef && couponExists) tx.update(couponRef, { usedCount: FieldValue.increment(1) })
-    return { order, outcome }
+    if (usage) {
+      tx.update(usage.ref, couponUsageWrite(usage, 1))
+      if (couponOverLimit) {
+        tx.update(db().doc(`orders/${orderId}`), {
+          statusHistory: FieldValue.arrayUnion({
+            status: 'paid',
+            at: now,
+            by: 'webhook',
+            note: `Cupom ${order.coupon?.code} passou do limite de usos (pedido pago depois de expirar).`,
+          }),
+        })
+      }
+    }
+    return { order, outcome, couponOverLimit }
   })
 
   if (!result) {
     console.warn('webhook MP: pedido não encontrado', { orderId, paymentId })
     return 'ignored'
   }
-  const { order, outcome } = result
+  const { order, outcome, couponOverLimit } = result
   console.info('webhook MP', { orderId, paymentId, paymentStatus: payment.status, outcome })
 
   if (outcome.kind === 'alert') {
     await sendAdminAlert(order.number, alertNote(outcome.reason, payment, order))
+  }
+  if (couponOverLimit) {
+    await sendAdminAlert(
+      order.number,
+      `O cupom ${order.coupon?.code} passou do limite de usos: o pedido foi pago depois de expirar.`,
+    )
   }
   await sendPaidOrderEmails(orderId, now)
   return outcome.kind === 'ignore' ? 'ignored' : 'processed'

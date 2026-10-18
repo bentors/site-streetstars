@@ -1,7 +1,7 @@
 import 'server-only'
 import { createOrderInputSchema } from '@/lib/checkout'
 import { fail, ok, type Result } from '@/lib/result'
-import { getCouponRule } from '@/server/db/coupons'
+import { couponUsageWrite, getCouponRule, readCouponUsage } from '@/server/db/coupons'
 import { db } from '@/server/db/firebase-admin'
 import {
   findOrderByIdempotencyKey,
@@ -63,9 +63,15 @@ export async function createOrder(
     shippingCents: shipping.priceCents,
   })
 
-  const order = await db().runTransaction(async (tx): Promise<Order> => {
+  const created = await db().runTransaction(async (tx): Promise<Result<Order>> => {
     const duplicate = (await tx.get(idempotencyQuery(input.idempotencyKey))).docs[0]
-    if (duplicate) return { id: duplicate.id, ...duplicate.data() }
+    if (duplicate) return ok({ id: duplicate.id, ...duplicate.data() })
+
+    // Reserva o uso aqui, na mesma transação do pedido: dois pedidos com o último uso não passam juntos.
+    const usage = coupon ? await readCouponUsage(tx, coupon.code) : null
+    if (usage && usage.maxUses !== null && usage.usedCount >= usage.maxUses) {
+      return fail('coupon_exhausted', 'Este cupom esgotou.')
+    }
 
     const number = await nextOrderNumber(tx)
     const ref = ordersCollection().doc()
@@ -113,10 +119,11 @@ export async function createOrder(
       expiresAt: new Date(ctx.now.getTime() + ORDER_TTL_MS),
     }
     tx.create(ref, doc)
-    return { id: ref.id, ...doc }
+    if (usage) tx.update(usage.ref, couponUsageWrite(usage, 1))
+    return ok({ id: ref.id, ...doc })
   })
-
-  return redirectFor(order, ctx.now)
+  if (!created.ok) return created
+  return redirectFor(created.data, ctx.now)
 }
 
 async function redirectFor(order: Order, now: Date): Promise<Result<{ redirectUrl: string }>> {

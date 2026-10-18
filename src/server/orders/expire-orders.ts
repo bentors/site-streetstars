@@ -1,5 +1,6 @@
 import 'server-only'
 import { FieldValue } from 'firebase-admin/firestore'
+import { couponUsageWrite, readCouponUsage } from '@/server/db/coupons'
 import { db } from '@/server/db/firebase-admin'
 import { ordersCollection } from '@/server/db/orders'
 import { canTransition } from '@/server/domain/order-status'
@@ -22,11 +23,14 @@ export async function expirePendingOrders(now = new Date()): Promise<number> {
       if (order?.status !== 'pending_payment' || !canTransition(order.status, 'expired')) {
         return false
       }
+      // Pedido que não foi pago devolve o uso do cupom reservado na criação.
+      const usage = order.coupon ? await readCouponUsage(tx, order.coupon.code) : null
       tx.update(db().doc(`orders/${doc.id}`), {
         status: 'expired',
         statusHistory: FieldValue.arrayUnion({ status: 'expired', at: now, by: 'system' }),
         updatedAt: now,
       })
+      if (usage) tx.update(usage.ref, couponUsageWrite(usage, -1))
       return true
     })
     if (changed) expired += 1

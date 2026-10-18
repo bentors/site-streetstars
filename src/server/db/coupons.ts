@@ -1,4 +1,5 @@
 import 'server-only'
+import type { DocumentReference, Transaction } from 'firebase-admin/firestore'
 import { z } from 'zod'
 import type { CouponUpdate } from '@/lib/admin-coupon'
 import { fail, ok, type Result } from '@/lib/result'
@@ -72,4 +73,21 @@ export async function updateCoupon(code: string, patch: CouponUpdate): Promise<R
     tx.set(ref, couponSchema.parse({ ...current, ...patch }))
     return ok(null)
   })
+}
+
+export type CouponUsage = { ref: DocumentReference; usedCount: number; maxUses: number | null }
+
+/** Lê o uso do cupom dentro da transação; null se o cupom foi apagado. */
+export async function readCouponUsage(tx: Transaction, code: string): Promise<CouponUsage | null> {
+  const ref = db().collection('coupons').doc(code)
+  const snapshot = await tx.get(ref)
+  if (!snapshot.exists) return null
+  const usedCount = Number(snapshot.get('usedCount') ?? 0)
+  const maxUses = snapshot.get('maxUses')
+  return { ref, usedCount, maxUses: typeof maxUses === 'number' ? maxUses : null }
+}
+
+/** Reserva (+1) ou devolve (-1) um uso. Nunca abaixo de zero (pedidos antigos não reservaram). */
+export function couponUsageWrite(usage: CouponUsage, delta: 1 | -1): { usedCount: number } {
+  return { usedCount: Math.max(0, usage.usedCount + delta) }
 }

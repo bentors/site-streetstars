@@ -5,6 +5,7 @@ import type { AdminTransition } from '@/lib/admin-orders'
 import { ORDER_STATUS_LABELS, ORDER_STATUSES, type OrderStatus } from '@/lib/order-status'
 import { fail, ok, type Result } from '@/lib/result'
 import { adminTargets, trackingUrl } from '@/server/domain/admin-order'
+import { couponUsageWrite, readCouponUsage } from './coupons'
 import { zodConverter } from './convert'
 import { db } from './firebase-admin'
 
@@ -221,6 +222,9 @@ export async function applyAdminTransition(
             url: trackingUrl(input.trackingCode),
           }
         : order.tracking
+    // Cancelar antes do pagamento libera o uso reservado; pedido já pago continua contando.
+    const releases = input.to === 'cancelled' && order.status === 'pending_payment'
+    const usage = releases && order.coupon ? await readCouponUsage(tx, order.coupon.code) : null
     const entry = { status: input.to, at: now, by, ...(input.note ? { note: input.note } : {}) }
     tx.update(ref, {
       status: input.to,
@@ -228,6 +232,7 @@ export async function applyAdminTransition(
       statusHistory: FieldValue.arrayUnion(entry),
       updatedAt: now,
     })
+    if (usage) tx.update(usage.ref, couponUsageWrite(usage, -1))
     return ok({
       id,
       ...order,
