@@ -6,6 +6,7 @@ import { Button, TextField } from '@/components/ui'
 import { settingsFormSchema, type SettingsFormValues } from '@/lib/admin-settings'
 import { fieldErrors } from '@/lib/form-errors'
 import { updateSettingsAction } from './settings-actions'
+import { attempt } from '@/lib/attempt'
 
 const FIELDS: { key: keyof SettingsFormValues; label: string; hint?: string }[] = [
   {
@@ -37,7 +38,7 @@ export function SettingsForm({ initial }: { initial: SettingsFormValues }) {
     setErrors(parsed.success ? {} : fieldErrors(parsed.error))
     if (!parsed.success) return
     start(async () => {
-      const result = await updateSettingsAction(values)
+      const result = await attempt(() => updateSettingsAction(values))
       setStatus(
         result.ok
           ? { ok: true, text: 'Configurações salvas.' }

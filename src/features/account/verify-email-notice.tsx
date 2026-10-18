@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui'
 import { confirmEmailAction } from './actions'
+import { attempt } from '@/lib/attempt'
 
 export function VerifyEmailNotice({ email }: { email: string | null }) {
   const [message, setMessage] = useState<string | null>(null)
@@ -20,7 +21,7 @@ export function VerifyEmailNotice({ email }: { email: string | null }) {
         loading={pending}
         onClick={() =>
           start(async () => {
-            const result = await confirmEmailAction()
+            const result = await attempt(() => confirmEmailAction())
             if (!result.ok) setMessage(result.message)
           })
         }

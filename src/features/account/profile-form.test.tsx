@@ -42,4 +42,14 @@ describe('ProfileForm', () => {
     expect(await screen.findByText('CPF inválido')).toBeInTheDocument()
     expect(updateProfileAction).not.toHaveBeenCalled()
   })
+
+  it('erro de rede mostra a mensagem e mantém o que foi digitado', async () => {
+    updateProfileAction.mockRejectedValue(new TypeError('Failed to fetch'))
+    render(<ProfileForm initial={initial} />)
+    await userEvent.clear(screen.getByLabelText('Nome completo'))
+    await userEvent.type(screen.getByLabelText('Nome completo'), 'Ana Maria')
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar' }))
+    expect(await screen.findByText(/Sem conexão/)).toBeInTheDocument()
+    expect(screen.getByLabelText('Nome completo')).toHaveValue('Ana Maria')
+  })
 })

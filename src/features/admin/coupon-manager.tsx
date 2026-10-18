@@ -13,6 +13,7 @@ import { formatDateTime } from '@/lib/format-date'
 import { fieldErrors } from '@/lib/form-errors'
 import { formatBRL } from '@/lib/money'
 import { createCouponAction, updateCouponAction } from './coupon-actions'
+import { attempt } from '@/lib/attempt'
 
 type Row = {
   code: string
@@ -43,8 +44,8 @@ function CouponForm({ row, onDone }: { row: Row | null; onDone: () => void }) {
     if (!parsed.success) return
     start(async () => {
       const result = row
-        ? await updateCouponAction(row.code, values)
-        : await createCouponAction(values)
+        ? await attempt(() => updateCouponAction(row.code, values))
+        : await attempt(() => createCouponAction(values))
       if (result.ok) onDone()
       else setMessage(result.message)
     })

@@ -8,6 +8,7 @@ import type { ProductImage } from '@/lib/catalog-schemas'
 import { fieldErrors } from '@/lib/form-errors'
 import { saveCollectionAction } from './catalog-actions'
 import { ImageListField } from './image-list-field'
+import { attempt } from '@/lib/attempt'
 
 // O campo de imagens trabalha com ProductImage; coleções guardam só a URL.
 const asImages = (urls: string[]): ProductImage[] =>
@@ -42,7 +43,7 @@ export function CollectionForm({
     setErrors(parsed.success ? {} : fieldErrors(parsed.error))
     if (!parsed.success) return
     start(async () => {
-      const result = await saveCollectionAction(collectionId, values)
+      const result = await attempt(() => saveCollectionAction(collectionId, values))
       if (!result.ok) {
         // Erro de um campo aparece embaixo dele; o resto vai para a mensagem geral.
         const field = result.code === 'slug_taken' ? 'slug' : result.code.split(':')[1]

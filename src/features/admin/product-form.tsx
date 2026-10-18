@@ -8,6 +8,7 @@ import { CATEGORIES } from '@/lib/catalog'
 import { fieldErrors } from '@/lib/form-errors'
 import { saveProductAction } from './catalog-actions'
 import { ImageListField } from './image-list-field'
+import { attempt } from '@/lib/attempt'
 
 const textarea =
   'min-h-24 w-full border border-line bg-surface p-3 font-mono text-sm text-paper outline-none focus:border-paper aria-invalid:border-danger'
@@ -67,7 +68,7 @@ export function ProductForm({
     setErrors(parsed.success ? {} : fieldErrors(parsed.error))
     if (!parsed.success) return
     start(async () => {
-      const result = await saveProductAction(productId, values)
+      const result = await attempt(() => saveProductAction(productId, values))
       if (!result.ok) {
         // Erro de um campo aparece embaixo dele; o resto vai para a mensagem geral.
         const field = result.code === 'slug_taken' ? 'slug' : result.code.split(':')[1]

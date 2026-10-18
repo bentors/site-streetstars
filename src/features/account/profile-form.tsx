@@ -8,6 +8,7 @@ import { formatCpf } from '@/lib/cpf'
 import { fieldErrors } from '@/lib/form-errors'
 import { formatPhone } from '@/lib/phone'
 import { updateProfileAction } from './actions'
+import { attempt } from '@/lib/attempt'
 
 type Values = { name: string; phone: string; cpf: string; marketingConsent: boolean }
 
@@ -30,7 +31,7 @@ export function ProfileForm({ initial }: { initial: Values }) {
     setErrors(parsed.success ? {} : fieldErrors(parsed.error))
     if (!parsed.success) return
     start(async () => {
-      const result = await updateProfileAction(values)
+      const result = await attempt(() => updateProfileAction(values))
       setStatus(
         result.ok ? { ok: true, text: 'Dados salvos.' } : { ok: false, text: result.message },
       )

@@ -5,6 +5,7 @@ import { useState, useTransition } from 'react'
 import { Button, TextField } from '@/components/ui'
 import { ORDER_STATUS_LABELS, type OrderStatus } from '@/lib/order-status'
 import { resendShippedEmailAction, transitionOrderAction } from './order-actions'
+import { attempt } from '@/lib/attempt'
 
 const NEEDS_NOTE: OrderStatus[] = ['cancelled', 'refunded']
 
@@ -29,7 +30,7 @@ export function OrderStatusActions({
     setMessage(null)
     const input = chosen === 'shipped' ? { to: chosen, trackingCode, note } : { to: chosen, note }
     start(async () => {
-      const result = await transitionOrderAction(orderId, input)
+      const result = await attempt(() => transitionOrderAction(orderId, input))
       if (!result.ok) {
         setMessage({ ok: false, text: result.message })
         return
@@ -53,7 +54,7 @@ export function OrderStatusActions({
   function resend() {
     setMessage(null)
     start(async () => {
-      const result = await resendShippedEmailAction(orderId)
+      const result = await attempt(() => resendShippedEmailAction(orderId))
       setMessage(
         result.ok ? { ok: true, text: 'E-mail enviado.' } : { ok: false, text: result.message },
       )

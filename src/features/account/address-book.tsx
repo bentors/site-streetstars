@@ -14,6 +14,8 @@ import { addressInputSchema, MAX_ADDRESSES, type SavedAddress } from '@/lib/acco
 import { fillFromCep, formatCep, normalizeCep } from '@/lib/cep'
 import { fieldErrors } from '@/lib/form-errors'
 import { deleteAddressAction, saveAddressAction, setDefaultAddressAction } from './actions'
+import { attempt } from '@/lib/attempt'
+import type { Result } from '@/lib/result'
 
 type Draft = AddressValues & { label: string; isDefault: boolean }
 type Editing = { id: string | null; draft: Draft } | null
@@ -63,7 +65,7 @@ function AddressForm({
     setErrors(parsed.success ? {} : fieldErrors(parsed.error))
     if (!parsed.success) return
     start(async () => {
-      const result = await saveAddressAction(editing.id, draft)
+      const result = await attempt(() => saveAddressAction(editing.id, draft))
       if (result.ok) onSaved()
       else setMessage(result.message)
     })
@@ -107,10 +109,10 @@ export function AddressBook({ addresses }: { addresses: SavedAddress[] }) {
   const [message, setMessage] = useState<string | null>(null)
   const [pending, start] = useTransition()
 
-  function run(action: () => Promise<{ ok: boolean; message?: string }>) {
+  function run(action: () => Promise<Result<null>>) {
     setMessage(null)
     start(async () => {
-      const result = await action()
+      const result = await attempt(action)
       if (!result.ok) setMessage(result.message ?? 'Algo deu errado. Tente novamente.')
       router.refresh()
     })

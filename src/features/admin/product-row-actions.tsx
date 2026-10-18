@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Button, Input } from '@/components/ui'
 import { setProductFeaturedAction, setProductStatusAction } from './catalog-actions'
+import { attempt } from '@/lib/attempt'
+import type { Result } from '@/lib/result'
 
 type Status = 'draft' | 'active' | 'archived'
 
@@ -26,10 +28,10 @@ export function ProductRowActions({
   const [message, setMessage] = useState<string | null>(null)
   const [pending, start] = useTransition()
 
-  function run(action: () => Promise<{ ok: boolean; message?: string }>) {
+  function run(action: () => Promise<Result<null>>) {
     setMessage(null)
     start(async () => {
-      const result = await action()
+      const result = await attempt(action)
       if (!result.ok) setMessage(result.message ?? 'Algo deu errado.')
       router.refresh()
     })
