@@ -219,7 +219,7 @@ Se o passo 9 falhar, o pedido fica `pending_payment` e a resposta é um erro; um
 - **Vínculo guest → conta** acontece dentro de `createSession` sempre que o ID token traz `email_verified` (login com Google, login depois de confirmar o e-mail). Falha no vínculo não impede o login.
 - **Cookie desatualizado:** o session cookie guarda a verificação do momento do login. O aviso em `/conta` tem "Já confirmei", que consulta o Firebase e pede um novo login (`/entrar?confirmado=1`).
 - **Sem reenvio de verificação nesta fase:** sem e-mail verificado, o cliente só perde o vínculo automático de pedidos antigos. Reenviar fica para quando o domínio do Resend existir.
-- **Troca de senha** no navegador: reautentica com a senha atual, `updatePassword` e cookie novo a partir de `getIdToken(true)` (a troca revoga os tokens antigos).
+- **Troca de senha** no navegador: reautentica com a senha atual, `updatePassword` e entra de novo com a senha nova para gerar o cookie (a troca revoga todo login anterior a ela, inclusive o token renovado com `getIdToken(true)`; comprovado no emulador). Se algo falhar depois da troca, a tela diz que a senha mudou e pede novo login.
 - **Endereços:** até 10 por conta, sempre exatamente um padrão (regra pura em `server/domain/addresses.ts`).
 - **Checkout logado:** pré-preenche com o endereço padrão, permite escolher entre os salvos e tem "Salvar este endereço na minha conta" (marcado por padrão quando não há endereços). Telefone e CPF vão para o perfil só se estiverem vazios. Salvar dados da conta nunca derruba o pedido.
 - **Rotas:** `/conta` (pedidos, com link para `/pedido/[token]`), `/conta/enderecos`, `/conta/perfil`, `/conta/seguranca`, dentro do grupo `(loja)`.
