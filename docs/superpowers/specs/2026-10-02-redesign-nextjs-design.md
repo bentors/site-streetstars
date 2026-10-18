@@ -157,6 +157,8 @@ pending_payment ─► paid ─► in_production ─► shipped ─► delivered
 - Implementada como função pura `canTransition(from, to)` em `server/domain/order-status.ts`. Qualquer transição fora da tabela é rejeitada.
 - `expired` e `pending_payment` aceitam ir para `paid` se o pagamento aprovado chegar depois da expiração.
 - Status nunca regridem: uma notificação "recusado" posterior a "aprovado" é ignorada.
+- `cancelled → refunded` existe só pelo webhook do estorno (pedido pago, cancelado no admin e estornado no painel do MP).
+- Pagamento que o MP não encontra (notificação de teste do painel) é ignorado.
 
 ## 4. Fluxo de compra
 
@@ -177,7 +179,7 @@ pending_payment ─► paid ─► in_production ─► shipped ─► delivered
 2. Se existe pedido com o mesmo `idempotencyKey` → devolve o link de pagamento desse pedido (gerando nova preferência se necessário). Não cria outro.
 3. Carrega os produtos do Firestore. Recusa se algum não estiver `active` ou se tamanho ou cor não existirem.
 4. Calcula o subtotal com `priceCents` do catálogo.
-5. Revalida o cupom: `active`, janela `startsAt`/`endsAt`, `minSubtotalCents`, `usedCount < maxUses`.
+5. Revalida o cupom e **reserva o uso** na mesma transação do pedido (`usedCount + 1`); a reserva volta quando o pedido expira ou é cancelado antes do pagamento. Pedido abaixo de R$ 1,00 é recusado (o Mercado Pago não aceita valor zero).
 6. **Cota o frete de novo** e usa o preço do servidor para o `serviceId` escolhido. Se o serviço não estiver disponível, devolve erro.
 7. Calcula os totais com `server/domain/pricing.ts`.
 8. Transação: incrementa `counters/orders` e grava o pedido `pending_payment`, com `expiresAt = agora + 48h`, `statusHistory` inicial (o link de acesso é derivado do id).
@@ -191,7 +193,7 @@ Se o passo 9 falhar, o pedido fica `pending_payment` e a resposta é um erro; um
 2. Ignora (200) tudo que não for evento de pagamento.
 3. Busca o pagamento na **API do Mercado Pago** pelo id, que é a fonte da verdade.
 4. Carrega o pedido por `external_reference` e, numa transação:
-   - `approved` com `transaction_amount` igual a `totalCents / 100` → `paid`, preenche `payment`, `statusHistory`, `usedCount++` no cupom.
+   - `approved` com `transaction_amount` igual a `totalCents / 100` → `paid`, preenche `payment`, `statusHistory`. O cupom já foi reservado na criação; pedido `expired` pago depois reserva de novo (com alerta à loja se passar do limite).
    - `approved` com valor divergente → mantém o status, registra no histórico e dispara o alerta ao admin.
    - `rejected`/`cancelled` com o pedido pendente → apenas registra o `payment.status`. O cliente pode tentar de novo.
    - `refunded`/`charged_back` com o pedido `paid` ou posterior → `refunded`.
@@ -254,6 +256,7 @@ Acesso: o proxy (`src/proxy.ts`, nome do antigo middleware no Next 16) redirecio
 - **Cupom:** código, tipo e valor não mudam depois de criado; edição só de validade, limite, pedido mínimo e ativo.
 - **Upload:** assinado no servidor (`folder=streetstars`) e enviado direto do navegador ao Cloudinary. A conta atual é a de teste; a produção terá conta nova.
 - **E2E (Playwright): adiado** para depois do lançamento.
+- **Correções da revisão (2026-10-18):** rastreio pode ser corrigido em pedido enviado ou entregue (o e-mail sai de novo com o código novo); o admin exige e-mail verificado; ids com hífen são aceitos (coleções migradas usam o slug como id); WhatsApp é gravado com o DDI 55.
 
 ## 7. Organização do código
 
