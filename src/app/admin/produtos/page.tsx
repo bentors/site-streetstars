@@ -18,6 +18,7 @@ const STATUS = {
 export default async function AdminProductsPage() {
   await requireAdmin()
   const products = await listAllProducts()
+  const nextFeaturedOrder = Math.max(0, ...products.map((p) => p.featuredOrder ?? 0)) + 1
   return (
     <div className="flex flex-col gap-6">
       <Link
@@ -29,7 +30,11 @@ export default async function AdminProductsPage() {
       {products.length === 0 ? <p className="text-xs text-muted">Nenhum produto ainda.</p> : null}
       <ul className="flex flex-col divide-y divide-line border border-line">
         {products.map((product) => (
-          <li key={product.id} className="flex flex-wrap items-center gap-4 p-4">
+          <li
+            // A ordem muda a chave: o campo se realinha com o valor salvo depois do refresh.
+            key={`${product.id}-${product.featuredOrder ?? 'x'}`}
+            className="flex flex-wrap items-center gap-4 p-4"
+          >
             {product.images[0] ? (
               <Image
                 src={product.images[0].url}
@@ -56,6 +61,7 @@ export default async function AdminProductsPage() {
               status={product.status}
               featured={product.featured}
               featuredOrder={product.featuredOrder}
+              nextFeaturedOrder={nextFeaturedOrder}
             />
           </li>
         ))}

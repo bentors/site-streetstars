@@ -12,11 +12,14 @@ export function ProductRowActions({
   status,
   featured,
   featuredOrder,
+  nextFeaturedOrder,
 }: {
   id: string
   status: Status
   featured: boolean
   featuredOrder: number | null
+  /** Próxima posição livre nos destaques (maior ordem + 1). */
+  nextFeaturedOrder: number
 }) {
   const router = useRouter()
   const [order, setOrder] = useState(String(featuredOrder ?? 1))
@@ -62,7 +65,15 @@ export function ProductRowActions({
             className="w-16 p-1"
             value={order}
             onChange={(e) => setOrder(e.target.value)}
-            onBlur={() => run(() => setProductFeaturedAction(id, true, Number.parseInt(order, 10)))}
+            onBlur={() => {
+              const value = Number.parseInt(order, 10)
+              if (!Number.isSafeInteger(value) || value < 1) {
+                setMessage('Ordem inválida')
+                return
+              }
+              // Só grava se mudou: cada gravação invalida o cache da vitrine inteira.
+              if (value !== featuredOrder) run(() => setProductFeaturedAction(id, true, value))
+            }}
           />
           <Button
             size="sm"
@@ -78,7 +89,7 @@ export function ProductRowActions({
           size="sm"
           variant="ghost"
           disabled={pending}
-          onClick={() => run(() => setProductFeaturedAction(id, true, 1))}
+          onClick={() => run(() => setProductFeaturedAction(id, true, nextFeaturedOrder))}
         >
           Destacar
         </Button>
