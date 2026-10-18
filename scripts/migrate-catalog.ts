@@ -44,7 +44,16 @@ async function main() {
   const snapshot = await db.collection('products').get()
   const pending = snapshot.docs.filter((doc) => !isMigrated(doc.data()))
   const legacy = pending.map((doc) => ({ id: doc.id, data: toPlain(doc.data()) as LegacyProduct }))
-  const slugs = uniqueSlugs(legacy.map((item) => item.data.name))
+  const taken = snapshot.docs
+    .filter((doc) => isMigrated(doc.data()))
+    .map((doc) => String(doc.get('slug')))
+  const slugs = uniqueSlugs(
+    legacy.map((item) => item.data.name),
+    taken,
+  )
+  const existingCollections = await db.collection('collections').get()
+  const existingSlugs = new Set(existingCollections.docs.map((doc) => String(doc.get('slug'))))
+  const newCollections = LEGACY_COLLECTIONS.filter((c) => !existingSlugs.has(c.slug))
   let featuredCount = 0
 
   const migrated = legacy.map((item, index) => {
@@ -65,7 +74,12 @@ async function main() {
       imagens: doc.images.length,
     })),
   )
-  console.log(`Coleções: ${LEGACY_COLLECTIONS.map((c) => `${c.slug} (${c.status})`).join(', ')}`)
+  console.log(
+    `Coleções novas: ${newCollections.map((c) => `${c.slug} (${c.status})`).join(', ') || 'nenhuma'}`,
+  )
+  console.log(
+    `Coleções que já existem (mantidas): ${LEGACY_COLLECTIONS.length - newCollections.length}`,
+  )
 
   if (!apply) {
     console.log('\nSimulação: nada foi gravado. Rode com --apply para gravar.')
@@ -77,25 +91,30 @@ async function main() {
   writeFileSync(
     backupFile,
     JSON.stringify(
-      snapshot.docs.map((doc) => ({ id: doc.id, data: toPlain(doc.data()) })),
+      {
+        products: snapshot.docs.map((doc) => ({ id: doc.id, data: toPlain(doc.data()) })),
+        collections: existingCollections.docs.map((doc) => ({
+          id: doc.id,
+          data: toPlain(doc.data()),
+        })),
+      },
       null,
       2,
     ),
   )
-  console.log(`Backup dos produtos atuais: ${backupFile}`)
+  console.log(`Backup de produtos e coleções: ${backupFile}`)
 
   const batch = db.batch()
   for (const { id, doc } of migrated) batch.set(db.collection('products').doc(id), doc)
-  for (const collection of LEGACY_COLLECTIONS) {
+  // Rodar de novo não pode apagar o que o admin editou: só cria coleção que não existe.
+  for (const collection of newCollections) {
     batch.set(db.collection('collections').doc(collection.slug), collection)
   }
   const settingsRef = db.doc('settings/store')
   if (!(await settingsRef.get()).exists) batch.set(settingsRef, DEFAULT_STORE_SETTINGS)
   await batch.commit()
 
-  console.log(
-    `✓ ${migrated.length} produto(s) e ${LEGACY_COLLECTIONS.length} coleção(ões) gravados.`,
-  )
+  console.log(`✓ ${migrated.length} produto(s) e ${newCollections.length} coleção(ões) gravados.`)
 }
 
 main().catch((error) => {

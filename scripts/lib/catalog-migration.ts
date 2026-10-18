@@ -39,13 +39,15 @@ export function isMigrated(doc: Record<string, unknown>): boolean {
   return typeof doc.priceCents === 'number'
 }
 
-export function uniqueSlugs(names: string[]): string[] {
-  const seen = new Map<string, number>()
+/** `taken`: slugs que já existem no banco (produtos migrados antes). */
+export function uniqueSlugs(names: string[], taken: Iterable<string> = []): string[] {
+  const used = new Set(taken)
   return names.map((name) => {
     const base = slugify(name)
-    const count = (seen.get(base) ?? 0) + 1
-    seen.set(base, count)
-    return count === 1 ? base : `${base}-${count}`
+    let slug = base
+    for (let n = 2; used.has(slug); n += 1) slug = `${base}-${n}`
+    used.add(slug)
+    return slug
   })
 }
 

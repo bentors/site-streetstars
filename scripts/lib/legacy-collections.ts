@@ -29,7 +29,7 @@ export const LEGACY_COLLECTIONS: CollectionDoc[] = [
     ],
     status: 'published',
     order: 0,
-    launchedAt: new Date('2024-02-01T00:00:00.000Z'),
+    launchedAt: new Date('2024-02-01T00:00:00-03:00'),
   },
   {
     slug: 'mais-amor-menos-recalque',

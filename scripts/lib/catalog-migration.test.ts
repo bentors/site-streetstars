@@ -112,6 +112,14 @@ describe('estimateWeightGrams', () => {
 })
 
 describe('uniqueSlugs e isMigrated', () => {
+  it('não repete slug de produto já migrado', () => {
+    expect(uniqueSlugs(['Camiseta'], ['camiseta'])).toEqual(['camiseta-2'])
+    expect(uniqueSlugs(['Camiseta', 'Camiseta'], ['camiseta', 'camiseta-2'])).toEqual([
+      'camiseta-3',
+      'camiseta-4',
+    ])
+  })
+
   it('desempata slugs repetidos', () => {
     expect(uniqueSlugs(['Camiseta', 'Camiseta', 'Boné'])).toEqual([
       'camiseta',
