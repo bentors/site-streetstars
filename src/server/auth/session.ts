@@ -91,7 +91,8 @@ export async function requireUser(next = '/conta'): Promise<SessionUser> {
 export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireUser('/admin')
   // 404 em vez de 403: não revela que a área existe.
-  if (!user.isAdmin) notFound()
+  // E-mail verificado também: quem criou antes uma conta com o e-mail promovido não vira admin.
+  if (!user.isAdmin || !user.emailVerified) notFound()
   return user
 }
 

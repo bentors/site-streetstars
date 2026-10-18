@@ -28,6 +28,14 @@ async function main() {
 
   const auth = getAuth()
   const user = await auth.getUserByEmail(email)
+  const providers = user.providerData.map((p) => p.providerId).join(', ') || 'nenhum'
+  if (!user.emailVerified) {
+    console.error(
+      `✗ ${email} ainda não confirmou o e-mail (provedores: ${providers}). Confirme antes de dar admin.`,
+    )
+    process.exit(1)
+  }
+  console.log(`Conta ${user.uid} · provedores: ${providers}`)
   await auth.setCustomUserClaims(user.uid, { ...user.customClaims, admin: true })
   // Invalida a sessão atual: o próximo login já carrega a claim de admin.
   await auth.revokeRefreshTokens(user.uid)

@@ -195,3 +195,16 @@ describe('getAuthAccount', () => {
     expect(await getAuthAccount('u1')).toEqual({ emailVerified: true, hasPassword: false })
   })
 })
+
+describe('requireAdmin: e-mail verificado', () => {
+  it('admin sem e-mail verificado não entra', async () => {
+    cookieStore.get.mockReturnValue({ value: 'cookie' })
+    auth.verifySessionCookie.mockResolvedValue({
+      uid: 'u1',
+      email: 'a@b.com',
+      email_verified: false,
+      admin: true,
+    })
+    await expect(requireAdmin()).rejects.toThrow('NOT_FOUND')
+  })
+})
