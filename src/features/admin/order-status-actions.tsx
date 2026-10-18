@@ -34,7 +34,10 @@ export function OrderStatusActions({
         setMessage({ ok: false, text: result.message })
         return
       }
+      // Limpa para a próxima transição não herdar a observação nem o código desta.
       setChosen(null)
+      setNote('')
+      setTrackingCode('')
       setMessage(
         result.data.emailSent
           ? { ok: true, text: 'Status atualizado.' }

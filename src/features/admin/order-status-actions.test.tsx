@@ -68,6 +68,21 @@ describe('OrderStatusActions', () => {
     expect(router.refresh).not.toHaveBeenCalled()
   })
 
+  it('observação de uma transição não vai para a próxima', async () => {
+    render(
+      <OrderStatusActions
+        orderId="o1"
+        targets={['in_production', 'shipped']}
+        shippedEmailPending={false}
+      />,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Marcar como Em produção' }))
+    await userEvent.type(screen.getByLabelText('Observação (opcional)'), 'Tecido chegou')
+    await userEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Marcar como Enviado' }))
+    expect(screen.getByLabelText('Observação (opcional)')).toHaveValue('')
+  })
+
   it('reenvia o e-mail pendente', async () => {
     render(<OrderStatusActions orderId="o1" targets={['delivered']} shippedEmailPending />)
     await userEvent.click(screen.getByRole('button', { name: 'Reenviar e-mail de envio' }))
