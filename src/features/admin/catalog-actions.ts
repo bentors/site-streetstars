@@ -10,8 +10,9 @@ import { CATALOG_TAG } from '@/server/catalog'
 import { saveCollection } from '@/server/db/collections'
 import { saveProduct, setProductFeatured, setProductStatus } from '@/server/db/products'
 
+// Ids automáticos do Firestore e ids escolhidos (coleções migradas usam o slug); sem '/' nem '.'.
 const isId = (value: unknown): value is string =>
-  typeof value === 'string' && /^[A-Za-z0-9]{1,64}$/.test(value)
+  typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value)
 const BAD = fail('invalid_input', 'Requisição inválida.')
 
 /** O código leva o campo (`invalid_input:price`) para o formulário marcar o input certo. */

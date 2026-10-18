@@ -98,6 +98,20 @@ describe('status e destaque', () => {
 })
 
 describe('saveCollectionAction', () => {
+  it('aceita id com hífen (coleções migradas usam o slug como id) e recusa caminhos', async () => {
+    const values = {
+      ...collectionToForm(null),
+      title: 'Every Star Is Unique',
+      coverImage: 'https://res.cloudinary.com/x/image/upload/c.jpg',
+    }
+    await saveCollectionAction('every-star-is-unique', values)
+    expect(collections.saveCollection).toHaveBeenCalledWith(
+      'every-star-is-unique',
+      expect.objectContaining({ title: 'Every Star Is Unique' }),
+    )
+    expect(await saveCollectionAction('../x', values)).toMatchObject({ code: 'invalid_input' })
+  })
+
   it('converte e atualiza a vitrine', async () => {
     await saveCollectionAction(null, {
       ...collectionToForm(null),

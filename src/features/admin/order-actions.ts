@@ -6,8 +6,9 @@ import { requireAdmin } from '@/server/auth/session'
 import { applyAdminTransition, markOrderSeen } from '@/server/db/orders'
 import { sendShippedEmail } from '@/server/orders/order-emails'
 
+// Ids automáticos do Firestore e ids escolhidos (coleções migradas usam o slug); sem '/' nem '.'.
 const isId = (value: unknown): value is string =>
-  typeof value === 'string' && /^[A-Za-z0-9]{1,64}$/.test(value)
+  typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value)
 const BAD_ID = fail('invalid_input', 'Pedido inválido.')
 
 async function trySendShipped(orderId: string): Promise<boolean> {
