@@ -6,11 +6,13 @@ SHELL := bash
 MAKEFLAGS += --no-print-directory
 
 EMAIL ?=
+FILE ?=
+ENV ?= .env.local
 SHELLCHECK_IMAGE := koalaman/shellcheck:v0.10.0
 
 .PHONY: help setup doctor dev build start lint format format-check typecheck test test-emulator \
 	check lint-sh emulators-up emulators-down emulators-logs grant-admin \
-	migrate-catalog migrate-catalog-apply clean
+	migrate-catalog migrate-catalog-apply catalog-export catalog-import clean
 
 help: ## Lista os comandos disponíveis
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -83,6 +85,14 @@ migrate-catalog: ## Simula a migração do catálogo antigo (não grava nada)
 
 migrate-catalog-apply: ## Migra o catálogo antigo (faz backup em .backups/ e grava)
 	npm run migrate-catalog -- --apply
+
+catalog-export: ## Exporta produtos, coleções e configurações: make catalog-export FILE=.backups/catalogo.json
+	@test -n "$(FILE)" || { echo "Uso: make catalog-export FILE=arquivo.json"; exit 1; }
+	npx tsx --env-file=.env.local scripts/catalog-transfer.ts export "$(FILE)"
+
+catalog-import: ## Importa sem sobrescrever: make catalog-import FILE=... ENV=.env.production.local
+	@test -n "$(FILE)" || { echo "Uso: make catalog-import FILE=arquivo.json ENV=.env.production.local"; exit 1; }
+	npx tsx --env-file=$(ENV) scripts/catalog-transfer.ts import "$(FILE)"
 
 clean: ## Apaga artefatos locais (.next, coverage, dados dos emuladores)
 	rm -rf .next coverage .emulator-data
