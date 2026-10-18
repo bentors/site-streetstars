@@ -204,6 +204,54 @@ describe('checkout', () => {
     expect(actions.createOrderAction).not.toHaveBeenCalled()
   })
 
+  it('Enter no cupom aplica o cupom e não vai para o pagamento', async () => {
+    actions.previewCouponAction.mockResolvedValue({
+      ok: true,
+      data: { code: 'BEMVINDO', type: 'percent', value: 10, discountCents: 2998 },
+    })
+    renderCheckout()
+    const user = await fillAddress()
+    await user.click(screen.getByRole('radio', { name: /SEDEX/ }))
+    await user.type(screen.getByLabelText('Cupom'), 'bemvindo{Enter}')
+    expect(actions.previewCouponAction).toHaveBeenCalledWith('bemvindo', [line])
+    expect(actions.createOrderAction).not.toHaveBeenCalled()
+  })
+
+  it('cupom digitado e não aplicado bloqueia o pagamento', async () => {
+    renderCheckout()
+    const user = await fillAddress()
+    await user.click(screen.getByRole('radio', { name: /SEDEX/ }))
+    await user.type(screen.getByLabelText('Cupom'), 'bemvindo')
+    await user.click(payButton())
+    expect(
+      await screen.findByText('Aplique o cupom ou apague o campo antes de pagar.'),
+    ).toBeInTheDocument()
+    expect(actions.createOrderAction).not.toHaveBeenCalled()
+  })
+
+  it('resposta antiga do CEP não sobrescreve a do CEP corrigido', async () => {
+    let releaseOld: (value: unknown) => void = () => {}
+    actions.lookupCepAction
+      .mockImplementationOnce(() => new Promise((resolve) => (releaseOld = resolve)))
+      .mockResolvedValueOnce({
+        ok: true,
+        data: { street: 'Rua Nova', neighborhood: 'Centro', city: 'Rio de Janeiro', state: 'RJ' },
+      })
+    renderCheckout()
+    const user = userEvent.setup()
+    await screen.findByText('Camiseta')
+    await user.type(screen.getByLabelText('CEP'), '01001000')
+    await user.clear(screen.getByLabelText('CEP'))
+    await user.type(screen.getByLabelText('CEP'), '20040002')
+    await waitFor(() => expect(screen.getByLabelText('Rua')).toHaveValue('Rua Nova'))
+    releaseOld({
+      ok: true,
+      data: { street: 'Praça da Sé', neighborhood: 'Sé', city: 'São Paulo', state: 'SP' },
+    })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(screen.getByLabelText('Rua')).toHaveValue('Rua Nova')
+  })
+
   it('cupom inválido mostra o motivo; válido entra no resumo', async () => {
     actions.previewCouponAction
       .mockResolvedValueOnce({ ok: false, code: 'coupon_expired', message: 'Este cupom expirou.' })

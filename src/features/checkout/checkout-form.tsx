@@ -96,6 +96,8 @@ export function CheckoutForm({
   const [applying, startCoupon] = useTransition()
   const [submitting, startSubmit] = useTransition()
   const request = useRef(0)
+  // Cotação mais recente: resposta de um CEP antigo que chega depois é descartada.
+  const quoteRequest = useRef(0)
   // Mesma tentativa (clique duplo, erro de rede) reaproveita a chave; pedido diferente ganha outra.
   const attempt = useRef<{ key: string; payload: string } | null>(null)
 
@@ -125,12 +127,14 @@ export function CheckoutForm({
 
   /** `lookup` só para CEP digitado: endereço salvo ou já preenchido não é trocado pelo ViaCEP. */
   function quote(cep: string, lookup = true) {
+    const id = ++quoteRequest.current
     startQuote(async () => {
       try {
         const [found, quoted] = await Promise.all([
           lookup ? lookupCepAction(cep) : null,
           quoteShippingAction(cep, lines),
         ])
+        if (id !== quoteRequest.current) return
         if (found) {
           // CEP de cidade inteira vem sem rua e bairro: não apaga o que o cliente digitou.
           if (found.ok) {
@@ -148,7 +152,9 @@ export function CheckoutForm({
         )
         notify({ shipping: quoted.ok ? undefined : quoted.message })
       } catch {
-        notify({ shipping: 'Frete indisponível no momento. Tente novamente.' })
+        if (id === quoteRequest.current) {
+          notify({ shipping: 'Frete indisponível no momento. Tente novamente.' })
+        }
       }
     })
   }
@@ -160,6 +166,7 @@ export function CheckoutForm({
     setOptions(null)
     setServiceId(null)
     if (saved) quote(saved.cep, false)
+    else quoteRequest.current += 1
   }
 
   function onCepChange(value: string) {
@@ -168,6 +175,7 @@ export function CheckoutForm({
     setServiceId(null)
     const cep = normalizeCep(value)
     if (cep.length === 8) quote(cep)
+    else quoteRequest.current += 1
   }
 
   function applyCoupon() {
@@ -194,6 +202,10 @@ export function CheckoutForm({
     }
     if (serviceId === null) {
       notify({ form: 'Escolha uma opção de frete.' })
+      return
+    }
+    if (couponInput.trim() && !coupon) {
+      notify({ form: 'Aplique o cupom ou apague o campo antes de pagar.' })
       return
     }
 
@@ -388,6 +400,13 @@ export function CheckoutForm({
                 autoCapitalize="characters"
                 value={couponInput}
                 onValue={setCouponInput}
+                onKeyDown={(event) => {
+                  // Enter aqui aplica o cupom; sem isso, o form enviaria o pedido sem o desconto.
+                  if (event.key === 'Enter') {
+                    event.preventDefault()
+                    applyCoupon()
+                  }
+                }}
               />
             </div>
             <Button variant="secondary" loading={applying} onClick={applyCoupon}>
@@ -405,7 +424,10 @@ export function CheckoutForm({
               <button
                 type="button"
                 className="underline hover:text-paper"
-                onClick={() => setCoupon(null)}
+                onClick={() => {
+                  setCoupon(null)
+                  setCouponInput('')
+                }}
               >
                 Remover
               </button>
