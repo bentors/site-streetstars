@@ -8,12 +8,15 @@ import { retryPaymentAction } from './actions'
 export function RetryPaymentButton({ token }: { token: string }) {
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  // Fica carregando até sair da página: outro clique criaria outra preferência no MP.
+  const [redirecting, setRedirecting] = useState(false)
 
   function pay() {
     startTransition(async () => {
       try {
         const result = await retryPaymentAction(token)
         if (result.ok) {
+          setRedirecting(true)
           redirectTo(result.data.redirectUrl)
           return
         }
@@ -26,7 +29,12 @@ export function RetryPaymentButton({ token }: { token: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <Button size="lg" loading={pending} onClick={pay}>
+      <Button
+        size="lg"
+        loading={pending || redirecting}
+        disabled={pending || redirecting}
+        onClick={pay}
+      >
         Pagar agora
       </Button>
       {error ? (

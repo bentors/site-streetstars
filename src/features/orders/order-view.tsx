@@ -8,8 +8,32 @@ import { RetryPaymentButton } from './retry-payment-button'
 
 export type OrderViewData = Pick<
   Order,
-  'number' | 'status' | 'items' | 'totals' | 'shipping' | 'shippingAddress' | 'tracking' | 'coupon'
+  | 'number'
+  | 'status'
+  | 'items'
+  | 'totals'
+  | 'shipping'
+  | 'shippingAddress'
+  | 'tracking'
+  | 'coupon'
+  | 'payment'
 >
+
+const PROCESSING = ['pending', 'in_process', 'authorized', 'approved']
+
+export function paymentState(
+  order: Pick<OrderViewData, 'status' | 'payment'>,
+  payable: boolean,
+  returnStatus: string | null,
+): 'processing' | 'rejected' | 'payable' | 'closed' {
+  if (order.status !== 'pending_payment' || !payable) return 'closed'
+  // O cliente volta do MP antes do webhook: o status da URL e o do pagamento já valem.
+  if (PROCESSING.includes(order.payment.status ?? '') || PROCESSING.includes(returnStatus ?? '')) {
+    return 'processing'
+  }
+  if (order.payment.status === 'rejected' || order.payment.status === 'cancelled') return 'rejected'
+  return 'payable'
+}
 
 function statusMessage(order: OrderViewData, payable: boolean): string {
   const days = order.shipping.productionDays + order.shipping.deliveryDays
@@ -40,13 +64,16 @@ export function OrderView({
   token,
   payable,
   helpUrl,
+  returnStatus,
 }: {
   order: OrderViewData
   token: string
   payable: boolean
   helpUrl: string | null
+  /** `status` que o Mercado Pago anexa à back_url. */
+  returnStatus: string | null
 }) {
-  const awaitingPayment = order.status === 'pending_payment' && payable
+  const state = paymentState(order, payable, returnStatus)
   const title =
     order.status === 'pending_payment' && !payable
       ? ORDER_STATUS_LABELS.expired
@@ -63,7 +90,22 @@ export function OrderView({
         <p className="text-sm text-muted">{statusMessage(order, payable)}</p>
       </header>
 
-      {awaitingPayment ? (
+      {state === 'processing' ? (
+        <>
+          <PendingPaymentWatcher />
+          <p role="status" className="border border-info/30 bg-info/5 p-4 text-xs text-info">
+            Recebemos seu pagamento e estamos aguardando a confirmação do Mercado Pago. Esta página
+            atualiza sozinha; não precisa pagar de novo.
+          </p>
+        </>
+      ) : null}
+      {state === 'rejected' ? (
+        <p role="alert" className="border border-danger/30 bg-danger/10 p-4 text-xs text-danger">
+          O último pagamento não foi aprovado. Você pode tentar de novo, com outro cartão ou com
+          Pix.
+        </p>
+      ) : null}
+      {state === 'payable' || state === 'rejected' ? (
         <>
           <PendingPaymentWatcher />
           <RetryPaymentButton token={token} />

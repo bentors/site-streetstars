@@ -10,8 +10,15 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = { title: 'Seu pedido', robots: { index: false, follow: false } }
 
-export default async function OrderPage({ params }: { params: Promise<{ token: string }> }) {
+export default async function OrderPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>
+  searchParams: Promise<{ status?: string | string[] }>
+}) {
   const { token } = await params
+  const { status } = await searchParams
   const order = await getOrderByToken(token)
   if (!order) notFound()
 
@@ -22,6 +29,7 @@ export default async function OrderPage({ params }: { params: Promise<{ token: s
         order={order}
         token={token}
         payable={isPayable(order)}
+        returnStatus={typeof status === 'string' ? status : null}
         helpUrl={whatsappUrl(
           settings.whatsapp,
           `Olá! Tenho uma dúvida sobre o pedido ${order.number}.`,

@@ -47,6 +47,14 @@ const order: OrderViewData = {
   },
   tracking: null,
   coupon: null,
+  payment: {
+    preferenceId: 'pref',
+    paymentId: null,
+    status: null,
+    method: null,
+    paidAmountCents: null,
+    paidAt: null,
+  },
 }
 
 beforeEach(() => vi.resetAllMocks())
@@ -55,7 +63,7 @@ afterEach(() => vi.useRealTimers())
 describe('OrderView', () => {
   it('pendente: "Pagar agora" gera um link novo e vai para o Mercado Pago', async () => {
     retryPaymentAction.mockResolvedValue({ ok: true, data: { redirectUrl: 'https://mp.test/2' } })
-    render(<OrderView order={order} token="o1.mac" payable helpUrl={null} />)
+    render(<OrderView order={order} token="o1.mac" payable helpUrl={null} returnStatus={null} />)
     expect(screen.getByRole('heading', { name: 'Aguardando pagamento' })).toBeInTheDocument()
     expect(screen.getByText(/R\$\s324,80/)).toBeInTheDocument()
 
@@ -66,14 +74,22 @@ describe('OrderView', () => {
 
   it('erro ao gerar o link aparece na tela', async () => {
     retryPaymentAction.mockResolvedValue({ ok: false, code: 'x', message: 'Tente mais tarde.' })
-    render(<OrderView order={order} token="o1.mac" payable helpUrl={null} />)
+    render(<OrderView order={order} token="o1.mac" payable helpUrl={null} returnStatus={null} />)
     await userEvent.click(screen.getByRole('button', { name: 'Pagar agora' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Tente mais tarde.')
     expect(redirectTo).not.toHaveBeenCalled()
   })
 
   it('pendente fora do prazo: sem botão, com orientação', () => {
-    render(<OrderView order={order} token="o1.mac" payable={false} helpUrl="https://wa.me/55" />)
+    render(
+      <OrderView
+        order={order}
+        token="o1.mac"
+        payable={false}
+        helpUrl="https://wa.me/55"
+        returnStatus={null}
+      />,
+    )
     expect(screen.queryByRole('button', { name: 'Pagar agora' })).not.toBeInTheDocument()
     expect(
       screen.getByRole('heading', { name: 'Prazo de pagamento encerrado' }),
@@ -95,6 +111,7 @@ describe('OrderView', () => {
         token="o1.mac"
         payable={false}
         helpUrl={null}
+        returnStatus={null}
       />,
     )
     expect(screen.getByText('AA123456789BR')).toBeInTheDocument()
@@ -106,10 +123,53 @@ describe('OrderView', () => {
 
   it('atualiza a página enquanto aguarda o pagamento', () => {
     vi.useFakeTimers()
-    render(<OrderView order={order} token="o1.mac" payable helpUrl={null} />)
+    render(<OrderView order={order} token="o1.mac" payable helpUrl={null} returnStatus={null} />)
     act(() => vi.advanceTimersByTime(5000))
     expect(refresh).toHaveBeenCalledTimes(1)
     act(() => vi.advanceTimersByTime(11 * 60 * 1000))
     expect(refresh.mock.calls.length).toBeLessThan(125)
+  })
+
+  it('Pix gerado ou cartão em análise: sem "Pagar agora", com aviso de processamento', () => {
+    render(
+      <OrderView
+        order={{ ...order, payment: { ...order.payment, paymentId: '9', status: 'pending' } }}
+        token="o1.mac"
+        payable
+        helpUrl={null}
+        returnStatus={null}
+      />,
+    )
+    expect(screen.queryByRole('button', { name: 'Pagar agora' })).not.toBeInTheDocument()
+    expect(screen.getByText(/aguardando a confirmação do Mercado Pago/)).toBeInTheDocument()
+  })
+
+  it('voltou do Mercado Pago aprovado antes do webhook: não oferece pagar de novo', () => {
+    render(
+      <OrderView order={order} token="o1.mac" payable helpUrl={null} returnStatus="approved" />,
+    )
+    expect(screen.queryByRole('button', { name: 'Pagar agora' })).not.toBeInTheDocument()
+  })
+
+  it('pagamento recusado: avisa e oferece tentar de novo', () => {
+    render(
+      <OrderView
+        order={{ ...order, payment: { ...order.payment, paymentId: '9', status: 'rejected' } }}
+        token="o1.mac"
+        payable
+        helpUrl={null}
+        returnStatus={null}
+      />,
+    )
+    expect(screen.getByText(/não foi aprovado/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Pagar agora' })).toBeInTheDocument()
+  })
+
+  it('"Pagar agora" continua carregando enquanto vai para o Mercado Pago', async () => {
+    retryPaymentAction.mockResolvedValue({ ok: true, data: { redirectUrl: 'https://mp.test' } })
+    render(<OrderView order={order} token="o1.mac" payable helpUrl={null} returnStatus={null} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Pagar agora' }))
+    await waitFor(() => expect(redirectTo).toHaveBeenCalled())
+    expect(screen.getByRole('button', { name: /Pagar agora/ })).toBeDisabled()
   })
 })
