@@ -84,6 +84,7 @@ export function orderDoc(overrides: Partial<OrderDoc> = {}): OrderDoc {
     },
     tracking: null,
     notifications: { confirmationSentAt: null, shippedSentAt: null, adminAlertSentAt: null },
+    adminSeenAt: null,
     createdAt: NOW,
     updatedAt: NOW,
     expiresAt: new Date(NOW.getTime() + 48 * 60 * 60 * 1000),

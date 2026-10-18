@@ -107,6 +107,7 @@ export async function createOrder(
       },
       tracking: null,
       notifications: { confirmationSentAt: null, shippedSentAt: null, adminAlertSentAt: null },
+      adminSeenAt: null,
       createdAt: ctx.now,
       updatedAt: ctx.now,
       expiresAt: new Date(ctx.now.getTime() + ORDER_TTL_MS),

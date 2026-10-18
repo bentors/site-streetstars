@@ -1,7 +1,10 @@
 import 'server-only'
-import type { Transaction } from 'firebase-admin/firestore'
+import { FieldValue, type Query, type Transaction } from 'firebase-admin/firestore'
 import { z } from 'zod'
-import { ORDER_STATUSES } from '@/lib/order-status'
+import type { AdminTransition } from '@/lib/admin-orders'
+import { ORDER_STATUS_LABELS, ORDER_STATUSES, type OrderStatus } from '@/lib/order-status'
+import { fail, ok, type Result } from '@/lib/result'
+import { adminTargets, trackingUrl } from '@/server/domain/admin-order'
 import { zodConverter } from './convert'
 import { db } from './firebase-admin'
 
@@ -92,6 +95,8 @@ export const orderSchema = z.object({
     /** E-mail de "novo pedido pago" para a loja. */
     adminAlertSentAt: z.date().nullable(),
   }),
+  /** Quando o admin abriu o pedido pago (indicador de "novo" no painel). */
+  adminSeenAt: z.date().nullable().default(null),
   createdAt: z.date(),
   updatedAt: z.date(),
   expiresAt: z.date(),
@@ -152,5 +157,84 @@ export async function linkGuestOrders(uid: string, email: string): Promise<numbe
     const now = new Date()
     for (const doc of snapshot.docs) tx.update(doc.ref, { 'customer.uid': uid, updatedAt: now })
     return snapshot.size
+  })
+}
+
+export type AdminOrderFilter = { status: OrderStatus | null; search: string }
+
+const toOrders = (docs: { id: string; data: () => OrderDoc }[]): Order[] =>
+  docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+
+export async function listAdminOrders({ status, search }: AdminOrderFilter): Promise<Order[]> {
+  const term = search.trim()
+  const number = /^(?:ss-)?(\d+)$/i.exec(term)?.[1]
+  let query: Query<OrderDoc>
+  if (number) query = ordersCollection().where('number', '==', `SS-${number}`)
+  else if (term.includes('@')) {
+    query = ordersCollection().where('customer.email', '==', term.toLowerCase())
+  } else if (term) return []
+  else if (status) {
+    query = ordersCollection().where('status', '==', status).orderBy('createdAt', 'desc')
+  } else query = ordersCollection().orderBy('createdAt', 'desc')
+
+  // Busca por número/e-mail usa só igualdade (sem índice composto); status e ordem em memória.
+  return toOrders((await query.limit(100).get()).docs)
+    .filter((order) => !status || order.status === status)
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+}
+
+/** Pagos que o admin ainda não abriu. Filtra em memória: pedido antigo pode não ter o campo. */
+export async function listUnseenPaidOrders(): Promise<Order[]> {
+  // ponytail: até 200 pagos de uma vez; acima disso, contar com índice em adminSeenAt.
+  const snapshot = await ordersCollection().where('status', '==', 'paid').limit(200).get()
+  return toOrders(snapshot.docs).filter((order) => !order.adminSeenAt)
+}
+
+export async function markOrderSeen(id: string, now: Date): Promise<void> {
+  const ref = ordersCollection().doc(id)
+  const order = (await ref.get()).data()
+  if (order && !order.adminSeenAt) await ref.update({ adminSeenAt: now })
+}
+
+export async function applyAdminTransition(
+  id: string,
+  input: AdminTransition,
+  by: string,
+  now: Date,
+): Promise<Result<Order>> {
+  const ref = ordersCollection().doc(id)
+  return db().runTransaction(async (tx) => {
+    // Relê aqui: o webhook pode ter mudado o pedido depois que a página carregou.
+    const order = (await tx.get(ref)).data()
+    if (!order) return fail('not_found', 'Pedido não encontrado.')
+    if (!adminTargets(order.status).includes(input.to)) {
+      return fail(
+        'invalid_transition',
+        `Não é possível passar de "${ORDER_STATUS_LABELS[order.status]}" para "${ORDER_STATUS_LABELS[input.to]}". Recarregue a página.`,
+      )
+    }
+    const tracking =
+      input.to === 'shipped'
+        ? {
+            carrier: order.shipping.company || 'Correios',
+            code: input.trackingCode,
+            url: trackingUrl(input.trackingCode),
+          }
+        : order.tracking
+    const entry = { status: input.to, at: now, by, ...(input.note ? { note: input.note } : {}) }
+    tx.update(ref, {
+      status: input.to,
+      tracking,
+      statusHistory: FieldValue.arrayUnion(entry),
+      updatedAt: now,
+    })
+    return ok({
+      id,
+      ...order,
+      status: input.to,
+      tracking,
+      statusHistory: [...order.statusHistory, entry],
+      updatedAt: now,
+    })
   })
 }

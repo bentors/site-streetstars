@@ -4,8 +4,8 @@ const optionalNote = z
   .string()
   .trim()
   .max(500, 'Muito longo')
-  .optional()
   .transform((note) => note || undefined)
+  .optional()
 const requiredNote = z.string().trim().min(1, 'Descreva o motivo.').max(500, 'Muito longo')
 
 export const adminTransitionSchema = z.discriminatedUnion('to', [
