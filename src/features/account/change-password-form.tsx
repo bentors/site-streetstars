@@ -35,22 +35,28 @@ export function ChangePasswordForm({ email }: { email: string }) {
 
     setPending(true)
     const auth = clientAuth()
+    let changed = false
     try {
       const { user } = await signInWithEmailAndPassword(auth, email, current)
       await updatePassword(user, next)
-      // A troca revoga os tokens antigos: o cookie precisa nascer do token novo.
-      const session = await signInAction(await user.getIdToken(true))
-      await signOut(auth)
-      if (!session.ok) {
-        router.replace('/entrar?next=/conta/seguranca')
-        return
-      }
+      changed = true
+      // A troca revoga todo login anterior a ela (inclusive o de cima): o cookie novo
+      // precisa sair de um login feito com a senha nova.
+      const fresh = await signInWithEmailAndPassword(auth, email, next)
+      const session = await signInAction(await fresh.user.getIdToken())
+      if (!session.ok) throw new Error(session.code)
       setCurrent('')
       setNext('')
       setConfirm('')
       setStatus({ ok: true, text: 'Senha alterada.' })
       router.refresh()
     } catch (err) {
+      if (changed) {
+        // A senha mudou de verdade: nunca dizer o contrário.
+        setStatus({ ok: true, text: 'Senha alterada. Entre de novo com a nova senha.' })
+        router.replace('/entrar?next=/conta/seguranca')
+        return
+      }
       const code = authErrorCode(err)
       setStatus({
         ok: false,
@@ -59,6 +65,11 @@ export function ChangePasswordForm({ email }: { email: string }) {
           : (authErrorMessage(code, 'Não foi possível trocar a senha. Tente de novo.') ?? ''),
       })
     } finally {
+      try {
+        await signOut(auth)
+      } catch {
+        // Persistência em memória: não sobra login no navegador mesmo se falhar.
+      }
       setPending(false)
     }
   }

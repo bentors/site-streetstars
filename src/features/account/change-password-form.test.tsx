@@ -16,11 +16,14 @@ vi.mock('@/features/auth/actions', () => ({ signInAction }))
 
 import { ChangePasswordForm } from './change-password-form'
 
-const user = { getIdToken: vi.fn().mockResolvedValue('fresh-token') }
+const user = { getIdToken: vi.fn().mockResolvedValue('old-token') }
+const freshUser = { getIdToken: vi.fn().mockResolvedValue('fresh-token') }
 
 beforeEach(() => {
   vi.clearAllMocks()
-  firebase.signInWithEmailAndPassword.mockResolvedValue({ user })
+  firebase.signInWithEmailAndPassword
+    .mockResolvedValueOnce({ user })
+    .mockResolvedValueOnce({ user: freshUser })
   firebase.updatePassword.mockResolvedValue(undefined)
   signInAction.mockResolvedValue({ ok: true, data: null })
 })
@@ -34,17 +37,29 @@ async function fill(current: string, next: string, confirm = next) {
 }
 
 describe('ChangePasswordForm', () => {
-  it('reautentica, troca a senha e renova a sessão', async () => {
+  it('reautentica, troca a senha e renova a sessão com um login novo', async () => {
     await fill('antiga123', 'novinha456')
-    expect(firebase.signInWithEmailAndPassword).toHaveBeenCalledWith({}, 'ana@b.com', 'antiga123')
+    expect(firebase.signInWithEmailAndPassword).toHaveBeenNthCalledWith(
+      1,
+      {},
+      'ana@b.com',
+      'antiga123',
+    )
     expect(firebase.updatePassword).toHaveBeenCalledWith(user, 'novinha456')
-    expect(user.getIdToken).toHaveBeenCalledWith(true)
+    // A troca revoga logins anteriores a ela: o cookie sai de um login com a senha nova.
+    expect(firebase.signInWithEmailAndPassword).toHaveBeenNthCalledWith(
+      2,
+      {},
+      'ana@b.com',
+      'novinha456',
+    )
     expect(signInAction).toHaveBeenCalledWith('fresh-token')
     expect(firebase.signOut).toHaveBeenCalled()
     expect(await screen.findByText('Senha alterada.')).toBeInTheDocument()
   })
 
   it('senha atual errada: mensagem clara e nada muda', async () => {
+    firebase.signInWithEmailAndPassword.mockReset()
     firebase.signInWithEmailAndPassword.mockRejectedValue({ code: 'auth/invalid-credential' })
     await fill('errada123', 'novinha456')
     expect(await screen.findByText('Senha atual incorreta.')).toBeInTheDocument()
@@ -63,9 +78,17 @@ describe('ChangePasswordForm', () => {
     expect(firebase.signInWithEmailAndPassword).not.toHaveBeenCalled()
   })
 
-  it('se a sessão não renovar, manda entrar de novo', async () => {
-    signInAction.mockResolvedValue({ ok: false, code: 'session_failed', message: 'x' })
+  it('se a sessão não renovar, avisa que a senha mudou e manda entrar de novo', async () => {
+    signInAction.mockResolvedValue({ ok: false, code: 'rate_limited', message: 'x' })
     await fill('antiga123', 'novinha456')
+    expect(await screen.findByText(/Senha alterada\. Entre de novo/)).toBeInTheDocument()
     expect(router.replace).toHaveBeenCalledWith('/entrar?next=/conta/seguranca')
+  })
+
+  it('erro de rede depois da troca não diz que a senha não mudou', async () => {
+    signInAction.mockRejectedValue(new Error('rede'))
+    await fill('antiga123', 'novinha456')
+    expect(await screen.findByText(/Senha alterada\. Entre de novo/)).toBeInTheDocument()
+    expect(screen.queryByText(/Não foi possível trocar a senha/)).not.toBeInTheDocument()
   })
 })
