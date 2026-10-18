@@ -23,3 +23,9 @@ export function parseReaisToCents(input: string): Cents | null {
 export function formatBRL(cents: Cents): string {
   return brl.format(cents / 100)
 }
+
+/** Centavos para o campo de texto do admin: 14990 → "149,90". */
+export function formatCentsInput(cents: Cents): string {
+  const reais = Math.floor(cents / 100)
+  return `${reais},${String(cents % 100).padStart(2, '0')}`
+}

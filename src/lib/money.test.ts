@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatBRL, isCents, parseReaisToCents, toCents } from './money'
+import { formatBRL, formatCentsInput, isCents, parseReaisToCents, toCents } from './money'
 
 describe('formatBRL', () => {
   it('formata centavos em reais', () => {
@@ -42,5 +42,16 @@ describe('isCents', () => {
     expect(isCents(1.5)).toBe(false)
     expect(isCents(-1)).toBe(false)
     expect(isCents('100')).toBe(false)
+  })
+})
+
+describe('formatCentsInput', () => {
+  it.each([
+    [14990, '149,90'],
+    [5, '0,05'],
+    [100, '1,00'],
+  ])('%i → %s', (cents, text) => {
+    expect(formatCentsInput(cents)).toBe(text)
+    expect(parseReaisToCents(text)).toBe(cents)
   })
 })

@@ -57,3 +57,4 @@ export type ProductDoc = z.infer<typeof productSchema>
 export type ProductColor = z.infer<typeof productColorSchema>
 export type SizeGuide = z.infer<typeof sizeGuideSchema>
 export type CollectionDoc = z.infer<typeof collectionSchema>
+export type ProductImage = z.infer<typeof productImageSchema>
