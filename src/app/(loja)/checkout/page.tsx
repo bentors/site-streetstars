@@ -22,7 +22,11 @@ export default async function CheckoutPage() {
         <h1 className="text-3xl font-black tracking-tighter uppercase italic md:text-4xl">
           Finalizar compra
         </h1>
-        <CheckoutForm defaults={defaults} />
+        <CheckoutForm
+          defaults={defaults}
+          addresses={profile?.addresses ?? []}
+          signedIn={session !== null}
+        />
       </Container>
     </div>
   )

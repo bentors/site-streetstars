@@ -1,13 +1,15 @@
 'use server'
 
+import { z } from 'zod'
 import { isValidCep, normalizeCep } from '@/lib/cep'
-import type { ShippingOption } from '@/lib/checkout'
+import { checkoutAddressSchema, checkoutCustomerSchema, type ShippingOption } from '@/lib/checkout'
 import { fail, ok, type Result } from '@/lib/result'
 import { getSessionUser } from '@/server/auth/session'
 import { loadCheckoutCart } from '@/server/checkout/cart'
 import { createOrder } from '@/server/checkout/create-order'
 import { shippingOptionsFor } from '@/server/checkout/shipping'
 import { getCouponRule } from '@/server/db/coupons'
+import { rememberCheckoutDetails } from '@/server/db/users'
 import { applyCoupon, type AppliedCoupon } from '@/server/domain/coupons'
 import { lookupCep, type CepAddress } from '@/server/integrations/viacep'
 import { clientIp, rateLimit, type RateLimitRule } from '@/server/ratelimit'
@@ -60,6 +62,28 @@ export async function previewCouponAction(
   return applyCoupon(coupon, cart.priced.subtotalCents, new Date())
 }
 
+const rememberSchema = z.object({
+  customer: checkoutCustomerSchema,
+  address: checkoutAddressSchema,
+  saveAddress: z.boolean().optional(),
+})
+
+/** Completa a conta com o que foi digitado no checkout. Nunca derruba o pedido. */
+async function remember(uid: string, input: unknown): Promise<void> {
+  const parsed = rememberSchema.safeParse(input)
+  if (!parsed.success) return
+  const { customer, address, saveAddress } = parsed.data
+  try {
+    await rememberCheckoutDetails(
+      uid,
+      { phone: customer.phone, cpf: customer.cpf, address: saveAddress ? address : null },
+      new Date(),
+    )
+  } catch (error) {
+    console.error('createOrder: falha ao guardar dados na conta', { uid, error })
+  }
+}
+
 export async function createOrderAction(input: unknown): Promise<Result<{ redirectUrl: string }>> {
   if (!(await allowed('order', { limit: 10, windowSec: 60 }))) return LIMITED
   const email = (input as { customer?: { email?: unknown } } | null)?.customer?.email
@@ -68,5 +92,7 @@ export async function createOrderAction(input: unknown): Promise<Result<{ redire
     if (!(await rateLimit(key, { limit: 5, windowSec: 600 }))) return LIMITED
   }
   const user = await getSessionUser()
-  return createOrder(input, { uid: user?.uid ?? null, now: new Date() })
+  const result = await createOrder(input, { uid: user?.uid ?? null, now: new Date() })
+  if (result.ok && user) await remember(user.uid, input)
+  return result
 }

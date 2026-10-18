@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState, useTransition } from 'react'
-import { Button, Spinner, TextField } from '@/components/ui'
+import { Button, Checkbox, Field, Select, Spinner, TextField } from '@/components/ui'
 import { priceCartAction } from '@/features/cart/actions'
 import { useCart } from '@/features/cart/cart-context'
 import { OrderSummary } from '@/features/orders/order-summary'
+import type { SavedAddress } from '@/lib/account'
 import { formatCep, normalizeCep } from '@/lib/cep'
 import { checkoutAddressSchema, checkoutCustomerSchema, type ShippingOption } from '@/lib/checkout'
 import { formatCpf } from '@/lib/cpf'
@@ -43,6 +44,14 @@ function validate(contact: Contact, address: Address): Errors {
   ) as Errors
 }
 
+function fieldsOf(saved: SavedAddress): Address {
+  const { street, number, complement, neighborhood, city, state } = saved
+  return { cep: formatCep(saved.cep), street, number, complement, neighborhood, city, state }
+}
+
+const addressLabel = (saved: SavedAddress) =>
+  `${saved.label || `${saved.street}, ${saved.number}`} · ${formatCep(saved.cep)}`
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <fieldset className="flex flex-col gap-4">
@@ -52,14 +61,27 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-export function CheckoutForm({ defaults }: { defaults: CheckoutDefaults }) {
+export function CheckoutForm({
+  defaults,
+  addresses = [],
+  signedIn = false,
+}: {
+  defaults: CheckoutDefaults
+  addresses?: SavedAddress[]
+  signedIn?: boolean
+}) {
+  const initial = addresses.find((saved) => saved.isDefault) ?? addresses[0]
   const { lines, removeKeys, clear } = useCart()
   const [contact, setContact] = useState<Contact>(() => ({
     ...defaults,
     phone: formatPhone(defaults.phone),
     cpf: formatCpf(defaults.cpf),
   }))
-  const [address, setAddress] = useState<Address>(EMPTY_ADDRESS)
+  const [address, setAddress] = useState<Address>(() =>
+    initial ? fieldsOf(initial) : EMPTY_ADDRESS,
+  )
+  const [savedId, setSavedId] = useState(initial?.id ?? '')
+  const [saveAddress, setSaveAddress] = useState(addresses.length === 0)
   const [errors, setErrors] = useState<Errors>({})
   const [notices, setNotices] = useState<Notices>({})
   const [priced, setPriced] = useState<PricedCart | null>(null)
@@ -124,6 +146,15 @@ export function CheckoutForm({ defaults }: { defaults: CheckoutDefaults }) {
     })
   }
 
+  function chooseSaved(id: string) {
+    setSavedId(id)
+    const saved = addresses.find((candidate) => candidate.id === id)
+    setAddress(saved ? fieldsOf(saved) : EMPTY_ADDRESS)
+    setOptions(null)
+    setServiceId(null)
+    if (saved) quote(saved.cep)
+  }
+
   function onCepChange(value: string) {
     setAddress((current) => ({ ...current, cep: formatCep(value) }))
     setOptions(null)
@@ -169,7 +200,12 @@ export function CheckoutForm({ defaults }: { defaults: CheckoutDefaults }) {
 
     startSubmit(async () => {
       try {
-        const result = await createOrderAction({ ...order, idempotencyKey })
+        // saveAddress fica fora do payload: mudar só o checkbox não cria outro pedido.
+        const result = await createOrderAction({
+          ...order,
+          idempotencyKey,
+          saveAddress: signedIn && saveAddress,
+        })
         if (result.ok) {
           setRedirecting(true)
           clear()
@@ -254,12 +290,37 @@ export function CheckoutForm({ defaults }: { defaults: CheckoutDefaults }) {
         </Section>
 
         <Section title="2. Entrega">
+          {addresses.length > 0 ? (
+            <Field label="Endereço salvo">
+              {(control) => (
+                <Select
+                  {...control}
+                  value={savedId}
+                  onChange={(event) => chooseSaved(event.target.value)}
+                >
+                  {addresses.map((saved) => (
+                    <option key={saved.id} value={saved.id}>
+                      {addressLabel(saved)}
+                    </option>
+                  ))}
+                  <option value="">Outro endereço</option>
+                </Select>
+              )}
+            </Field>
+          ) : null}
           <AddressFields
             value={address}
             errors={errors}
             onChange={(patch) => setAddress((current) => ({ ...current, ...patch }))}
             onCepChange={onCepChange}
           />
+          {signedIn ? (
+            <Checkbox
+              checked={saveAddress}
+              onChange={(event) => setSaveAddress(event.target.checked)}
+              label="Salvar este endereço na minha conta"
+            />
+          ) : null}
         </Section>
 
         <Section title="3. Frete">

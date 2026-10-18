@@ -15,6 +15,7 @@ vi.mock('@/features/cart/actions', () => ({ priceCartAction }))
 vi.mock('@/lib/navigate', () => ({ redirectTo }))
 
 import { CartProvider } from '@/features/cart/cart-context'
+import type { SavedAddress } from '@/lib/account'
 import { CART_STORAGE_KEY } from '@/lib/cart'
 import { CheckoutForm } from './checkout-form'
 
@@ -64,11 +65,14 @@ const defaults = {
   cpf: '52998224725',
 }
 
-function renderCheckout(cart: unknown[] = [line]) {
+function renderCheckout(
+  cart: unknown[] = [line],
+  props: Partial<React.ComponentProps<typeof CheckoutForm>> = {},
+) {
   localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart))
   return render(
     <CartProvider>
-      <CheckoutForm defaults={defaults} />
+      <CheckoutForm defaults={defaults} {...props} />
     </CartProvider>,
   )
 }
@@ -150,6 +154,7 @@ describe('checkout', () => {
       },
       serviceId: 2,
       couponCode: null,
+      saveAddress: false,
     })
     expect(JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? 'null')).toEqual([])
   })
@@ -219,5 +224,74 @@ describe('checkout', () => {
     await user.click(screen.getByRole('button', { name: 'Aplicar' }))
     expect(await screen.findByText(/^− R\$\s29,98$/)).toBeInTheDocument()
     expect(actions.previewCouponAction).toHaveBeenLastCalledWith('bemvindo', [line])
+  })
+})
+
+const saved = (id: string, overrides: Partial<SavedAddress> = {}): SavedAddress => ({
+  id,
+  label: 'Casa',
+  isDefault: false,
+  cep: '20040002',
+  street: 'Rua da Assembleia',
+  number: '10',
+  complement: '',
+  neighborhood: 'Centro',
+  city: 'Rio de Janeiro',
+  state: 'RJ',
+  ...overrides,
+})
+
+describe('endereços salvos', () => {
+  it('começa com o endereço padrão e troca pelo seletor', async () => {
+    renderCheckout([line], {
+      signedIn: true,
+      addresses: [
+        saved('a1', { label: 'Casa' }),
+        saved('a2', { label: 'Trampo', number: '99', isDefault: true }),
+      ],
+    })
+    expect(screen.getByLabelText('Número')).toHaveValue('99')
+    expect(screen.getByLabelText('CEP')).toHaveValue('20040-002')
+
+    await userEvent.selectOptions(screen.getByLabelText('Endereço salvo'), 'a1')
+    expect(screen.getByLabelText('Número')).toHaveValue('10')
+    await waitFor(() => expect(actions.quoteShippingAction).toHaveBeenCalled())
+  })
+
+  it('"Outro endereço" limpa os campos', async () => {
+    renderCheckout([line], { signedIn: true, addresses: [saved('a1', { isDefault: true })] })
+    await userEvent.selectOptions(screen.getByLabelText('Endereço salvo'), '')
+    expect(screen.getByLabelText('Rua')).toHaveValue('')
+  })
+
+  it('sem login não mostra seletor nem "salvar endereço"', () => {
+    renderCheckout()
+    expect(screen.queryByLabelText('Endereço salvo')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Salvar este endereço/)).not.toBeInTheDocument()
+  })
+
+  it('logado sem endereços: "salvar endereço" já vem marcado', () => {
+    renderCheckout([line], { signedIn: true, addresses: [] })
+    expect(screen.getByLabelText(/Salvar este endereço/)).toBeChecked()
+  })
+
+  it('trocar só "salvar endereço" reaproveita a mesma chave de idempotência', async () => {
+    actions.createOrderAction.mockResolvedValue({
+      ok: false,
+      code: 'payment_unavailable',
+      message: 'Tente de novo.',
+    })
+    renderCheckout([line], { signedIn: true, addresses: [] })
+    const user = await fillAddress()
+    await user.click(screen.getByRole('radio', { name: /SEDEX/ }))
+    await user.click(payButton())
+    await screen.findByText('Tente de novo.')
+    await user.click(screen.getByLabelText(/Salvar este endereço/))
+    await user.click(payButton())
+
+    await waitFor(() => expect(actions.createOrderAction).toHaveBeenCalledTimes(2))
+    const [first, second] = actions.createOrderAction.mock.calls.map(([input]) => input)
+    expect(second.idempotencyKey).toBe(first.idempotencyKey)
+    expect([first.saveAddress, second.saveAddress]).toEqual([true, false])
   })
 })

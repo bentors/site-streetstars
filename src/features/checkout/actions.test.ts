@@ -6,6 +6,8 @@ const getSessionUser = vi.hoisted(() => vi.fn())
 vi.mock('@/server/ratelimit', () => ({ rateLimit, clientIp: async () => '1.2.3.4' }))
 vi.mock('@/server/checkout/create-order', () => ({ createOrder }))
 vi.mock('@/server/auth/session', () => ({ getSessionUser }))
+const rememberCheckoutDetails = vi.hoisted(() => vi.fn())
+vi.mock('@/server/db/users', () => ({ rememberCheckoutDetails }))
 
 import { createOrderAction, lookupCepAction } from './actions'
 
@@ -36,6 +38,59 @@ describe('createOrderAction', () => {
       { customer: { email: 'a@b.com' } },
       { uid: 'u1', now: expect.any(Date) },
     )
+  })
+
+  const valid = {
+    customer: { email: 'a@b.com', name: 'Ana', phone: '(11) 98765-4321', cpf: '529.982.247-25' },
+    address: {
+      cep: '20040-002',
+      street: 'Rua da Assembleia',
+      number: '10',
+      complement: '',
+      neighborhood: 'Centro',
+      city: 'Rio de Janeiro',
+      state: 'RJ',
+    },
+    saveAddress: true,
+  }
+
+  it('logado: guarda telefone, CPF e endereço depois do pedido', async () => {
+    getSessionUser.mockResolvedValue({ uid: 'u1' })
+    rememberCheckoutDetails.mockResolvedValue({ ok: true, data: {} })
+    await createOrderAction(valid)
+    expect(rememberCheckoutDetails).toHaveBeenCalledWith(
+      'u1',
+      {
+        phone: '11987654321',
+        cpf: '52998224725',
+        address: { ...valid.address, cep: '20040002' },
+      },
+      expect.any(Date),
+    )
+  })
+
+  it('sem marcar "salvar endereço" guarda só telefone e CPF', async () => {
+    getSessionUser.mockResolvedValue({ uid: 'u1' })
+    rememberCheckoutDetails.mockResolvedValue({ ok: true, data: {} })
+    await createOrderAction({ ...valid, saveAddress: false })
+    expect(rememberCheckoutDetails.mock.calls[0]?.[1]).toMatchObject({ address: null })
+  })
+
+  it('não guarda nada sem sessão ou com pedido recusado', async () => {
+    await createOrderAction(valid)
+    getSessionUser.mockResolvedValue({ uid: 'u1' })
+    createOrder.mockResolvedValue({ ok: false, code: 'cart_changed', message: 'x' })
+    await createOrderAction(valid)
+    expect(rememberCheckoutDetails).not.toHaveBeenCalled()
+  })
+
+  it('falha ao guardar não derruba o pedido', async () => {
+    getSessionUser.mockResolvedValue({ uid: 'u1' })
+    rememberCheckoutDetails.mockRejectedValue(new Error('firestore fora'))
+    expect(await createOrderAction(valid)).toEqual({
+      ok: true,
+      data: { redirectUrl: 'https://mp.test' },
+    })
   })
 })
 
