@@ -147,6 +147,11 @@ describe('createPreference', () => {
 })
 
 describe('getPayment', () => {
+  it('pagamento inexistente (notificação de teste do painel) devolve null', async () => {
+    fetchMock.mockResolvedValue(json({ message: 'not found' }, 404))
+    expect(await getPayment('123')).toBeNull()
+  })
+
   it('traduz o pagamento para centavos e datas', async () => {
     fetchMock.mockResolvedValue(
       json({

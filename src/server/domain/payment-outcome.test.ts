@@ -16,6 +16,15 @@ const paid: OrderPaymentState = {
 const approved = { id: '1', status: 'approved', amountCents: 32480 }
 
 describe('decidePaymentOutcome', () => {
+  it('estorno de pedido cancelado com o mesmo pagamento → estornado', () => {
+    expect(
+      decidePaymentOutcome(
+        { ...paid, status: 'cancelled' },
+        { id: '1', status: 'refunded', amountCents: 32480 },
+      ),
+    ).toEqual({ kind: 'transition', to: 'refunded' })
+  })
+
   it('aprovado com o valor certo → pago', () => {
     expect(decidePaymentOutcome(pending, approved)).toEqual({ kind: 'transition', to: 'paid' })
   })

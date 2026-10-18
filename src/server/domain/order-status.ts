@@ -9,7 +9,8 @@ const TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
   in_production: ['shipped', 'refunded'],
   shipped: ['delivered', 'refunded'],
   delivered: ['refunded'],
-  cancelled: [],
+  // Cancelado depois de pago e estornado no painel do MP: o webhook do estorno fecha o pedido.
+  cancelled: ['refunded'],
   refunded: [],
 }
 

@@ -15,6 +15,7 @@ const ALLOWED: [OrderStatus, OrderStatus][] = [
   ['shipped', 'delivered'],
   ['shipped', 'refunded'],
   ['delivered', 'refunded'],
+  ['cancelled', 'refunded'],
 ]
 
 describe('canTransition', () => {
@@ -27,9 +28,9 @@ describe('canTransition', () => {
     }
   })
 
-  it('cancelado e estornado são finais', () => {
+  it('estornado é final; cancelado só vai para estornado (estorno feito no painel do MP)', () => {
     for (const to of ORDER_STATUSES) {
-      expect(canTransition('cancelled', to)).toBe(false)
+      expect(canTransition('cancelled', to)).toBe(to === 'refunded')
       expect(canTransition('refunded', to)).toBe(false)
     }
   })

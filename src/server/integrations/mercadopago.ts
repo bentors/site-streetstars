@@ -113,9 +113,18 @@ const paymentSchema = z.object({
   date_approved: z.string().nullish(),
 })
 
-export async function getPayment(id: string): Promise<MpPayment> {
+export async function getPayment(id: string): Promise<MpPayment | null> {
   if (!/^\d{1,20}$/.test(id)) throw new Error(`id de pagamento inválido: ${id}`)
-  const data = paymentSchema.parse(await mercadoPago(`/v1/payments/${id}`))
+  const token = serverEnv().MERCADOPAGO_ACCESS_TOKEN
+  if (!token) throw new Error('MERCADOPAGO_ACCESS_TOKEN ausente')
+  const response = await fetch(`${API}/v1/payments/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    signal: AbortSignal.timeout(10_000),
+  })
+  // Notificação de teste do painel ou pagamento de outra conta: nada a fazer, e sem 500 em loop.
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error(`Mercado Pago respondeu ${response.status} em /v1/payments`)
+  const data = paymentSchema.parse(await response.json())
   return {
     id: data.id,
     status: data.status,

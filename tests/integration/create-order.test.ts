@@ -290,6 +290,23 @@ describe('createOrder', () => {
     expect((await db().doc('coupons/UNICO').get()).get('usedCount')).toBe(1)
   })
 
+  it('recusa pedido abaixo de R$ 1,00 (o Mercado Pago não aceita valor zero)', async () => {
+    quoteShipping.mockResolvedValue([{ ...QUOTES[0], priceCents: 0 }])
+    await db().doc('coupons/TUDO').set({
+      type: 'percent',
+      value: 100,
+      minSubtotalCents: null,
+      startsAt: null,
+      endsAt: null,
+      maxUses: null,
+      usedCount: 0,
+      active: true,
+    })
+    const result = await createOrder(input({ couponCode: 'TUDO' }), ctx)
+    expect(result).toMatchObject({ ok: false, code: 'total_too_low' })
+    expect(await allOrders()).toEqual([])
+  })
+
   it('recusa entrada inválida sem tocar no banco', async () => {
     const result = await createOrder(input({ customer: { email: 'x' } }), ctx)
     expect(result).toMatchObject({ ok: false, code: 'invalid_input' })

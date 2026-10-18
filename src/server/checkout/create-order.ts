@@ -18,6 +18,8 @@ import { loadCheckoutCart } from './cart'
 import { shippingOptionsFor } from './shipping'
 
 const ORDER_TTL_MS = 48 * 60 * 60 * 1000
+/** O Mercado Pago não aceita item com valor zero. */
+export const MIN_ORDER_CENTS = 100
 
 type Context = { uid: string | null; now: Date }
 
@@ -62,6 +64,9 @@ export async function createOrder(
     discountCents: coupon?.discountCents ?? 0,
     shippingCents: shipping.priceCents,
   })
+  if (totals.totalCents < MIN_ORDER_CENTS) {
+    return fail('total_too_low', 'O valor mínimo do pedido é R$ 1,00.')
+  }
 
   const created = await db().runTransaction(async (tx): Promise<Result<Order>> => {
     const duplicate = (await tx.get(idempotencyQuery(input.idempotencyKey))).docs[0]

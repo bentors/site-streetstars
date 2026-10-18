@@ -12,6 +12,8 @@ const ADMIN_TARGETS: readonly OrderStatus[] = [
 ]
 
 export function adminTargets(from: OrderStatus): OrderStatus[] {
+  // Cancelado → estornado só acontece pelo webhook do MP (o admin estorna no painel deles).
+  if (from === 'cancelled') return []
   return ADMIN_TARGETS.filter((to) => canTransition(from, to))
 }
 

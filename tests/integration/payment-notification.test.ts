@@ -152,6 +152,23 @@ describe('handlePaymentNotification', () => {
     expect((await getOrder('o1'))?.status).toBe('refunded')
   })
 
+  it('pagamento que o MP não encontra é ignorado (sem 500 em loop)', async () => {
+    getPayment.mockResolvedValue(null)
+    expect(await handlePaymentNotification('123')).toBe('ignored')
+  })
+
+  it('estorno de pedido que o admin cancelou depois de pago → estornado', async () => {
+    getPayment.mockResolvedValueOnce(payment())
+    await handlePaymentNotification('9001')
+    await db().doc('orders/o1').update({ status: 'cancelled' })
+    getPayment.mockResolvedValueOnce(payment({ status: 'refunded' }))
+    expect(await handlePaymentNotification('9001')).toBe('processed')
+    expect(await getOrder('o1')).toMatchObject({
+      status: 'refunded',
+      payment: { status: 'refunded' },
+    })
+  })
+
   it('pagamento sem pedido, de pedido inexistente ou id inválido é ignorado', async () => {
     getPayment.mockResolvedValueOnce(payment({ externalReference: null }))
     expect(await handlePaymentNotification('9001')).toBe('ignored')

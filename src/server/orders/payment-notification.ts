@@ -79,6 +79,10 @@ export async function handlePaymentNotification(
   if (!/^\d{1,20}$/.test(paymentId)) return 'ignored'
   // A API do MP é a fonte da verdade; erro aqui vira 500 e o MP reenvia.
   const payment = await getPayment(paymentId)
+  if (!payment) {
+    console.warn('webhook MP: pagamento não encontrado', { paymentId })
+    return 'ignored'
+  }
   const orderId = payment.externalReference
   if (!orderId || !ORDER_ID.test(orderId)) {
     console.warn('webhook MP: pagamento sem pedido', { paymentId })
