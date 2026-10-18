@@ -17,23 +17,28 @@ export async function expirePendingOrders(now = new Date()): Promise<number> {
 
   let expired = 0
   for (const doc of due.docs) {
-    // Relê na transação: o webhook pode ter pago o pedido entre a consulta e a escrita.
-    const changed = await db().runTransaction(async (tx) => {
-      const order = (await tx.get(doc.ref)).data()
-      if (order?.status !== 'pending_payment' || !canTransition(order.status, 'expired')) {
-        return false
-      }
-      // Pedido que não foi pago devolve o uso do cupom reservado na criação.
-      const usage = order.coupon ? await readCouponUsage(tx, order.coupon.code) : null
-      tx.update(db().doc(`orders/${doc.id}`), {
-        status: 'expired',
-        statusHistory: FieldValue.arrayUnion({ status: 'expired', at: now, by: 'system' }),
-        updatedAt: now,
+    try {
+      // Relê na transação: o webhook pode ter pago o pedido entre a consulta e a escrita.
+      const changed = await db().runTransaction(async (tx) => {
+        const order = (await tx.get(doc.ref)).data()
+        if (order?.status !== 'pending_payment' || !canTransition(order.status, 'expired')) {
+          return false
+        }
+        // Pedido que não foi pago devolve o uso do cupom reservado na criação.
+        const usage = order.coupon ? await readCouponUsage(tx, order.coupon.code) : null
+        tx.update(db().doc(`orders/${doc.id}`), {
+          status: 'expired',
+          statusHistory: FieldValue.arrayUnion({ status: 'expired', at: now, by: 'system' }),
+          updatedAt: now,
+        })
+        if (usage) tx.update(usage.ref, couponUsageWrite(usage, -1))
+        return true
       })
-      if (usage) tx.update(usage.ref, couponUsageWrite(usage, -1))
-      return true
-    })
-    if (changed) expired += 1
+      if (changed) expired += 1
+    } catch (error) {
+      // Um documento quebrado não pode travar o cron todo dia: registra e segue.
+      console.error('cron: não foi possível expirar o pedido', { orderId: doc.id, error })
+    }
   }
   return expired
 }

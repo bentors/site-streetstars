@@ -47,4 +47,16 @@ describe('expirePendingOrders', () => {
     expect(await expirePendingOrders(NOW)).toBe(2)
     expect((await db().doc('coupons/BEMVINDO').get()).get('usedCount')).toBe(0)
   })
+
+  it('um pedido fora do formato não impede os outros de expirar', async () => {
+    const past = new Date(NOW.getTime() - HOUR)
+    await db()
+      .doc('orders/quebrado')
+      .set({ ...orderDoc({ expiresAt: past }), totals: 'x' })
+    await ordersCollection()
+      .doc('bom')
+      .set(orderDoc({ expiresAt: past, number: 'SS-1002' }))
+    expect(await expirePendingOrders(NOW)).toBe(1)
+    expect((await getOrder('bom'))?.status).toBe('expired')
+  })
 })
