@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { Badge, Button, Checkbox, TextField } from '@/components/ui'
 import {
   AddressFields,
@@ -11,7 +11,7 @@ import {
 } from '@/features/checkout/address-fields'
 import { lookupCepAction } from '@/features/checkout/actions'
 import { addressInputSchema, MAX_ADDRESSES, type SavedAddress } from '@/lib/account'
-import { formatCep, normalizeCep } from '@/lib/cep'
+import { fillFromCep, formatCep, normalizeCep } from '@/lib/cep'
 import { fieldErrors } from '@/lib/form-errors'
 import { deleteAddressAction, saveAddressAction, setDefaultAddressAction } from './actions'
 
@@ -31,15 +31,28 @@ function AddressForm({
   const [errors, setErrors] = useState<AddressErrors & { label?: string }>({})
   const [message, setMessage] = useState<string | null>(null)
   const [pending, start] = useTransition()
+  const [, startLookup] = useTransition()
+  const lookup = useRef(0)
   const patch = (next: Partial<Draft>) => setDraft((current) => ({ ...current, ...next }))
 
   function onCepChange(raw: string) {
     patch({ cep: formatCep(raw) })
+    setErrors((current) => ({ ...current, cep: undefined }))
     const cep = normalizeCep(raw)
+    // Só a busca mais recente vale; a transição é separada da do salvar.
+    const id = ++lookup.current
     if (cep.length !== 8) return
-    start(async () => {
-      const found = await lookupCepAction(cep)
-      if (found.ok) patch(found.data)
+    startLookup(async () => {
+      try {
+        const found = await lookupCepAction(cep)
+        if (id !== lookup.current) return
+        if (found.ok) setDraft((current) => fillFromCep(current, found.data))
+        else if (found.code !== 'cep_unavailable') {
+          setErrors((current) => ({ ...current, cep: found.message }))
+        }
+      } catch {
+        // Sem conexão: o cliente preenche o endereço à mão.
+      }
     })
   }
 

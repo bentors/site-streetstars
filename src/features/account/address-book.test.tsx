@@ -83,6 +83,36 @@ describe('AddressBook', () => {
     expect(await screen.findByText('Endereço não encontrado.')).toBeInTheDocument()
   })
 
+  it('CEP de cidade inteira não apaga a rua digitada e CEP não encontrado avisa', async () => {
+    lookupCepAction
+      .mockResolvedValueOnce({
+        ok: true,
+        data: { street: '', neighborhood: '', city: 'Cidade Pequena', state: 'MG' },
+      })
+      .mockResolvedValueOnce({ ok: false, code: 'cep_not_found', message: 'CEP não encontrado.' })
+    render(<AddressBook addresses={[]} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Novo endereço' }))
+    await userEvent.type(screen.getByLabelText('Rua'), 'Rua Única')
+    await userEvent.type(screen.getByLabelText('CEP'), '35000000')
+    await waitFor(() => expect(screen.getByLabelText('Cidade')).toHaveValue('Cidade Pequena'))
+    expect(screen.getByLabelText('Rua')).toHaveValue('Rua Única')
+
+    await userEvent.clear(screen.getByLabelText('CEP'))
+    await userEvent.type(screen.getByLabelText('CEP'), '99999999')
+    expect(await screen.findByText('CEP não encontrado.')).toBeInTheDocument()
+  })
+
+  it('buscar o CEP não deixa o botão de salvar carregando', async () => {
+    lookupCepAction.mockImplementation(() => new Promise(() => {}))
+    render(<AddressBook addresses={[]} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Novo endereço' }))
+    await userEvent.type(screen.getByLabelText('CEP'), '01310100')
+    await waitFor(() => expect(lookupCepAction).toHaveBeenCalled())
+    const save = screen.getByRole('button', { name: 'Salvar endereço' })
+    expect(save).toBeEnabled()
+    expect(save).not.toHaveAttribute('aria-busy')
+  })
+
   it('excluir pede confirmação', async () => {
     const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true)
     render(<AddressBook addresses={[home]} />)

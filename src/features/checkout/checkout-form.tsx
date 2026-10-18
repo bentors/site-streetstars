@@ -7,7 +7,7 @@ import { priceCartAction } from '@/features/cart/actions'
 import { useCart } from '@/features/cart/cart-context'
 import { OrderSummary } from '@/features/orders/order-summary'
 import type { SavedAddress } from '@/lib/account'
-import { formatCep, normalizeCep } from '@/lib/cep'
+import { fillFromCep, formatCep, normalizeCep } from '@/lib/cep'
 import { checkoutAddressSchema, checkoutCustomerSchema, type ShippingOption } from '@/lib/checkout'
 import { formatCpf } from '@/lib/cpf'
 import { fieldErrors } from '@/lib/form-errors'
@@ -138,8 +138,7 @@ export function CheckoutForm({
         if (found) {
           // CEP de cidade inteira vem sem rua e bairro: não apaga o que o cliente digitou.
           if (found.ok) {
-            const filled = Object.entries(found.data).filter(([, value]) => value)
-            setAddress((current) => ({ ...current, ...Object.fromEntries(filled) }))
+            setAddress((current) => fillFromCep(current, found.data))
           }
           setErrors((current) => ({
             ...current,

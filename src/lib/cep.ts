@@ -12,3 +12,12 @@ export function formatCep(input: string): string {
     .slice(0, 8)
     .replace(/^(\d{5})(\d)/, '$1-$2')
 }
+
+/** Preenche com o ViaCEP sem apagar o que já foi digitado (CEP de cidade inteira vem sem rua). */
+export function fillFromCep<T extends object>(
+  current: T,
+  found: Partial<Record<keyof T & string, string>>,
+): T {
+  const filled = Object.entries(found).filter(([, value]) => typeof value === 'string' && value)
+  return { ...current, ...Object.fromEntries(filled) }
+}
