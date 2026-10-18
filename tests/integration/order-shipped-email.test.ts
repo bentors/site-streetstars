@@ -45,6 +45,14 @@ describe('sendShippedEmail', () => {
     expect(sendEmail).not.toHaveBeenCalled()
   })
 
+  it('pedido já entregue sem o e-mail de envio ainda recebe o rastreio', async () => {
+    await db()
+      .doc('orders/a')
+      .set(orderDoc({ status: 'delivered', tracking }))
+    expect(await sendShippedEmail('a', NOW)).toBe(true)
+    expect(sendEmail).toHaveBeenCalledTimes(1)
+  })
+
   it('falha no Resend lança e não marca como enviado', async () => {
     await db()
       .doc('orders/a')

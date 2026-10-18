@@ -57,7 +57,11 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
           <OrderStatusActions
             orderId={order.id}
             targets={adminTargets(order.status)}
-            shippedEmailPending={order.status === 'shipped' && !order.notifications.shippedSentAt}
+            shippedEmailPending={
+              (order.status === 'shipped' || order.status === 'delivered') &&
+              order.tracking !== null &&
+              !order.notifications.shippedSentAt
+            }
           />
           <OrderSummary
             items={order.items}

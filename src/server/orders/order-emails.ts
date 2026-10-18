@@ -49,7 +49,9 @@ export async function sendAdminAlert(orderNumber: string, message: string): Prom
 /** E-mail com o rastreio. true = enviado agora; false = nada a enviar. Lança se o Resend falhar. */
 export async function sendShippedEmail(orderId: string, now = new Date()): Promise<boolean> {
   const order = await getOrder(orderId)
-  if (!order || order.status !== 'shipped' || !order.tracking) return false
+  // Entregue também: e-mail que falhou no envio ainda pode sair depois de marcar a entrega.
+  const sent = order?.status === 'shipped' || order?.status === 'delivered'
+  if (!order || !sent || !order.tracking) return false
   if (order.notifications.shippedSentAt) return false
   const { email: storeEmail } = await getStoreSettings()
   await sendEmail({
