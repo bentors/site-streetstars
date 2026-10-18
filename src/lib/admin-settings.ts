@@ -23,7 +23,12 @@ const centimeters = z
 
 export const settingsFormSchema = z
   .object({
-    whatsapp: z.string().transform(digits),
+    // wa.me precisa do DDI: sem o 55, "11 9…" vira um número dos EUA.
+    whatsapp: z
+      .string()
+      .transform(digits)
+      .transform((d) => (d.length === 10 || d.length === 11 ? `55${d}` : d))
+      .refine((d) => d === '' || /^55\d{10,11}$/.test(d), 'Use DDD + número, ex.: 11 98765-4321'),
     email: z.string().trim().toLowerCase().pipe(z.email('E-mail inválido')),
     instagram: z.string().trim().max(60, 'Muito longo'),
     cnpj: z.string().transform(digits),

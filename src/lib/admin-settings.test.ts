@@ -32,6 +32,26 @@ describe('settingsFormSchema', () => {
     expect(result.error?.issues.some((issue) => issue.path[0] === path)).toBe(true)
   })
 
+  it.each([
+    ['11 98765-4321', '5511987654321'],
+    ['(11) 3333-4444', '551133334444'],
+    ['+55 11 98765-4321', '5511987654321'],
+    ['', ''],
+  ])('WhatsApp %s → %s', (input, digits) => {
+    expect(
+      settingsFormSchema.parse({ ...settingsToForm(DEFAULT_STORE_SETTINGS), whatsapp: input })
+        .whatsapp,
+    ).toBe(digits)
+  })
+
+  it('WhatsApp curto demais é recusado', () => {
+    const result = settingsFormSchema.safeParse({
+      ...settingsToForm(DEFAULT_STORE_SETTINGS),
+      whatsapp: '98765-4321',
+    })
+    expect(result.error?.issues[0]?.path).toEqual(['whatsapp'])
+  })
+
   it('ida e volta', () => {
     expect(settingsFormSchema.parse(settingsToForm(DEFAULT_STORE_SETTINGS))).toEqual(
       DEFAULT_STORE_SETTINGS,
