@@ -8,6 +8,7 @@ import {
   type ProductImage,
   type SizeGuide,
 } from './catalog-schemas'
+import { MAX_COLOR_LENGTH, MAX_SIZE_LENGTH } from './cart'
 import { formatCentsInput, parseReaisToCents } from './money'
 
 export type ProductInput = Omit<
@@ -95,8 +96,22 @@ export const productFormSchema = z
             .filter(Boolean),
         ),
       ])
-      .refine((sizes) => sizes.length > 0, 'Informe ao menos um tamanho'),
-    colors: z.array(productColorSchema),
+      .refine((sizes) => sizes.length > 0, 'Informe ao menos um tamanho')
+      .refine(
+        (sizes) => sizes.every((size) => size.length <= MAX_SIZE_LENGTH),
+        'Tamanho com até 20 caracteres',
+      ),
+    // A sacola descarta nomes maiores, e cores com o mesmo nome não se distinguem nela.
+    colors: z
+      .array(productColorSchema)
+      .refine(
+        (colors) => colors.every((c) => c.name.trim().length <= MAX_COLOR_LENGTH),
+        'Nome da cor com até 40 caracteres',
+      )
+      .refine(
+        (colors) => new Set(colors.map((c) => c.name.trim().toLowerCase())).size === colors.length,
+        'Cada cor precisa de um nome diferente',
+      ),
     images: z.array(productImageSchema).min(1, 'Adicione ao menos uma foto'),
     highlights: z.string().transform(lines),
     sizeGuide: z

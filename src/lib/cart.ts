@@ -3,14 +3,17 @@ import { z } from 'zod'
 export const MAX_QTY = 10
 export const MAX_LINES = 30
 export const CART_STORAGE_KEY = 'streetstars:cart:v2'
+/** Limites que a sacola aceita; o formulário do admin usa os mesmos. */
+export const MAX_SIZE_LENGTH = 20
+export const MAX_COLOR_LENGTH = 40
 
 export type CartLine = { productId: string; size: string; color: string | null; qty: number }
 
 const lineSchema = z.object({
   // Formato de id do Firestore: '/' viraria um caminho e quebraria a leitura.
   productId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
-  size: z.string().min(1).max(20),
-  color: z.string().min(1).max(40).nullable(),
+  size: z.string().min(1).max(MAX_SIZE_LENGTH),
+  color: z.string().min(1).max(MAX_COLOR_LENGTH).nullable(),
   qty: z.number().int(),
 })
 
@@ -33,6 +36,12 @@ export function setLineQty(lines: CartLine[], key: string, qty: number): CartLin
   const next = clampQty(qty)
   if (next < 1) return removeLine(lines, key)
   return lines.map((line) => (lineKey(line) === key ? { ...line, qty: next } : line))
+}
+
+/** Soma sobre a quantidade atual: dois cliques antes do servidor responder contam os dois. */
+export function changeLineQty(lines: CartLine[], key: string, delta: number): CartLine[] {
+  const line = lines.find((candidate) => lineKey(candidate) === key)
+  return line ? setLineQty(lines, key, line.qty + delta) : lines
 }
 
 export function removeLine(lines: CartLine[], key: string): CartLine[] {

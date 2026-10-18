@@ -12,6 +12,9 @@ import { useCart } from './cart-context'
 
 export function CartDrawer() {
   const cart = useCart()
+  // A quantidade do navegador é a fonte da verdade; a do servidor só chega depois.
+  const localQty = (line: { key: string; qty: number }) =>
+    cart.lines.find((candidate) => lineKey(candidate) === line.key)?.qty ?? line.qty
   const [priced, setPriced] = useState<PricedCart | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -106,17 +109,19 @@ export function CartDrawer() {
                       <button
                         type="button"
                         aria-label={`Diminuir quantidade de ${line.name}`}
-                        onClick={() => cart.setQty(line.key, line.qty - 1)}
+                        onClick={() => cart.changeQty(line.key, -1)}
                         className="px-2 py-1 text-muted hover:text-paper"
                       >
                         −
                       </button>
-                      <span className="min-w-6 text-center font-mono text-xs">{line.qty}</span>
+                      <span className="min-w-6 text-center font-mono text-xs">
+                        {localQty(line)}
+                      </span>
                       <button
                         type="button"
                         aria-label={`Aumentar quantidade de ${line.name}`}
-                        disabled={line.qty >= MAX_QTY}
-                        onClick={() => cart.setQty(line.key, line.qty + 1)}
+                        disabled={localQty(line) >= MAX_QTY}
+                        onClick={() => cart.changeQty(line.key, 1)}
                         className="px-2 py-1 text-muted hover:text-paper disabled:opacity-30"
                       >
                         +

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   addLine,
+  changeLineQty,
   cartCount,
   lineKey,
   MAX_LINES,
@@ -115,5 +116,14 @@ describe('cartCount', () => {
         { ...tee, size: 'G', qty: 3 },
       ]),
     ).toBe(5)
+  })
+})
+
+describe('changeLineQty', () => {
+  it('soma sobre a quantidade atual (cliques rápidos não se perdem)', () => {
+    const lines = [{ productId: 'p1', size: 'M', color: null, qty: 1 }]
+    const twice = changeLineQty(changeLineQty(lines, 'p1|M|', 1), 'p1|M|', 1)
+    expect(twice[0]?.qty).toBe(3)
+    expect(changeLineQty(lines, 'p1|M|', -1)).toEqual([])
   })
 })

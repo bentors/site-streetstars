@@ -68,6 +68,22 @@ describe('productFormSchema', () => {
 
   it.each([
     [{ price: '0' }, 'price', 'Preço inválido'],
+    [{ sizes: 'P, ' + 'X'.repeat(21) }, 'sizes', 'Tamanho com até 20 caracteres'],
+    [
+      { colors: [{ name: 'X'.repeat(41), hex: '#000000', image: null }] },
+      'colors',
+      'Nome da cor com até 40 caracteres',
+    ],
+    [
+      {
+        colors: [
+          { name: 'Preto', hex: '#000000', image: null },
+          { name: 'preto', hex: '#111111', image: null },
+        ],
+      },
+      'colors',
+      'Cada cor precisa de um nome diferente',
+    ],
     [{ price: 'abc' }, 'price', 'Preço inválido'],
     [{ weightGrams: '0' }, 'weightGrams', 'Peso inválido'],
     [{ sizes: ' , ' }, 'sizes', 'Informe ao menos um tamanho'],

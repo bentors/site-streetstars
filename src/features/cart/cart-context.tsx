@@ -5,6 +5,7 @@ import {
   addLine,
   CART_STORAGE_KEY,
   cartCount,
+  changeLineQty,
   parseCart,
   removeLine,
   serializeCart,
@@ -20,6 +21,7 @@ type CartContextValue = {
   close: () => void
   add: (item: Omit<CartLine, 'qty'>, qty?: number) => void
   setQty: (key: string, qty: number) => void
+  changeQty: (key: string, delta: number) => void
   remove: (key: string) => void
   removeKeys: (keys: string[]) => void
   clear: () => void
@@ -81,6 +83,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const setQty = useCallback((key: string, qty: number) => {
     update((current) => setLineQty(current, key, qty))
   }, [])
+  const changeQty = useCallback((key: string, delta: number) => {
+    update((current) => changeLineQty(current, key, delta))
+  }, [])
   const remove = useCallback((key: string) => {
     update((current) => removeLine(current, key))
   }, [])
@@ -100,11 +105,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       close: () => setIsOpen(false),
       add,
       setQty,
+      changeQty,
       remove,
       removeKeys,
       clear,
     }),
-    [lines, isOpen, add, setQty, remove, removeKeys, clear],
+    [lines, isOpen, add, setQty, changeQty, remove, removeKeys, clear],
   )
 
   return <CartContext value={value}>{children}</CartContext>

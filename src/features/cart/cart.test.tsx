@@ -115,6 +115,19 @@ describe('carrinho', () => {
     expect(screen.getByText('Sua sacola está vazia.')).toBeInTheDocument()
   })
 
+  it('dois cliques rápidos em + somam dois', async () => {
+    // Primeira precificação responde; as seguintes ficam pendentes (servidor lento).
+    priceCartAction.mockResolvedValueOnce(priced(1)).mockImplementation(() => new Promise(() => {}))
+    renderCart()
+    await userEvent.click(screen.getByRole('button', { name: 'adicionar' }))
+    const plus = await screen.findByRole('button', { name: /Aumentar quantidade/ })
+    await userEvent.click(plus)
+    await userEvent.click(plus)
+    await waitFor(() =>
+      expect(JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? '[]')[0].qty).toBe(3),
+    )
+  })
+
   it('carrinho vazio mostra mensagem e não oferece checkout', async () => {
     renderCart()
     await act(async () => {
