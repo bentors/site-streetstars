@@ -243,3 +243,32 @@ export async function applyAdminTransition(
     })
   })
 }
+
+/** Troca um código de rastreio digitado errado; o e-mail com o código certo precisa sair de novo. */
+export async function updateTracking(
+  id: string,
+  code: string,
+  by: string,
+  now: Date,
+): Promise<Result<null>> {
+  const ref = ordersCollection().doc(id)
+  return db().runTransaction(async (tx) => {
+    const order = (await tx.get(ref)).data()
+    if (!order) return fail('not_found', 'Pedido não encontrado.')
+    if (order.status !== 'shipped' && order.status !== 'delivered') {
+      return fail('invalid_transition', 'Só dá para corrigir o rastreio de pedido enviado.')
+    }
+    tx.update(ref, {
+      tracking: { carrier: order.shipping.company || 'Correios', code, url: trackingUrl(code) },
+      'notifications.shippedSentAt': null,
+      statusHistory: FieldValue.arrayUnion({
+        status: order.status,
+        at: now,
+        by,
+        note: `Rastreio corrigido para ${code}`,
+      }),
+      updatedAt: now,
+    })
+    return ok(null)
+  })
+}

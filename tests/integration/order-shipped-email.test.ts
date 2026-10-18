@@ -27,7 +27,7 @@ describe('sendShippedEmail', () => {
     expect(sendEmail).toHaveBeenCalledTimes(1)
     expect(sendEmail.mock.calls[0]?.[0]).toMatchObject({
       to: 'ana@exemplo.com',
-      idempotencyKey: 'order-shipped/a',
+      idempotencyKey: 'order-shipped/a/AB123456789BR',
       subject: 'Pedido SS-1001 enviado',
     })
     expect((await getOrder('a'))?.notifications.shippedSentAt).toEqual(NOW)

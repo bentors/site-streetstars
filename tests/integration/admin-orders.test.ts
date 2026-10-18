@@ -6,6 +6,7 @@ import {
   listAdminOrders,
   listUnseenPaidOrders,
   markOrderSeen,
+  updateTracking,
 } from '@/server/db/orders'
 import { NOW, orderDoc } from './fixtures'
 import { clearFirestore } from './helpers'
@@ -134,6 +135,37 @@ describe('applyAdminTransition', () => {
   it('pedido inexistente dá not_found', async () => {
     expect(await applyAdminTransition('zzz', { to: 'delivered' }, 'adm', LATER)).toMatchObject({
       code: 'not_found',
+    })
+  })
+})
+
+describe('updateTracking', () => {
+  const tracking = { carrier: 'Correios', code: 'AA000000000BR', url: 'https://x' }
+
+  it('troca o código, libera um novo e-mail e registra', async () => {
+    await seed('a', {
+      status: 'shipped',
+      tracking,
+      notifications: { confirmationSentAt: NOW, shippedSentAt: NOW, adminAlertSentAt: NOW },
+    })
+    expect(await updateTracking('a', 'BB111111111BR', 'adm', LATER)).toEqual({
+      ok: true,
+      data: null,
+    })
+    const order = await getOrder('a')
+    expect(order?.tracking?.code).toBe('BB111111111BR')
+    expect(order?.notifications.shippedSentAt).toBeNull()
+    expect(order?.statusHistory.at(-1)).toMatchObject({
+      status: 'shipped',
+      by: 'adm',
+      note: 'Rastreio corrigido para BB111111111BR',
+    })
+  })
+
+  it('pedido que não foi enviado não aceita', async () => {
+    await seed('a', { status: 'paid' })
+    expect(await updateTracking('a', 'BB111111111BR', 'adm', LATER)).toMatchObject({
+      code: 'invalid_transition',
     })
   })
 })

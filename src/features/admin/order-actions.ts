@@ -1,9 +1,9 @@
 'use server'
 
-import { adminTransitionSchema } from '@/lib/admin-orders'
+import { adminTransitionSchema, trackingCodeSchema } from '@/lib/admin-orders'
 import { fail, ok, type Result } from '@/lib/result'
 import { requireAdmin } from '@/server/auth/session'
-import { applyAdminTransition, markOrderSeen } from '@/server/db/orders'
+import { applyAdminTransition, markOrderSeen, updateTracking } from '@/server/db/orders'
 import { sendShippedEmail } from '@/server/orders/order-emails'
 
 // Ids automáticos do Firestore e ids escolhidos (coleções migradas usam o slug); sem '/' nem '.'.
@@ -54,4 +54,19 @@ export async function resendShippedEmailAction(orderId: string): Promise<Result<
 export async function markOrderSeenAction(orderId: string): Promise<void> {
   await requireAdmin()
   if (isId(orderId)) await markOrderSeen(orderId, new Date())
+}
+
+export async function updateTrackingAction(
+  orderId: string,
+  code: unknown,
+): Promise<Result<{ emailSent: boolean }>> {
+  const admin = await requireAdmin()
+  if (!isId(orderId)) return BAD_ID
+  const parsed = trackingCodeSchema.safeParse(code)
+  if (!parsed.success) {
+    return fail('invalid_input', parsed.error.issues[0]?.message ?? 'Código inválido.')
+  }
+  const updated = await updateTracking(orderId, parsed.data, admin.uid, new Date())
+  if (!updated.ok) return updated
+  return ok({ emailSent: await trySendShipped(orderId) })
 }

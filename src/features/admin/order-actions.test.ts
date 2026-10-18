@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const requireAdmin = vi.hoisted(() => vi.fn())
-const orders = vi.hoisted(() => ({ applyAdminTransition: vi.fn(), markOrderSeen: vi.fn() }))
+const orders = vi.hoisted(() => ({
+  applyAdminTransition: vi.fn(),
+  markOrderSeen: vi.fn(),
+  updateTracking: vi.fn(),
+}))
 const sendShippedEmail = vi.hoisted(() => vi.fn())
 vi.mock('@/server/auth/session', () => ({ requireAdmin }))
 vi.mock('@/server/db/orders', () => orders)
@@ -11,6 +15,7 @@ import {
   markOrderSeenAction,
   resendShippedEmailAction,
   transitionOrderAction,
+  updateTrackingAction,
 } from './order-actions'
 
 beforeEach(() => {
@@ -84,5 +89,22 @@ describe('markOrderSeenAction', () => {
     requireAdmin.mockRejectedValue(new Error('NOT_FOUND'))
     await expect(markOrderSeenAction('o1')).rejects.toThrow()
     expect(orders.markOrderSeen).not.toHaveBeenCalled()
+  })
+})
+
+describe('updateTrackingAction', () => {
+  it('valida o código, grava com o uid e envia o e-mail novo', async () => {
+    orders.updateTracking.mockResolvedValue({ ok: true, data: null })
+    expect(await updateTrackingAction('o1', ' bb111111111br ')).toEqual({
+      ok: true,
+      data: { emailSent: true },
+    })
+    expect(orders.updateTracking).toHaveBeenCalledWith(
+      'o1',
+      'BB111111111BR',
+      'admin-uid',
+      expect.any(Date),
+    )
+    expect(await updateTrackingAction('o1', 'x')).toMatchObject({ ok: false })
   })
 })

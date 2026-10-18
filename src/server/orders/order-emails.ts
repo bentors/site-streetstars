@@ -57,7 +57,8 @@ export async function sendShippedEmail(orderId: string, now = new Date()): Promi
   await sendEmail({
     to: order.customer.email,
     replyTo: storeEmail,
-    idempotencyKey: `order-shipped/${orderId}`,
+    // A chave inclui o código: um rastreio corrigido gera um e-mail novo.
+    idempotencyKey: `order-shipped/${orderId}/${order.tracking.code}`,
     ...orderShippedEmail({ ...order, tracking: order.tracking }, orderUrl(order.id)),
   })
   await db().doc(`orders/${orderId}`).update({ 'notifications.shippedSentAt': now })

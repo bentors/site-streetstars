@@ -6,6 +6,7 @@ const router = vi.hoisted(() => ({ refresh: vi.fn() }))
 const actions = vi.hoisted(() => ({
   transitionOrderAction: vi.fn(),
   resendShippedEmailAction: vi.fn(),
+  updateTrackingAction: vi.fn(),
 }))
 vi.mock('next/navigation', () => ({ useRouter: () => router }))
 vi.mock('./order-actions', () => actions)
@@ -25,6 +26,7 @@ describe('OrderStatusActions', () => {
         orderId="o1"
         targets={['shipped', 'refunded']}
         shippedEmailPending={false}
+        canEditTracking={false}
       />,
     )
     expect(screen.getByRole('button', { name: 'Marcar como Enviado' })).toBeInTheDocument()
@@ -33,7 +35,14 @@ describe('OrderStatusActions', () => {
   })
 
   it('enviado pede o código e envia', async () => {
-    render(<OrderStatusActions orderId="o1" targets={['shipped']} shippedEmailPending={false} />)
+    render(
+      <OrderStatusActions
+        orderId="o1"
+        targets={['shipped']}
+        shippedEmailPending={false}
+        canEditTracking={false}
+      />,
+    )
     await userEvent.click(screen.getByRole('button', { name: 'Marcar como Enviado' }))
     await userEvent.type(screen.getByLabelText('Código de rastreio'), 'ab123456789br')
     await userEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
@@ -47,7 +56,14 @@ describe('OrderStatusActions', () => {
 
   it('e-mail que não saiu vira aviso', async () => {
     actions.transitionOrderAction.mockResolvedValue({ ok: true, data: { emailSent: false } })
-    render(<OrderStatusActions orderId="o1" targets={['shipped']} shippedEmailPending={false} />)
+    render(
+      <OrderStatusActions
+        orderId="o1"
+        targets={['shipped']}
+        shippedEmailPending={false}
+        canEditTracking={false}
+      />,
+    )
     await userEvent.click(screen.getByRole('button', { name: 'Marcar como Enviado' }))
     await userEvent.type(screen.getByLabelText('Código de rastreio'), 'AB123456789BR')
     await userEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
@@ -60,7 +76,14 @@ describe('OrderStatusActions', () => {
       code: 'invalid_transition',
       message: 'Não é possível passar de "Enviado" para "Em produção". Recarregue a página.',
     })
-    render(<OrderStatusActions orderId="o1" targets={['cancelled']} shippedEmailPending={false} />)
+    render(
+      <OrderStatusActions
+        orderId="o1"
+        targets={['cancelled']}
+        shippedEmailPending={false}
+        canEditTracking={false}
+      />,
+    )
     await userEvent.click(screen.getByRole('button', { name: 'Marcar como Cancelado' }))
     await userEvent.type(screen.getByLabelText('Observação (obrigatória)'), 'Cliente desistiu')
     await userEvent.click(screen.getByRole('button', { name: 'Confirmar' }))
@@ -74,6 +97,7 @@ describe('OrderStatusActions', () => {
         orderId="o1"
         targets={['in_production', 'shipped']}
         shippedEmailPending={false}
+        canEditTracking={false}
       />,
     )
     await userEvent.click(screen.getByRole('button', { name: 'Marcar como Em produção' }))
@@ -84,8 +108,31 @@ describe('OrderStatusActions', () => {
   })
 
   it('reenvia o e-mail pendente', async () => {
-    render(<OrderStatusActions orderId="o1" targets={['delivered']} shippedEmailPending />)
+    render(
+      <OrderStatusActions
+        orderId="o1"
+        targets={['delivered']}
+        shippedEmailPending
+        canEditTracking={false}
+      />,
+    )
     await userEvent.click(screen.getByRole('button', { name: 'Reenviar e-mail de envio' }))
     expect(actions.resendShippedEmailAction).toHaveBeenCalledWith('o1')
+  })
+
+  it('corrige o rastreio', async () => {
+    actions.updateTrackingAction.mockResolvedValue({ ok: true, data: { emailSent: true } })
+    render(
+      <OrderStatusActions
+        orderId="o1"
+        targets={['delivered']}
+        shippedEmailPending={false}
+        canEditTracking
+      />,
+    )
+    await userEvent.click(screen.getByRole('button', { name: 'Corrigir rastreio' }))
+    await userEvent.type(screen.getByLabelText('Novo código de rastreio'), 'BB111111111BR')
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar rastreio' }))
+    expect(actions.updateTrackingAction).toHaveBeenCalledWith('o1', 'BB111111111BR')
   })
 })
