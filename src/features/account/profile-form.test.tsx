@@ -4,7 +4,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const router = vi.hoisted(() => ({ refresh: vi.fn() }))
 const updateProfileAction = vi.hoisted(() => vi.fn())
-vi.mock('next/navigation', () => ({ useRouter: () => router }))
+vi.mock('next/navigation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('next/navigation')>()),
+  useRouter: () => router,
+}))
 vi.mock('./actions', () => ({ updateProfileAction }))
 
 import { ProfileForm } from './profile-form'

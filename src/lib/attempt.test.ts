@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation'
 import { describe, expect, it } from 'vitest'
 import { attempt } from './attempt'
 
@@ -19,5 +20,13 @@ describe('attempt', () => {
       code: 'network',
       message: 'Sem conexão ou erro inesperado. Tente de novo.',
     })
+  })
+
+  it('não engole o redirect de uma Server Action (o Next precisa dele para navegar)', async () => {
+    await expect(
+      attempt(async () => {
+        redirect('/entrar')
+      }),
+    ).rejects.toThrow('NEXT_REDIRECT')
   })
 })
