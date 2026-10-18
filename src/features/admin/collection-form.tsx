@@ -31,7 +31,9 @@ export function CollectionForm({
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null)
   const [pending, start] = useTransition()
   // Salvar no meio do upload perderia as fotos que ainda estão subindo.
-  const [uploading, setUploading] = useState(false)
+  // Contador: três campos de foto podem subir ao mesmo tempo.
+  const [uploads, setUploads] = useState(0)
+  const setUploading = (active: boolean) => setUploads((n) => Math.max(0, n + (active ? 1 : -1)))
   const single = (url: string) => asImages(url ? [url] : [])
   const set = (patch: Partial<CollectionFormValues>) =>
     setValues((current) => ({ ...current, ...patch }))
@@ -161,7 +163,7 @@ export function CollectionForm({
           {status.text}
         </p>
       ) : null}
-      <Button type="submit" loading={pending} disabled={uploading} className="self-start">
+      <Button type="submit" loading={pending} disabled={uploads > 0} className="self-start">
         Salvar coleção
       </Button>
     </form>
