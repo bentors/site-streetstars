@@ -18,3 +18,7 @@ export async function getStoreSettings(): Promise<StoreSettings> {
     }) ?? DEFAULT_STORE_SETTINGS
   )
 }
+
+export async function saveStoreSettings(settings: StoreSettings): Promise<void> {
+  await db().doc('settings/store').set(storeSettingsSchema.parse(settings))
+}
