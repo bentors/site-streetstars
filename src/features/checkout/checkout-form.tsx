@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState, useTransition } from 'react'
-import { Button, Field, Input, Spinner } from '@/components/ui'
+import { Button, Spinner, TextField } from '@/components/ui'
 import { priceCartAction } from '@/features/cart/actions'
 import { useCart } from '@/features/cart/cart-context'
 import { OrderSummary } from '@/features/orders/order-summary'
 import { formatCep, normalizeCep } from '@/lib/cep'
 import { checkoutAddressSchema, checkoutCustomerSchema, type ShippingOption } from '@/lib/checkout'
 import { formatCpf } from '@/lib/cpf'
+import { fieldErrors } from '@/lib/form-errors'
 import { formatBRL } from '@/lib/money'
 import { redirectTo } from '@/lib/navigate'
 import { formatPhone } from '@/lib/phone'
@@ -20,66 +21,26 @@ import {
   previewCouponAction,
   quoteShippingAction,
 } from './actions'
+import { AddressFields, EMPTY_ADDRESS, type AddressValues } from './address-fields'
 
 export type CheckoutDefaults = { email: string; name: string; phone: string; cpf: string }
 
 type Contact = CheckoutDefaults
-type Address = {
-  cep: string
-  street: string
-  number: string
-  complement: string
-  neighborhood: string
-  city: string
-  state: string
-}
+type Address = AddressValues
 type Errors = Partial<Record<keyof Contact | keyof Address, string>>
 type Notices = { shipping?: string; coupon?: string; form?: string }
 
-const EMPTY_ADDRESS: Address = {
-  cep: '',
-  street: '',
-  number: '',
-  complement: '',
-  neighborhood: '',
-  city: '',
-  state: '',
-}
 const UNEXPECTED = 'Algo deu errado. Tente novamente.'
 
 function validate(contact: Contact, address: Address): Errors {
-  const errors: Errors = {}
   const results = [
     checkoutCustomerSchema.safeParse(contact),
     checkoutAddressSchema.safeParse(address),
   ]
-  for (const result of results) {
-    if (result.success) continue
-    for (const issue of result.error.issues) {
-      const key = issue.path[0]
-      if (typeof key === 'string' && !(key in errors)) errors[key as keyof Errors] = issue.message
-    }
-  }
-  return errors
-}
-
-function TextField({
-  label,
-  error,
-  onValue,
-  ...props
-}: Omit<React.ComponentProps<'input'>, 'onChange'> & {
-  label: string
-  error?: string
-  onValue: (value: string) => void
-}) {
-  return (
-    <Field label={label} error={error}>
-      {(control) => (
-        <Input {...props} {...control} onChange={(event) => onValue(event.target.value)} />
-      )}
-    </Field>
-  )
+  return Object.assign(
+    {},
+    ...results.map((result) => (result.success ? {} : fieldErrors(result.error))),
+  ) as Errors
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -251,8 +212,6 @@ export function CheckoutForm({ defaults }: { defaults: CheckoutDefaults }) {
   const discount = Math.min(coupon?.discountCents ?? 0, subtotal)
   const shipping = options?.find((option) => option.serviceId === serviceId) ?? null
   const cepComplete = normalizeCep(address.cep).length === 8
-  const setField = (key: keyof Address) => (value: string) =>
-    setAddress((current) => ({ ...current, [key]: value }))
 
   return (
     <form onSubmit={submit} noValidate className="grid gap-12 lg:grid-cols-[1fr_380px]">
@@ -295,61 +254,12 @@ export function CheckoutForm({ defaults }: { defaults: CheckoutDefaults }) {
         </Section>
 
         <Section title="2. Entrega">
-          <div className="grid gap-4 sm:grid-cols-[180px_1fr]">
-            <TextField
-              label="CEP"
-              inputMode="numeric"
-              autoComplete="postal-code"
-              value={address.cep}
-              error={errors.cep}
-              onValue={onCepChange}
-            />
-            <TextField
-              label="Rua"
-              autoComplete="address-line1"
-              value={address.street}
-              error={errors.street}
-              onValue={setField('street')}
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <TextField
-              label="Número"
-              value={address.number}
-              error={errors.number}
-              onValue={setField('number')}
-            />
-            <TextField
-              label="Complemento"
-              autoComplete="address-line2"
-              value={address.complement}
-              error={errors.complement}
-              onValue={setField('complement')}
-            />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-[1fr_1fr_80px]">
-            <TextField
-              label="Bairro"
-              value={address.neighborhood}
-              error={errors.neighborhood}
-              onValue={setField('neighborhood')}
-            />
-            <TextField
-              label="Cidade"
-              autoComplete="address-level2"
-              value={address.city}
-              error={errors.city}
-              onValue={setField('city')}
-            />
-            <TextField
-              label="UF"
-              maxLength={2}
-              autoComplete="address-level1"
-              value={address.state}
-              error={errors.state}
-              onValue={(state) => setField('state')(state.toUpperCase())}
-            />
-          </div>
+          <AddressFields
+            value={address}
+            errors={errors}
+            onChange={(patch) => setAddress((current) => ({ ...current, ...patch }))}
+            onCepChange={onCepChange}
+          />
         </Section>
 
         <Section title="3. Frete">

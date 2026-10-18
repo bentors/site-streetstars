@@ -26,6 +26,8 @@ export const checkoutAddressSchema = z.object({
     .regex(/^[A-Z]{2}$/, 'UF inválida'),
 })
 
+export type CheckoutAddress = z.output<typeof checkoutAddressSchema>
+
 export const createOrderInputSchema = z.object({
   idempotencyKey: z.uuid(),
   /** Linhas cruas do localStorage: o servidor sanitiza e precifica. */
