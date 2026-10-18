@@ -34,6 +34,18 @@ const integrations = {
 }
 
 describe('parseServerEnv', () => {
+  it('linha vazia no .env (UPSTASH_REDIS_REST_URL=) conta como ausente', () => {
+    const env = parseServerEnv({
+      ...emulator,
+      UPSTASH_REDIS_REST_URL: '',
+      UPSTASH_REDIS_REST_TOKEN: '',
+      CRON_SECRET: '',
+      CLOUDINARY_API_KEY: '',
+    })
+    expect(env.UPSTASH_REDIS_REST_URL).toBeUndefined()
+    expect(env.CRON_SECRET).toBeUndefined()
+  })
+
   it('aceita emulador sem credenciais', () => {
     const env = parseServerEnv(emulator)
     expect(env.FIREBASE_PROJECT_ID).toBe('demo-streetstars')

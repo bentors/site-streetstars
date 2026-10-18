@@ -10,6 +10,11 @@ const valid = {
 }
 
 describe('publicEnv', () => {
+  it('NEXT_PUBLIC opcional vazio conta como ausente', () => {
+    const env = parseEnv(publicEnvSchema, { ...valid, NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: '' })
+    expect(env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME).toBeUndefined()
+  })
+
   it('aceita configuração completa', () => {
     expect(parseEnv(publicEnvSchema, valid)).toEqual(valid)
   })

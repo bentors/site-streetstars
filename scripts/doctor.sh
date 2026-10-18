@@ -38,7 +38,7 @@ else
     value=${value//\"/}
     if [[ -n "$value" ]]; then
       ok "$key"
-    elif [[ "$key" =~ ^(UPSTASH_|MERCADOPAGO_|MELHORENVIO_|RESEND_|EMAIL_FROM|CRON_SECRET) ]]; then
+    elif [[ "$key" =~ ^(UPSTASH_|MERCADOPAGO_|MELHORENVIO_|RESEND_|EMAIL_FROM|CRON_SECRET|CLOUDINARY_|NEXT_PUBLIC_CLOUDINARY_) ]]; then
       info "  $key vazio (opcional em desenvolvimento)"
     else
       problem "$key vazio"

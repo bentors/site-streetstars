@@ -4,7 +4,11 @@ export function parseEnv<T extends z.ZodType>(
   schema: T,
   source: Record<string, string | undefined>,
 ): z.infer<T> {
-  const result = schema.safeParse(source)
+  // O Next lê `CHAVE=` como texto vazio; tratamos como ausente para não derrubar quem copiou o .env.example.
+  const present = Object.fromEntries(
+    Object.entries(source).filter(([, value]) => value !== undefined && value !== ''),
+  )
+  const result = schema.safeParse(present)
   if (!result.success) {
     const names = [...new Set(result.error.issues.map((issue) => String(issue.path[0])))]
     throw new Error(`Variáveis de ambiente inválidas ou ausentes: ${names.join(', ')}`)
