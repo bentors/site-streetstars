@@ -6,7 +6,7 @@ export function securityHeaders({ isDev }: { isDev: boolean }) {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://res.cloudinary.com https://lh3.googleusercontent.com",
     "font-src 'self'",
-    "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com",
+    "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://api.cloudinary.com",
     'frame-src https://*.firebaseapp.com https://accounts.google.com',
     "object-src 'none'",
     "base-uri 'self'",

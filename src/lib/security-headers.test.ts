@@ -16,6 +16,10 @@ describe('securityHeaders', () => {
     expect(csp(false)).toContain('https://res.cloudinary.com')
   })
 
+  it('permite o upload direto do admin para o Cloudinary', () => {
+    expect(csp(false)).toMatch(/connect-src [^;]*https:\/\/api\.cloudinary\.com/)
+  })
+
   it("só usa 'unsafe-eval' em desenvolvimento (React Refresh)", () => {
     expect(csp(false)).not.toContain("'unsafe-eval'")
     expect(csp(true)).toContain("'unsafe-eval'")

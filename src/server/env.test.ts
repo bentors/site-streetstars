@@ -29,6 +29,8 @@ const integrations = {
   RESEND_API_KEY: 're_1',
   EMAIL_FROM: 'Street Stars <pedidos@streetstars.com.br>',
   CRON_SECRET: 'c'.repeat(32),
+  CLOUDINARY_API_KEY: 'cl-key',
+  CLOUDINARY_API_SECRET: 'cl-secret',
 }
 
 describe('parseServerEnv', () => {
@@ -80,7 +82,7 @@ describe('parseServerEnv', () => {
         VERCEL_ENV: 'production',
       }),
     ).toThrow(
-      /MERCADOPAGO_ACCESS_TOKEN, MERCADOPAGO_WEBHOOK_SECRET, MELHORENVIO_TOKEN, RESEND_API_KEY, EMAIL_FROM, CRON_SECRET/,
+      /MERCADOPAGO_ACCESS_TOKEN, MERCADOPAGO_WEBHOOK_SECRET, MELHORENVIO_TOKEN, RESEND_API_KEY, EMAIL_FROM, CRON_SECRET, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET/,
     )
   })
 

@@ -24,6 +24,8 @@ export const serverEnvSchema = z
     RESEND_API_KEY: z.string().min(1).optional(),
     EMAIL_FROM: z.string().min(1).optional(),
     CRON_SECRET: z.string().min(16).optional(),
+    CLOUDINARY_API_KEY: z.string().min(1).optional(),
+    CLOUDINARY_API_SECRET: z.string().min(1).optional(),
   })
   .superRefine((env, ctx) => {
     const required = (key: keyof typeof env, reason: string) => {
@@ -47,6 +49,8 @@ export const serverEnvSchema = z
       required('RESEND_API_KEY', reason)
       required('EMAIL_FROM', reason)
       required('CRON_SECRET', reason)
+      required('CLOUDINARY_API_KEY', reason)
+      required('CLOUDINARY_API_SECRET', reason)
     }
   })
 
