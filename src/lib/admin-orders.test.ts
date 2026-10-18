@@ -3,9 +3,9 @@ import { adminTransitionSchema } from './admin-orders'
 
 describe('adminTransitionSchema', () => {
   it('enviado exige código e normaliza para maiúsculas', () => {
-    expect(
-      adminTransitionSchema.parse({ to: 'shipped', trackingCode: ' ab123456789br ' }),
-    ).toEqual({ to: 'shipped', trackingCode: 'AB123456789BR' })
+    expect(adminTransitionSchema.parse({ to: 'shipped', trackingCode: ' ab123456789br ' })).toEqual(
+      { to: 'shipped', trackingCode: 'AB123456789BR' },
+    )
     const missing = adminTransitionSchema.safeParse({ to: 'shipped', trackingCode: '' })
     expect(missing.error?.issues[0]?.message).toBe('Informe o código de rastreio.')
   })
