@@ -244,6 +244,17 @@ Acesso: o proxy (`src/proxy.ts`, nome do antigo middleware no Next 16) redirecio
 - **Auditoria:** `statusHistory.by` registra o uid do admin.
 - **Concessão de admin:** `scripts/grant-admin.ts <email>`.
 
+### Decisões da Fase 5 (2026-10-18)
+- **Rotas:** `/admin` redireciona para `/admin/pedidos`; `/admin/pedidos/[id]`, `/admin/produtos` (+ `novo`, `[id]`), `/admin/colecoes` (+ `novo`, `[id]`), `/admin/cupons`, `/admin/configuracoes`.
+- **Pagos não vistos:** campo `orders.adminSeenAt`, marcado quando o admin abre o detalhe (por efeito no navegador, para o prefetch não contar como visto). O número aparece na aba Pedidos.
+- **Transições do admin:** só `in_production`, `shipped`, `delivered`, `cancelled` e `refunded`, filtradas por `canTransition`. "Enviado" grava `tracking` (transportadora do frete escolhido e link do Melhor Rastreio) e envia o e-mail uma vez (`notifications.shippedSentAt` + chave de idempotência). Se o e-mail falhar, o status muda mesmo assim e o detalhe oferece "Reenviar e-mail de envio".
+- **Busca de pedidos:** número (`1042` ou `SS-1042`) ou e-mail exato, até 100 resultados.
+- **Produto:** o formulário cobre todos os campos; o guia de medidas é um texto com `;` (1ª linha = colunas). Destaque e ordem ficam na lista. O vínculo com coleções é marcado no produto.
+- **Datas digitadas no admin** usam o horário de São Paulo (offset fixo -03:00).
+- **Cupom:** código, tipo e valor não mudam depois de criado; edição só de validade, limite, pedido mínimo e ativo.
+- **Upload:** assinado no servidor (`folder=streetstars`) e enviado direto do navegador ao Cloudinary. A conta atual é a de teste; a produção terá conta nova.
+- **E2E (Playwright): adiado** para depois do lançamento.
+
 ## 7. Organização do código
 
 ```
@@ -311,7 +322,7 @@ Regras:
   - mesma `idempotencyKey` devolve o mesmo pedido;
   - cupom expirado ou esgotado é recusado.
   - Webhook: assinatura inválida → 401; evento duplicado não altera nada; valor divergente não marca `paid`; "recusado" após "aprovado" não regride; e-mail enviado uma única vez.
-- **E2E (Playwright):** compra sem conta até o redirect ao MP; admin marca o pedido como enviado com rastreio. (Adiado: Playwright entra junto com o admin.)
+- **E2E (Playwright):** compra sem conta até o redirect ao MP; admin marca o pedido como enviado com rastreio. **Adiado para depois do lançamento** (decisão de 2026-10-18); até lá, unitários, componentes e emulador cobrem os fluxos.
 - **CI (GitHub Actions):** lint, typecheck, unitários, integração com emulador e build em todo push; E2E em PRs.
 - Desenvolvimento das regras de `server/domain` e das ações de dinheiro em TDD.
 
@@ -337,3 +348,4 @@ Regras:
 - Domínio próprio para o site e para o Resend.
 - Credenciais de produção: Mercado Pago, Melhor Envio, Cloudinary, Upstash.
 - Revisão jurídica do texto das páginas legais.
+- Nova conta do Cloudinary para produção (a atual vira a de teste) e novo upload das fotos do catálogo nela.
