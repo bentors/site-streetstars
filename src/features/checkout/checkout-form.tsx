@@ -123,18 +123,25 @@ export function CheckoutForm({
     })
   }, [lines, cartVersion, removeKeys])
 
-  function quote(cep: string) {
+  /** `lookup` só para CEP digitado: endereço salvo ou já preenchido não é trocado pelo ViaCEP. */
+  function quote(cep: string, lookup = true) {
     startQuote(async () => {
       try {
         const [found, quoted] = await Promise.all([
-          lookupCepAction(cep),
+          lookup ? lookupCepAction(cep) : null,
           quoteShippingAction(cep, lines),
         ])
-        if (found.ok) setAddress((current) => ({ ...current, ...found.data }))
-        setErrors((current) => ({
-          ...current,
-          cep: found.ok || found.code === 'cep_unavailable' ? undefined : found.message,
-        }))
+        if (found) {
+          // CEP de cidade inteira vem sem rua e bairro: não apaga o que o cliente digitou.
+          if (found.ok) {
+            const filled = Object.entries(found.data).filter(([, value]) => value)
+            setAddress((current) => ({ ...current, ...Object.fromEntries(filled) }))
+          }
+          setErrors((current) => ({
+            ...current,
+            cep: found.ok || found.code === 'cep_unavailable' ? undefined : found.message,
+          }))
+        }
         setOptions(quoted.ok ? quoted.data : null)
         setServiceId(
           quoted.ok && quoted.data.length === 1 ? (quoted.data[0]?.serviceId ?? null) : null,
@@ -152,7 +159,7 @@ export function CheckoutForm({
     setAddress(saved ? fieldsOf(saved) : EMPTY_ADDRESS)
     setOptions(null)
     setServiceId(null)
-    if (saved) quote(saved.cep)
+    if (saved) quote(saved.cep, false)
   }
 
   function onCepChange(value: string) {
@@ -336,7 +343,7 @@ export function CheckoutForm({
                 variant="secondary"
                 size="sm"
                 className="self-start"
-                onClick={() => quote(normalizeCep(address.cep))}
+                onClick={() => quote(normalizeCep(address.cep), false)}
               >
                 Calcular frete
               </Button>

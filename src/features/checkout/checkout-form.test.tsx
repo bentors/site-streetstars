@@ -258,6 +258,36 @@ describe('endereços salvos', () => {
     await waitFor(() => expect(actions.quoteShippingAction).toHaveBeenCalled())
   })
 
+  it('escolher endereço salvo cota o frete sem trocar a rua pelo ViaCEP', async () => {
+    actions.lookupCepAction.mockResolvedValue({
+      ok: true,
+      data: { street: '', neighborhood: '', city: 'Cidade Pequena', state: 'MG' },
+    })
+    renderCheckout([line], {
+      signedIn: true,
+      addresses: [saved('a1', { isDefault: true }), saved('a2', { street: 'Rua Minha' })],
+    })
+    await userEvent.selectOptions(screen.getByLabelText('Endereço salvo'), 'a2')
+    await waitFor(() => expect(actions.quoteShippingAction).toHaveBeenCalled())
+    expect(screen.getByLabelText('Rua')).toHaveValue('Rua Minha')
+    expect(screen.getByLabelText('Bairro')).toHaveValue('Centro')
+    expect(actions.lookupCepAction).not.toHaveBeenCalled()
+  })
+
+  it('CEP digitado sem rua no ViaCEP não apaga o que já foi preenchido', async () => {
+    actions.lookupCepAction.mockResolvedValue({
+      ok: true,
+      data: { street: '', neighborhood: '', city: 'Cidade Pequena', state: 'MG' },
+    })
+    renderCheckout()
+    const user = userEvent.setup()
+    await screen.findByText('Camiseta')
+    await user.type(screen.getByLabelText('Rua'), 'Rua Única')
+    await user.type(screen.getByLabelText('CEP'), '35000000')
+    await waitFor(() => expect(screen.getByLabelText('Cidade')).toHaveValue('Cidade Pequena'))
+    expect(screen.getByLabelText('Rua')).toHaveValue('Rua Única')
+  })
+
   it('"Outro endereço" limpa os campos', async () => {
     renderCheckout([line], { signedIn: true, addresses: [saved('a1', { isDefault: true })] })
     await userEvent.selectOptions(screen.getByLabelText('Endereço salvo'), '')
