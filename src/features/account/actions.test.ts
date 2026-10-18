@@ -12,8 +12,10 @@ const redirect = vi.hoisted(() =>
 )
 vi.mock('next/navigation', () => ({ redirect }))
 vi.mock('@/server/auth/session', () => session)
+const saveProfile = vi.hoisted(() => vi.fn())
+vi.mock('@/server/db/users', () => ({ saveProfile }))
 
-import { confirmEmailAction } from './actions'
+import { confirmEmailAction, updateProfileAction } from './actions'
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -31,5 +33,27 @@ describe('confirmEmailAction', () => {
     session.getAuthAccount.mockResolvedValue({ emailVerified: true, hasPassword: true })
     await expect(confirmEmailAction()).rejects.toThrow('REDIRECT:/entrar?next=/conta&confirmado=1')
     expect(session.destroySession).toHaveBeenCalled()
+  })
+})
+
+describe('updateProfileAction', () => {
+  const input = { name: 'Ana', phone: '(11) 98765-4321', cpf: '', marketingConsent: true }
+
+  it('salva só no uid da sessão, com dados normalizados', async () => {
+    saveProfile.mockResolvedValue({ ok: true, data: {} })
+    expect(await updateProfileAction(input)).toEqual({ ok: true, data: null })
+    expect(saveProfile).toHaveBeenCalledWith(
+      'u1',
+      { name: 'Ana', phone: '11987654321', cpf: null, marketingConsent: true },
+      expect.any(Date),
+    )
+  })
+
+  it('recusa CPF inválido sem gravar', async () => {
+    expect(await updateProfileAction({ ...input, cpf: '123' })).toMatchObject({
+      ok: false,
+      message: 'CPF inválido',
+    })
+    expect(saveProfile).not.toHaveBeenCalled()
   })
 })
