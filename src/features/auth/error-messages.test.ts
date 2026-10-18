@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { authErrorMessage } from './error-messages'
+import { authErrorCode, authErrorMessage } from './error-messages'
 
 describe('authErrorMessage', () => {
   it.each(['auth/invalid-credential', 'auth/wrong-password', 'auth/user-not-found'])(
@@ -24,5 +24,16 @@ describe('authErrorMessage', () => {
     expect(authErrorMessage('auth/qualquer-coisa')).toBe(
       'Não foi possível entrar. Tente novamente.',
     )
+  })
+
+  it('usa o fallback informado para códigos desconhecidos', () => {
+    expect(authErrorMessage('auth/xyz', 'Não foi possível criar a conta.')).toBe(
+      'Não foi possível criar a conta.',
+    )
+  })
+
+  it('extrai o código de erros do Firebase', () => {
+    expect(authErrorCode({ code: 'auth/weak-password' })).toBe('auth/weak-password')
+    expect(authErrorCode(new Error('x'))).toBe('')
   })
 })

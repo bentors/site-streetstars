@@ -26,5 +26,7 @@ export function clientAuth(): Auth {
     persistence: inMemoryPersistence,
     popupRedirectResolver: browserPopupRedirectResolver,
   })
+  // E-mails de verificação e de nova senha do Firebase saem em português.
+  auth.languageCode = 'pt-BR'
   return auth
 }

@@ -12,13 +12,9 @@ import { useState } from 'react'
 import { Button, Field, Input } from '@/components/ui'
 import { clientAuth } from '@/lib/firebase-client'
 import { signInAction } from './actions'
-import { authErrorMessage } from './error-messages'
+import { authErrorCode, authErrorMessage } from './error-messages'
 
 type Pending = 'password' | 'google' | null
-
-function errorCode(error: unknown): string {
-  return typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : ''
-}
 
 export function SignInForm({ next }: { next: string }) {
   const router = useRouter()
@@ -41,7 +37,7 @@ export function SignInForm({ next }: { next: string }) {
       router.replace(next)
       router.refresh()
     } catch (err) {
-      const message = authErrorMessage(errorCode(err))
+      const message = authErrorMessage(authErrorCode(err))
       if (message) setError(message)
     } finally {
       setPending(null)

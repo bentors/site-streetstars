@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { SignInForm } from '@/features/auth/sign-in-form'
 import { safeNextPath } from '@/lib/safe-next-path'
@@ -21,6 +22,14 @@ export default async function SignInPage({
         Entrar
       </h1>
       <SignInForm next={nextPath} />
+      <div className="mt-6 flex justify-between text-[10px] tracking-widest text-muted uppercase">
+        <Link href="/recuperar-senha" className="hover:text-paper">
+          Esqueci minha senha
+        </Link>
+        <Link href="/cadastro" className="text-paper underline">
+          Criar conta
+        </Link>
+      </div>
     </div>
   )
 }
