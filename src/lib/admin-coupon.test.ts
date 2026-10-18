@@ -34,6 +34,8 @@ describe('couponFormSchema', () => {
     [{ value: '0' }, 'value'],
     [{ value: '101' }, 'value'],
     [{ maxUses: '0' }, 'maxUses'],
+    [{ minSubtotal: '1.000,00' }, 'minSubtotal'],
+    [{ minSubtotal: 'R$ 100' }, 'minSubtotal'],
     [{ startsAt: '2026-11-02T00:00', endsAt: '2026-11-01T00:00' }, 'endsAt'],
   ])('%j → erro em %s', (patch, path) => {
     const result = couponFormSchema.safeParse({ ...base, ...patch })

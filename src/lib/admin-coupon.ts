@@ -24,11 +24,12 @@ type CouponLike = {
   active: boolean
 }
 
+// Vazio = sem mínimo; texto que não vira centavos ("1.000,00", "R$ 100") é erro, nunca "sem mínimo".
 const optionalCents = z
   .string()
   .trim()
+  .refine((text) => !text || parseReaisToCents(text) !== null, 'Use só números, ex.: 100 ou 99,90')
   .transform((text) => (text ? parseReaisToCents(text) : null))
-  .refine((cents) => cents === null || cents >= 0, 'Valor inválido')
 const optionalDate = z
   .string()
   .refine((text) => !text.trim() || fromSaoPauloInput(text) !== null, 'Data inválida')
