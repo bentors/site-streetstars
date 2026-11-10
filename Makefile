@@ -12,7 +12,7 @@ SHELLCHECK_IMAGE := koalaman/shellcheck:v0.10.0
 
 .PHONY: help setup doctor dev build start lint format format-check typecheck test test-emulator \
 	check lint-sh emulators-up emulators-down emulators-logs grant-admin \
-	migrate-catalog migrate-catalog-apply catalog-export catalog-import clean
+	migrate-catalog migrate-catalog-apply catalog-export catalog-import vercel-env clean
 
 help: ## Lista os comandos disponíveis
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  \033[36m%-16s\033[0m %s\n", $$1, $$2}'
@@ -93,6 +93,10 @@ catalog-export: ## Exporta produtos, coleções e configurações: make catalog-
 catalog-import: ## Importa sem sobrescrever: make catalog-import FILE=... ENV=.env.production.local
 	@test -n "$(FILE)" || { echo "Uso: make catalog-import FILE=arquivo.json ENV=.env.production.local"; exit 1; }
 	npx tsx --env-file=$(ENV) scripts/catalog-transfer.ts import "$(FILE)"
+
+vercel-env: ## Envia um .env à Vercel sem exibir valores: make vercel-env FILE=... TARGET=preview BRANCH=...
+	@test -n "$(FILE)" -a -n "$(TARGET)" || { echo "Uso: make vercel-env FILE=.env.preview.local TARGET=preview [BRANCH=refactor/nextjs]"; exit 1; }
+	@bash scripts/vercel-env.sh "$(FILE)" "$(TARGET)" $(BRANCH)
 
 clean: ## Apaga artefatos locais (.next, coverage, dados dos emuladores)
 	rm -rf .next coverage .emulator-data
