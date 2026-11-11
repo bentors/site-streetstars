@@ -37,11 +37,13 @@ Rode `make` para ver todos. Os principais:
 
 ## Lançamento (checklist)
 
-1. Criar o projeto Firebase de produção e ativar Authentication (e-mail/senha e Google) com a política de senha: mínimo 8, máximo 128, exigir número, modo "exigir", sem forçar upgrade.
+As credenciais de produção ficam em `.env.prod.local`. Não use `.env.production.local`: o Next carrega esse nome sozinho em qualquer `next build`/`next start` local, que passaria a ler e gravar na produção.
+
+1. Criar o projeto Firebase de produção (Firestore em `southamerica-east1`, criado no console antes do passo 2) e ativar Authentication (e-mail/senha e Google) com a política de senha: mínimo 8, máximo 128, exigir número, modo "exigir", sem forçar upgrade.
 2. `npx firebase deploy --only firestore:rules,firestore:indexes --project <prod>`. Sem os índices, o cron de expiração, `/conta` e o filtro do admin quebram.
 3. Variáveis na Vercel (produção): todas do `.env.example`, incluindo `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` e `CRON_SECRET`; credenciais reais do Mercado Pago e do Melhor Envio (token só com `shipping-calculate`).
-4. Catálogo: `make catalog-export FILE=.backups/catalogo.json` (dev) e `make catalog-import FILE=.backups/catalogo.json ENV=.env.production.local`. As fotos apontam para o Cloudinary de teste: reenvie pelo admin na conta de produção antes de desativar a de teste.
-5. Admin: entrar com o e-mail da loja (confirmado) e rodar o grant-admin com o `.env` de produção.
+4. Catálogo: `make catalog-export FILE=.backups/catalogo.json` (dev) e `make catalog-import FILE=.backups/catalogo.json ENV=.env.prod.local`. As fotos apontam para o Cloudinary de teste: reenvie pelo admin na conta de produção antes de desativar a de teste.
+5. Admin: entrar com o e-mail da loja (confirmado) e rodar `make grant-admin EMAIL=... ENV=.env.prod.local`.
 6. Webhook do Mercado Pago apontando para `https://<domínio>/api/webhooks/mercadopago`, com o segredo em `MERCADOPAGO_WEBHOOK_SECRET`.
 7. Resend com o domínio próprio verificado e `EMAIL_FROM` desse domínio.
 

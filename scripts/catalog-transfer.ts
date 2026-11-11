@@ -1,6 +1,6 @@
 // Copia o catálogo (produtos, coleções e settings/store) entre projetos Firebase.
 // Uso: make catalog-export FILE=.backups/catalogo.json           (lê do projeto do .env.local)
-//      make catalog-import FILE=... ENV=.env.production.local    (grava só o que não existe)
+//      make catalog-import FILE=... ENV=.env.prod.local    (grava só o que não existe)
 import { readFileSync, writeFileSync } from 'node:fs'
 import { cert, initializeApp } from 'firebase-admin/app'
 import { getFirestore, Timestamp } from 'firebase-admin/firestore'

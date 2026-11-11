@@ -76,9 +76,9 @@ emulators-logs: ## Acompanha os logs dos emuladores
 	docker compose logs -f firebase
 
 ## ── Operação ────────────────────────────────────────────────
-grant-admin: ## Torna um usuário admin: make grant-admin EMAIL=pessoa@exemplo.com
+grant-admin: ## Torna um usuário admin: make grant-admin EMAIL=pessoa@exemplo.com [ENV=.env.prod.local]
 	@test -n "$(EMAIL)" || { echo "Uso: make grant-admin EMAIL=pessoa@exemplo.com"; exit 1; }
-	npm run grant-admin -- "$(EMAIL)"
+	npx tsx --env-file=$(ENV) scripts/grant-admin.ts "$(EMAIL)"
 
 migrate-catalog: ## Simula a migração do catálogo antigo (não grava nada)
 	npm run migrate-catalog
@@ -90,8 +90,8 @@ catalog-export: ## Exporta produtos, coleções e configurações: make catalog-
 	@test -n "$(FILE)" || { echo "Uso: make catalog-export FILE=arquivo.json"; exit 1; }
 	npx tsx --env-file=.env.local scripts/catalog-transfer.ts export "$(FILE)"
 
-catalog-import: ## Importa sem sobrescrever: make catalog-import FILE=... ENV=.env.production.local
-	@test -n "$(FILE)" || { echo "Uso: make catalog-import FILE=arquivo.json ENV=.env.production.local"; exit 1; }
+catalog-import: ## Importa sem sobrescrever: make catalog-import FILE=... ENV=.env.prod.local
+	@test -n "$(FILE)" || { echo "Uso: make catalog-import FILE=arquivo.json ENV=.env.prod.local"; exit 1; }
 	npx tsx --env-file=$(ENV) scripts/catalog-transfer.ts import "$(FILE)"
 
 vercel-env: ## Envia um .env à Vercel sem exibir valores: make vercel-env FILE=... TARGET=preview BRANCH=...
