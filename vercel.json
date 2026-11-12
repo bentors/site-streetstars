@@ -4,5 +4,6 @@
   "buildCommand": "next build",
   "outputDirectory": ".next",
   "regions": ["gru1"],
+  "git": { "deploymentEnabled": { "main": false } },
   "crons": [{ "path": "/api/cron/expirar-pedidos", "schedule": "0 9 * * *" }]
 }
