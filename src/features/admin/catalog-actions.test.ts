@@ -29,7 +29,9 @@ const form = {
   price: '149,90',
   weightGrams: '250',
   sizes: 'P, M',
-  images: [{ url: 'https://res.cloudinary.com/x/image/upload/a.jpg', publicId: 'a', alt: '' }],
+  images: [
+    { url: 'https://res.cloudinary.com/x/image/upload/a.jpg', publicId: 'a', alt: '', colors: [] },
+  ],
 }
 
 beforeEach(() => {

@@ -1,43 +1,79 @@
 import { z } from 'zod'
 import { CATEGORIES } from './catalog'
+import { cloudinaryPublicId, isCloudinaryUrl } from './cloudinary'
 
 export const productImageSchema = z.object({
   url: z.url(),
   publicId: z.string().min(1),
   alt: z.string(),
+  /** Cores em que a foto aparece; vazia = foto geral, aparece em todas. */
+  colors: z.array(z.string()).default([]),
 })
 
 export const productColorSchema = z.object({
   name: z.string().min(1),
   hex: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/),
-  image: z.url().nullable(),
 })
+
+// Formato antigo: cada cor apontava para uma foto (`image`), às vezes fora da galeria.
+const storedColorSchema = productColorSchema.extend({ image: z.url().nullish() })
 
 export const sizeGuideSchema = z.object({
   columns: z.array(z.string()),
   rows: z.array(z.object({ size: z.string(), values: z.array(z.string()) })),
 })
 
-export const productSchema = z.object({
-  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  name: z.string().min(1),
-  description: z.string(),
-  category: z.enum(CATEGORIES),
-  priceCents: z.number().int().positive(),
-  weightGrams: z.number().int().positive(),
-  productionDays: z.number().int().min(0),
-  sizes: z.array(z.string().min(1)).min(1),
-  colors: z.array(productColorSchema),
-  images: z.array(productImageSchema).min(1),
-  highlights: z.array(z.string()),
-  sizeGuide: sizeGuideSchema.nullable(),
-  collectionIds: z.array(z.string()),
-  status: z.enum(['draft', 'active', 'archived']),
-  featured: z.boolean(),
-  featuredOrder: z.number().int().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
+export const productSchema = z
+  .object({
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    name: z.string().min(1),
+    description: z.string(),
+    category: z.enum(CATEGORIES),
+    priceCents: z.number().int().positive(),
+    weightGrams: z.number().int().positive(),
+    productionDays: z.number().int().min(0),
+    sizes: z.array(z.string().min(1)).min(1),
+    colors: z.array(storedColorSchema),
+    images: z.array(productImageSchema).min(1),
+    highlights: z.array(z.string()),
+    sizeGuide: sizeGuideSchema.nullable(),
+    collectionIds: z.array(z.string()),
+    status: z.enum(['draft', 'active', 'archived']),
+    featured: z.boolean(),
+    featuredOrder: z.number().int().nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+  })
+  .transform(({ colors, images, ...product }) => ({
+    ...product,
+    colors: colors.map(({ name, hex }) => ({ name, hex })),
+    images: withLegacyColorImages(images, colors, product.name),
+  }))
+
+/**
+ * Formato antigo: a foto da cor fora da galeria entra nela marcada com a cor. Se já estava na
+ * galeria, continua geral: antes ela aparecia para todas as cores (a cor só rolava até ela).
+ */
+function withLegacyColorImages(
+  images: ProductImage[],
+  colors: z.infer<typeof storedColorSchema>[],
+  productName: string,
+): ProductImage[] {
+  const result = [...images]
+  for (const { image: url, name } of colors) {
+    if (!url || images.some((image) => image.url === url)) continue
+    const added = result.find((image) => image.url === url)
+    if (added) added.colors.push(name)
+    else
+      result.push({
+        url,
+        publicId: isCloudinaryUrl(url) ? cloudinaryPublicId(url) : url,
+        alt: `${productName} — ${name}`,
+        colors: [name],
+      })
+  }
+  return result
+}
 
 export const collectionSchema = z.object({
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),

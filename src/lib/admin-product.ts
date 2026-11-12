@@ -125,6 +125,11 @@ export const productFormSchema = z
   // O slug sai do nome quando vazio; a checagem do formato vem depois, para o erro cair no campo slug.
   .transform(({ price, slug, ...form }): ProductInput => ({
     ...form,
+    // Cor removida ou renomeada não deixa marcação órfã nas fotos.
+    images: form.images.map((image) => ({
+      ...image,
+      colors: image.colors.filter((name) => form.colors.some((color) => color.name === name)),
+    })),
     slug: slug || slugify(form.name),
     priceCents: price as number,
   }))

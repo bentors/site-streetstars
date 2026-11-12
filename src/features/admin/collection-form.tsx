@@ -12,7 +12,7 @@ import { attempt } from '@/lib/attempt'
 
 // O campo de imagens trabalha com ProductImage; coleções guardam só a URL.
 const asImages = (urls: string[]): ProductImage[] =>
-  urls.map((url) => ({ url, publicId: url, alt: '' }))
+  urls.map((url) => ({ url, publicId: url, alt: '', colors: [] }))
 const asUrls = (images: ProductImage[]) => images.map((image) => image.url)
 
 const textarea =

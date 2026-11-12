@@ -10,7 +10,12 @@ describe('productJsonLd', () => {
         description: 'Algodão',
         priceCents: 14990,
         images: [
-          { url: 'https://res.cloudinary.com/x/image/upload/a.jpg', publicId: 'a', alt: '' },
+          {
+            url: 'https://res.cloudinary.com/x/image/upload/a.jpg',
+            publicId: 'a',
+            alt: '',
+            colors: [],
+          },
         ],
       },
       'https://streetstars.com.br',

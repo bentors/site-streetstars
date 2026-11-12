@@ -13,6 +13,7 @@ const img = (n: number): ProductImage => ({
   url: `https://res.cloudinary.com/x/image/upload/${n}.jpg`,
   publicId: String(n),
   alt: '',
+  colors: [],
 })
 
 function Harness({ initial, max }: { initial: ProductImage[]; max?: number }) {

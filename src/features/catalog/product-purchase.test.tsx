@@ -12,8 +12,8 @@ const tee = {
   name: 'Camiseta',
   sizes: ['P', 'M'],
   colors: [
-    { name: 'Preto', hex: '#000000', image: 'https://img/preto.jpg' },
-    { name: 'Branco', hex: '#ffffff', image: null },
+    { name: 'Preto', hex: '#000000' },
+    { name: 'Branco', hex: '#ffffff' },
   ],
   sizeGuide: { columns: ['Tam', 'Largura'], rows: [{ size: 'P', values: ['55'] }] },
 }
@@ -28,7 +28,7 @@ describe('ProductPurchase', () => {
     expect(add).toBeDisabled()
 
     await userEvent.click(screen.getByRole('button', { name: 'Cor Preto' }))
-    expect(onColorChange).toHaveBeenCalledWith('https://img/preto.jpg')
+    expect(onColorChange).toHaveBeenCalledWith('Preto')
     expect(screen.getByRole('button', { name: 'Selecione um tamanho' })).toBeDisabled()
 
     await userEvent.click(screen.getByRole('button', { name: 'Tamanho M' }))

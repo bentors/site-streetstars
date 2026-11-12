@@ -59,7 +59,22 @@ export function ProductForm({
   const set = (patch: Partial<ProductFormValues>) =>
     setValues((current) => ({ ...current, ...patch }))
   const setColor = (index: number, patch: Partial<ProductFormValues['colors'][number]>) =>
-    set({ colors: values.colors.map((c, i) => (i === index ? { ...c, ...patch } : c)) })
+    setValues((current) => {
+      const before = current.colors[index]?.name
+      // Só leva as marcações se nenhuma outra cor tem o mesmo nome (ex.: digitando "Preto Fosco"
+      // com "Preto" já cadastrado, o nome passa por "Preto" e não pode roubar as fotos dele).
+      const owns =
+        !!before &&
+        patch.name !== undefined &&
+        !current.colors.some((c, i) => i !== index && c.name === before)
+      const rename = (name: string) => (owns && name === before ? (patch.name as string) : name)
+      return {
+        ...current,
+        colors: current.colors.map((c, i) => (i === index ? { ...c, ...patch } : c)),
+        // Renomear a cor leva junto as fotos marcadas com ela.
+        images: current.images.map((image) => ({ ...image, colors: image.colors.map(rename) })),
+      }
+    })
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -151,6 +166,8 @@ export function ProductForm({
       />
       <ImageListField
         label="Fotos (a primeira é a capa)"
+        hint="Marque as cores de cada foto. Sem cor marcada, a foto aparece em todas."
+        colors={[...new Set(values.colors.map((color) => color.name).filter(Boolean))]}
         value={values.images}
         onChange={(update) => setValues((c) => ({ ...c, images: update(c.images) }))}
         onUploadingChange={setUploading}
@@ -163,7 +180,7 @@ export function ProductForm({
           Cores
         </legend>
         {values.colors.map((color, index) => (
-          <div key={index} className="grid items-end gap-3 sm:grid-cols-[1fr_120px_1fr_auto]">
+          <div key={index} className="grid items-end gap-3 sm:grid-cols-[1fr_120px_auto]">
             <TextField
               label={`Nome da cor ${index + 1}`}
               value={color.name}
@@ -179,26 +196,24 @@ export function ProductForm({
                 />
               )}
             </Field>
-            <Field label={`Foto da cor ${index + 1}`}>
-              {(control) => (
-                <Select
-                  {...control}
-                  value={color.image ?? ''}
-                  onChange={(e) => setColor(index, { image: e.target.value || null })}
-                >
-                  <option value="">Sem foto</option>
-                  {values.images.map((image, i) => (
-                    <option key={image.url} value={image.url}>
-                      Foto {i + 1}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => set({ colors: values.colors.filter((_, i) => i !== index) })}
+              onClick={() =>
+                setValues((current) => {
+                  const colors = current.colors.filter((_, i) => i !== index)
+                  const names = new Set(colors.map((c) => c.name))
+                  return {
+                    ...current,
+                    colors,
+                    // Sem isso, recriar uma cor com o mesmo nome traria as marcações antigas.
+                    images: current.images.map((image) => ({
+                      ...image,
+                      colors: image.colors.filter((name) => names.has(name)),
+                    })),
+                  }
+                })
+              }
             >
               Remover
             </Button>
@@ -211,9 +226,7 @@ export function ProductForm({
           variant="secondary"
           size="sm"
           className="self-start"
-          onClick={() =>
-            set({ colors: [...values.colors, { name: '', hex: '#000000', image: null }] })
-          }
+          onClick={() => set({ colors: [...values.colors, { name: '', hex: '#000000' }] })}
         >
           Adicionar cor
         </Button>
