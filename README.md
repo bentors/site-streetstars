@@ -37,6 +37,8 @@ Rode `make` para ver todos. Os principais:
 
 ## Lançamento (checklist)
 
+Enquanto isso, os previews só funcionam nas branches com variáveis próprias: `make vercel-env FILE=.env.preview.local TARGET=preview BRANCH=<branch>`.
+
 As credenciais de produção ficam em `.env.prod.local`. Não use `.env.production.local`: o Next carrega esse nome sozinho em qualquer `next build`/`next start` local, que passaria a ler e gravar na produção.
 
 1. Criar o projeto Firebase de produção (Firestore em `southamerica-east1`, criado no console antes do passo 2) e ativar Authentication (e-mail/senha e Google) com a política de senha: mínimo 8, máximo 128, exigir número, modo "exigir", sem forçar upgrade.
@@ -46,6 +48,7 @@ As credenciais de produção ficam em `.env.prod.local`. Não use `.env.producti
 5. Admin: entrar com o e-mail da loja (confirmado) e rodar `make grant-admin EMAIL=... ENV=.env.prod.local`.
 6. Webhook do Mercado Pago apontando para `https://<domínio>/api/webhooks/mercadopago`, com o segredo em `MERCADOPAGO_WEBHOOK_SECRET`.
 7. Resend com o domínio próprio verificado e `EMAIL_FROM` desse domínio.
+8. Publicar: tirar `"git": { "deploymentEnabled": { "main": false } }` do `vercel.json` (o deploy da `main` está pausado até o lançamento; o site antigo segue no ar). O push seguinte na `main` publica o site novo.
 
 ## Regras do projeto
 
