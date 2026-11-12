@@ -36,3 +36,22 @@ dist-ssr
 .vercel
 .env*.local
 firebase-service-account.json
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Testes
+coverage/
+
+# Firebase emuladores
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Dados dos emuladores em container
+.emulator-data/
+
+# Backups locais de scripts de dados
+.backups/

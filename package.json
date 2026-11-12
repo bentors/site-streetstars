@@ -1,42 +1,61 @@
 {
-  "name": "street-stars-site",
+  "name": "streetstars",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.1.0",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
-    "dev": "vite",
-    "dev:api": "node api/_server.cjs",
-    "sitemap": "node scripts/generate-sitemap.cjs",
-    "build": "npm run sitemap && vite build",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "analyze": "vite build --mode analyze",
-    "build:prod": "NODE_ENV=production npm run sitemap && vite build"
+    "typecheck": "next typegen && tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run --project unit --project dom --passWithNoTests",
+    "test:watch": "vitest --project unit --project dom",
+    "test:emulator": "firebase emulators:exec --project demo-streetstars --only firestore,auth \"vitest run --project rules --project integration --passWithNoTests\"",
+    "grant-admin": "tsx --env-file=.env.local scripts/grant-admin.ts",
+    "migrate-catalog": "tsx --env-file=.env.local scripts/migrate-catalog.ts",
+    "build:ci": "firebase emulators:exec --project demo-streetstars --only firestore \"next build\""
   },
   "dependencies": {
-    "@vercel/speed-insights": "^1.3.1",
-    "firebase": "^12.8.0",
-    "framer-motion": "^12.26.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-error-boundary": "^4.1.2",
-    "react-ga4": "^2.1.0",
-    "react-helmet-async": "^2.0.5",
-    "react-router-dom": "^7.12.0"
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.39.0",
+    "clsx": "^2.1.1",
+    "firebase": "^12.19.0",
+    "firebase-admin": "^14.5.0",
+    "next": "16.3",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.1",
-    "autoprefixer": "^10.4.23",
-    "dotenv": "^17.4.2",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.19",
-    "vite": "^7.2.4"
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/node": "^24.19.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "16.3",
+    "firebase-tools": "^15.32.1",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.9.9",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "5.9",
+    "vitest": "^5.0.3"
+  },
+  "overrides": {
+    "jwks-rsa": {
+      "jose": "5.10.0"
+    }
   }
 }

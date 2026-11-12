@@ -1,0 +1,23 @@
+name: streetstars
+
+services:
+  firebase:
+    build:
+      context: docker/firebase
+      args:
+        FIREBASE_TOOLS_VERSION: 15.32.1
+    image: streetstars-firebase-emulators:15.32.1
+    environment:
+      EMULATOR_PERSIST: ${EMULATOR_PERSIST:-1}
+    ports:
+      - '4000:4000'
+      - '4400:4400'
+      - '8080:8080'
+      - '9099:9099'
+    volumes:
+      # Config própria do container (escuta em 0.0.0.0); regras e índices vêm do repo.
+      - ./docker/firebase/firebase.json:/workspace/firebase.json:ro
+      - ./firestore.rules:/workspace/firestore.rules:ro
+      - ./firestore.indexes.json:/workspace/firestore.indexes.json:ro
+      - ./.emulator-data:/data
+    stop_grace_period: 30s

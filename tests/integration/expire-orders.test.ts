@@ -1,0 +1,62 @@
+import { beforeEach, describe, expect, it } from 'vitest'
+import { db } from '@/server/db/firebase-admin'
+import { getOrder, ordersCollection } from '@/server/db/orders'
+import { expirePendingOrders } from '@/server/orders/expire-orders'
+import { NOW, orderDoc } from './fixtures'
+import { clearFirestore } from './helpers'
+
+const HOUR = 60 * 60 * 1000
+
+beforeEach(clearFirestore)
+
+describe('expirePendingOrders', () => {
+  it('expira só os pendentes vencidos e registra no histórico', async () => {
+    const past = new Date(NOW.getTime() - HOUR)
+    const future = new Date(NOW.getTime() + HOUR)
+    await ordersCollection()
+      .doc('vencido')
+      .set(orderDoc({ expiresAt: past }))
+    await ordersCollection()
+      .doc('no-prazo')
+      .set(orderDoc({ expiresAt: future }))
+    await ordersCollection()
+      .doc('pago')
+      .set(orderDoc({ status: 'paid', expiresAt: past }))
+
+    expect(await expirePendingOrders(NOW)).toBe(1)
+
+    const expired = await getOrder('vencido')
+    expect(expired?.status).toBe('expired')
+    expect(expired?.statusHistory.at(-1)).toEqual({ status: 'expired', at: NOW, by: 'system' })
+    expect((await getOrder('no-prazo'))?.status).toBe('pending_payment')
+    expect((await getOrder('pago'))?.status).toBe('paid')
+
+    expect(await expirePendingOrders(NOW)).toBe(0)
+  })
+
+  it('devolve a reserva do cupom e nunca deixa o contador negativo', async () => {
+    const past = new Date(NOW.getTime() - HOUR)
+    const coupon = { code: 'BEMVINDO', type: 'percent' as const, value: 10, discountCents: 0 }
+    await db().doc('coupons/BEMVINDO').set({ usedCount: 1 })
+    await ordersCollection()
+      .doc('a')
+      .set(orderDoc({ expiresAt: past, coupon }))
+    await ordersCollection()
+      .doc('b')
+      .set(orderDoc({ expiresAt: past, coupon, number: 'SS-1002' }))
+    expect(await expirePendingOrders(NOW)).toBe(2)
+    expect((await db().doc('coupons/BEMVINDO').get()).get('usedCount')).toBe(0)
+  })
+
+  it('um pedido fora do formato não impede os outros de expirar', async () => {
+    const past = new Date(NOW.getTime() - HOUR)
+    await db()
+      .doc('orders/quebrado')
+      .set({ ...orderDoc({ expiresAt: past }), totals: 'x' })
+    await ordersCollection()
+      .doc('bom')
+      .set(orderDoc({ expiresAt: past, number: 'SS-1002' }))
+    expect(await expirePendingOrders(NOW)).toBe(1)
+    expect((await getOrder('bom'))?.status).toBe('expired')
+  })
+})
