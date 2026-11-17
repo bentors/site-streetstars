@@ -23,32 +23,40 @@ function subscribeScroll(onChange: () => void) {
 const atBottom = () =>
   window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100
 
-/** Seção da home que está no meio da tela (só na home). */
+/**
+ * Seção ativa da home: a de topo mais baixo entre as que já passaram de 45% da tela.
+ * Calculada pela posição a cada rolagem: um IntersectionObserver só avisa quando uma seção
+ * cruza a faixa observada, e ao subir do rodapé a estrela ficava presa em Contato.
+ */
+function currentSection(): string | null {
+  const line = window.innerHeight * 0.45
+  let current: { id: string; top: number } | null = null
+  for (const { id } of LINKS) {
+    const top = document.getElementById(id)?.getBoundingClientRect().top
+    if (top !== undefined && top <= line && (!current || top > current.top)) current = { id, top }
+  }
+  // O rodapé é curto e pode nunca chegar à linha: no fim da página vale Contato, salvo quando
+  // a seção ativa acabou de chegar ao topo (clique em Quem somos numa tela alta).
+  if (atBottom() && (!current || current.top < 0)) return 'contato'
+  return current?.id ?? null
+}
+
 function useActiveSection(enabled: boolean) {
   const [active, setActive] = useState<string | null>(null)
 
   useEffect(() => {
     if (!enabled) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (atBottom()) return setActive('contato')
-        const visible = entries.find((entry) => entry.isIntersecting)
-        if (visible) setActive(visible.target.id)
-      },
-      { rootMargin: '-40% 0px -50% 0px' },
-    )
-    const ids = new Set(LINKS.map((link) => link.id))
-    document.querySelectorAll('section[id], footer[id]').forEach((element) => {
-      if (ids.has(element.id)) observer.observe(element)
-    })
-    // O rodapé é curto e pode nunca cruzar o meio da tela.
-    const onScroll = () => {
-      if (atBottom()) setActive('contato')
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
+    const update = () => setActive(currentSection())
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    // Conteúdo que muda de altura sem rolagem (filtro do shop, imagens carregando).
+    const resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update)
+    resize?.observe(document.body)
     return () => {
-      observer.disconnect()
-      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('scroll', update)
+      window.removeEventListener('resize', update)
+      resize?.disconnect()
     }
   }, [enabled])
 
@@ -69,16 +77,24 @@ export function SiteHeader() {
   const starRef = useRef<HTMLSpanElement>(null)
 
   // A estrela desliza até o link ativo (estilo aplicado direto no elemento, sem re-render).
+  // Reposiciona também ao redimensionar: o nav muda de largura (e só aparece a partir do md).
   useEffect(() => {
-    const star = starRef.current
-    const link = active ? navRef.current?.querySelector<HTMLElement>(`[data-id="${active}"]`) : null
-    if (!star) return
-    if (!link) {
-      star.style.opacity = '0'
-      return
+    const place = () => {
+      const star = starRef.current
+      const link = active
+        ? navRef.current?.querySelector<HTMLElement>(`[data-id="${active}"]`)
+        : null
+      if (!star) return
+      if (!link) {
+        star.style.opacity = '0'
+        return
+      }
+      star.style.opacity = '1'
+      star.style.transform = `translateX(${link.offsetLeft + link.offsetWidth / 2}px) translateX(-50%)`
     }
-    star.style.opacity = '1'
-    star.style.transform = `translateX(${link.offsetLeft + link.offsetWidth / 2}px) translateX(-50%)`
+    place()
+    window.addEventListener('resize', place)
+    return () => window.removeEventListener('resize', place)
   }, [active])
 
   useEffect(() => {
