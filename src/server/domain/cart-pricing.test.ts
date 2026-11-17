@@ -9,10 +9,13 @@ const tee = {
   priceCents: 14990,
   sizes: ['P', 'M'],
   colors: [
-    { name: 'Preto', hex: '#000000', image: 'https://img/preto.jpg' },
-    { name: 'Branco', hex: '#ffffff', image: null },
+    { name: 'Preto', hex: '#000000' },
+    { name: 'Branco', hex: '#ffffff' },
   ],
-  images: [{ url: 'https://img/capa.jpg', publicId: 'capa', alt: '' }],
+  images: [
+    { url: 'https://img/capa.jpg', publicId: 'capa', alt: '', colors: [] },
+    { url: 'https://img/preto.jpg', publicId: 'preto', alt: '', colors: ['Preto'] },
+  ],
   status: 'active' as const,
 }
 const cap = {
@@ -62,5 +65,17 @@ describe('priceLines', () => {
   it('limita a quantidade mesmo se o cliente mandar mais', () => {
     const result = priceLines([{ productId: 'p2', size: 'UN', color: null, qty: 50 }], [cap])
     expect(result.lines[0]?.qty).toBe(10)
+  })
+
+  it('cor sem foto própria usa a primeira foto geral, não a de outra cor', () => {
+    const product = {
+      ...tee,
+      images: [
+        { url: 'https://img/preto.jpg', publicId: 'preto', alt: '', colors: ['Preto'] },
+        { url: 'https://img/geral.jpg', publicId: 'geral', alt: '', colors: [] },
+      ],
+    }
+    const result = priceLines([{ productId: 'p1', size: 'M', color: 'Branco', qty: 1 }], [product])
+    expect(result.lines[0]?.image).toBe('https://img/geral.jpg')
   })
 })

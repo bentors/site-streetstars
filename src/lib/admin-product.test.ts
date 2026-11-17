@@ -7,7 +7,12 @@ import {
   type ProductFormValues,
 } from './admin-product'
 
-const image = { url: 'https://res.cloudinary.com/x/image/upload/a.jpg', publicId: 'a', alt: '' }
+const image = {
+  url: 'https://res.cloudinary.com/x/image/upload/a.jpg',
+  publicId: 'a',
+  alt: '',
+  colors: [],
+}
 
 const values = (overrides: Partial<ProductFormValues> = {}): ProductFormValues => ({
   ...productToForm(null),
@@ -60,6 +65,16 @@ describe('productFormSchema', () => {
     })
   })
 
+  it('descarta das fotos as cores que não existem mais', () => {
+    const parsed = productFormSchema.parse(
+      values({
+        colors: [{ name: 'Preto', hex: '#000000' }],
+        images: [{ ...image, colors: ['Preto', 'Rosa'] }],
+      }),
+    )
+    expect(parsed.images[0]?.colors).toEqual(['Preto'])
+  })
+
   it('apara o slug digitado e recusa slug malformado', () => {
     expect(productFormSchema.parse(values({ slug: ' moletom-x ' })).slug).toBe('moletom-x')
     const bad = productFormSchema.safeParse(values({ slug: 'Moletom X' }))
@@ -70,15 +85,15 @@ describe('productFormSchema', () => {
     [{ price: '0' }, 'price', 'Preço inválido'],
     [{ sizes: 'P, ' + 'X'.repeat(21) }, 'sizes', 'Tamanho com até 20 caracteres'],
     [
-      { colors: [{ name: 'X'.repeat(41), hex: '#000000', image: null }] },
+      { colors: [{ name: 'X'.repeat(41), hex: '#000000' }] },
       'colors',
       'Nome da cor com até 40 caracteres',
     ],
     [
       {
         colors: [
-          { name: 'Preto', hex: '#000000', image: null },
-          { name: 'preto', hex: '#111111', image: null },
+          { name: 'Preto', hex: '#000000' },
+          { name: 'preto', hex: '#111111' },
         ],
       },
       'colors',

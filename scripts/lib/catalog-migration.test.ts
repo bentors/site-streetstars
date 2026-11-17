@@ -58,12 +58,23 @@ describe('migrateProduct', () => {
       updatedAt: now,
     })
     expect(doc.colors).toEqual([
-      { name: 'Preto', hex: '#000000', image: IMG2 },
-      { name: 'Branco', hex: '#ffffff', image: null },
+      { name: 'Preto', hex: '#000000' },
+      { name: 'Branco', hex: '#ffffff' },
     ])
+    // A foto da cor já estava na galeria: continua geral.
     expect(doc.images).toEqual([
-      { url: IMG, publicId: 'produtos/tshirt', alt: "T-Shirt Boxy 'Arabic Logo' — foto 1" },
-      { url: IMG2, publicId: 'produtos/tshirt-2', alt: "T-Shirt Boxy 'Arabic Logo' — foto 2" },
+      {
+        url: IMG,
+        publicId: 'produtos/tshirt',
+        alt: "T-Shirt Boxy 'Arabic Logo' — foto 1",
+        colors: [],
+      },
+      {
+        url: IMG2,
+        publicId: 'produtos/tshirt-2',
+        alt: "T-Shirt Boxy 'Arabic Logo' — foto 2",
+        colors: [],
+      },
     ])
   })
 

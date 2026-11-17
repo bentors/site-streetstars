@@ -8,18 +8,22 @@ import { ProductGallery } from './product-gallery'
 import { ProductPurchase } from './product-purchase'
 
 export function ProductView({ product }: { product: StoreProduct }) {
-  const [activeUrl, setActiveUrl] = useState<string | null>(null)
-  // Fotos de cor que não estão na galeria entram no fim, para a troca de cor funcionar.
-  const colorImages = product.colors
-    .map((color) => color.image)
-    .filter((url): url is string => !!url && !product.images.some((image) => image.url === url))
-    .map((url) => ({ url, alt: product.name }))
-  const images = [...product.images, ...colorImages]
+  const [color, setColor] = useState<string | null>(null)
+  // Com a cor escolhida, só as fotos dela e as gerais (sem cor marcada).
+  const forColor = product.images.filter(
+    (image) => !color || image.colors.length === 0 || image.colors.includes(color),
+  )
+  // Cor sem foto própria e sem fotos gerais: mostra todas em vez de uma galeria vazia.
+  const images = (forColor.length > 0 ? forColor : product.images).map((image) => ({
+    url: image.url,
+    alt: image.alt || product.name,
+  }))
 
   return (
     <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-2 lg:gap-12">
       <div className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-        <ProductGallery images={images} activeUrl={activeUrl} />
+        {/* A key remonta a galeria: trocar de cor volta para a primeira foto. */}
+        <ProductGallery key={color ?? ''} images={images} />
       </div>
       <div className="flex min-w-0 flex-col gap-6">
         <nav
@@ -53,7 +57,7 @@ export function ProductView({ product }: { product: StoreProduct }) {
             colors: product.colors,
             sizeGuide: product.sizeGuide,
           }}
-          onColorChange={setActiveUrl}
+          onColorChange={setColor}
         />
         {product.description ? (
           <div className="border-t border-line pt-6">

@@ -21,5 +21,5 @@ export async function uploadImage(file: File): Promise<ProductImage> {
   if (!response.ok) throw new Error(FAILED)
   const json = (await response.json()) as { secure_url?: string; public_id?: string }
   if (!json.secure_url || !json.public_id) throw new Error(FAILED)
-  return { url: json.secure_url, publicId: json.public_id, alt: '' }
+  return { url: json.secure_url, publicId: json.public_id, alt: '', colors: [] }
 }

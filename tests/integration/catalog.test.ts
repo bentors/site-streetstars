@@ -19,9 +19,14 @@ function product(overrides: Partial<ProductDoc> = {}): ProductDoc {
     weightGrams: 250,
     productionDays: 10,
     sizes: ['P', 'M'],
-    colors: [{ name: 'Preto', hex: '#000000', image: null }],
+    colors: [{ name: 'Preto', hex: '#000000' }],
     images: [
-      { url: 'https://res.cloudinary.com/x/image/upload/a.jpg', publicId: 'a', alt: 'Camiseta' },
+      {
+        url: 'https://res.cloudinary.com/x/image/upload/a.jpg',
+        publicId: 'a',
+        alt: 'Camiseta',
+        colors: [],
+      },
     ],
     highlights: [],
     sizeGuide: null,

@@ -1,16 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 
-export function ProductGallery({
-  images,
-  activeUrl,
-}: {
-  images: { url: string; alt: string }[]
-  activeUrl?: string | null
-}) {
+export function ProductGallery({ images }: { images: { url: string; alt: string }[] }) {
   const ref = useRef<HTMLDivElement>(null)
   const [index, setIndex] = useState(0)
 
@@ -19,14 +13,6 @@ export function ProductGallery({
     if (!slider) return
     slider.scrollTo({ left: target * slider.clientWidth, behavior: 'smooth' })
   }, [])
-
-  // Só rola quando a cor escolhida muda (a URL é o que importa, não a identidade do array).
-  useEffect(() => {
-    if (!activeUrl) return
-    const target = images.findIndex((image) => image.url === activeUrl)
-    if (target >= 0) goTo(target)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeUrl, goTo])
 
   return (
     <div className="relative">

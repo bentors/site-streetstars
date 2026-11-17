@@ -19,7 +19,7 @@ export function ProductPurchase({
   onColorChange,
 }: {
   product: PurchaseProduct
-  onColorChange?: (image: string | null) => void
+  onColorChange?: (color: string) => void
 }) {
   const cart = useCart()
   const [color, setColor] = useState<ProductColor | null>(null)
@@ -50,7 +50,7 @@ export function ProductPurchase({
                 title={option.name}
                 onClick={() => {
                   setColor(option)
-                  onColorChange?.(option.image)
+                  onColorChange?.(option.name)
                 }}
                 style={{ backgroundColor: option.hex }}
                 className={cn(

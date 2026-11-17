@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { useId, useState } from 'react'
 import { Button, Input, Spinner } from '@/components/ui'
 import type { ProductImage } from '@/lib/catalog-schemas'
+import { cn } from '@/lib/cn'
 import { uploadImage } from './upload-image'
 
 type Update = (current: ProductImage[]) => ProductImage[]
@@ -15,6 +16,8 @@ export function ImageListField({
   onUploadingChange,
   max,
   withAlt = false,
+  colors,
+  hint,
   error,
 }: {
   label: string
@@ -24,6 +27,9 @@ export function ImageListField({
   onUploadingChange?: (uploading: boolean) => void
   max?: number
   withAlt?: boolean
+  /** Cores do produto: cada foto pode ser marcada com as cores em que aparece. */
+  colors?: string[]
+  hint?: string
   error?: string
 }) {
   const inputId = useId()
@@ -39,6 +45,21 @@ export function ImageListField({
       next.splice(index + delta, 0, item)
       return next
     })
+  }
+
+  function toggleColor(index: number, color: string) {
+    onChange((current) =>
+      current.map((item, i) =>
+        i !== index
+          ? item
+          : {
+              ...item,
+              colors: item.colors.includes(color)
+                ? item.colors.filter((c) => c !== color)
+                : [...item.colors, color],
+            },
+      ),
+    )
   }
 
   async function upload(files: FileList | null) {
@@ -66,6 +87,7 @@ export function ImageListField({
       <legend className="mb-2 font-mono text-[10px] tracking-widest text-muted uppercase">
         {label}
       </legend>
+      {hint ? <p className="-mt-2 text-[10px] text-muted">{hint}</p> : null}
       <ul className="flex flex-col gap-3">
         {value.map((image, index) => (
           <li
@@ -79,21 +101,48 @@ export function ImageListField({
               height={64}
               className="size-16 object-cover"
             />
-            {withAlt ? (
-              <Input
-                aria-label={`Descrição da foto ${index + 1}`}
-                placeholder="Descrição (acessibilidade)"
-                value={image.alt}
-                onChange={(event) => {
-                  const alt = event.target.value
-                  onChange((current) =>
-                    current.map((item, i) => (i === index ? { ...item, alt } : item)),
-                  )
-                }}
-              />
-            ) : (
-              <span className="flex-1 truncate font-mono text-[10px] text-muted">{image.url}</span>
-            )}
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              {withAlt ? (
+                <Input
+                  aria-label={`Descrição da foto ${index + 1}`}
+                  placeholder="Descrição (acessibilidade)"
+                  value={image.alt}
+                  onChange={(event) => {
+                    const alt = event.target.value
+                    onChange((current) =>
+                      current.map((item, i) => (i === index ? { ...item, alt } : item)),
+                    )
+                  }}
+                />
+              ) : (
+                <span className="flex-1 truncate font-mono text-[10px] text-muted">
+                  {image.url}
+                </span>
+              )}
+              {colors?.length ? (
+                <div className="flex flex-wrap gap-1.5" aria-label={`Cores da foto ${index + 1}`}>
+                  {colors.map((color) => {
+                    const active = image.colors.includes(color)
+                    return (
+                      <button
+                        key={color}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => toggleColor(index, color)}
+                        className={cn(
+                          'border px-2 py-1 text-[10px] tracking-wider uppercase',
+                          active
+                            ? 'border-paper bg-paper text-ink'
+                            : 'border-line text-muted hover:border-paper',
+                        )}
+                      >
+                        {color}
+                      </button>
+                    )
+                  })}
+                </div>
+              ) : null}
+            </div>
             <Button
               size="sm"
               variant="ghost"

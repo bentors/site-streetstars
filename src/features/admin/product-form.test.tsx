@@ -12,7 +12,12 @@ vi.mock('./upload-actions', () => ({ signUploadAction }))
 import { productToForm } from '@/lib/admin-product'
 import { ProductForm } from './product-form'
 
-const image = { url: 'https://res.cloudinary.com/x/image/upload/a.jpg', publicId: 'a', alt: '' }
+const image = {
+  url: 'https://res.cloudinary.com/x/image/upload/a.jpg',
+  publicId: 'a',
+  alt: '',
+  colors: [],
+}
 const collections = [{ id: 'c1', title: 'Verão' }]
 
 beforeEach(() => {
@@ -96,7 +101,7 @@ describe('ProductForm', () => {
     expect(screen.getByRole('button', { name: 'Salvar produto' })).toBeDisabled()
   })
 
-  it('cores: adiciona, escolhe a foto da cor e remove', async () => {
+  it('cores: marca a foto com a cor e a marcação acompanha o nome', async () => {
     render(
       <ProductForm
         productId={null}
@@ -106,11 +111,43 @@ describe('ProductForm', () => {
     )
     await fillRequired()
     await userEvent.click(screen.getByRole('button', { name: 'Adicionar cor' }))
-    await userEvent.type(screen.getByLabelText('Nome da cor 1'), 'Preto')
-    await userEvent.selectOptions(screen.getByLabelText('Foto da cor 1'), image.url)
+    await userEvent.type(screen.getByLabelText('Nome da cor 1'), 'Pret')
+    await userEvent.click(screen.getByRole('button', { name: 'Pret' }))
+    await userEvent.type(screen.getByLabelText('Nome da cor 1'), 'o')
+    expect(screen.getByRole('button', { name: 'Preto' })).toHaveAttribute('aria-pressed', 'true')
     await userEvent.click(screen.getByRole('button', { name: 'Salvar produto' }))
-    expect(saveProductAction.mock.calls[0]?.[1].colors).toEqual([
-      { name: 'Preto', hex: '#000000', image: image.url },
-    ])
+    const saved = saveProductAction.mock.calls[0]?.[1]
+    expect(saved?.colors).toEqual([{ name: 'Preto', hex: '#000000' }])
+    expect(saved?.images[0]?.colors).toEqual(['Preto'])
+  })
+
+  it('cores: nova cor que passa pelo nome de outra não rouba as fotos dela', async () => {
+    const initial = {
+      ...productToForm(null),
+      colors: [{ name: 'Preto', hex: '#000000' }],
+      images: [{ ...image, colors: ['Preto'] }],
+    }
+    render(<ProductForm productId={null} initial={initial} collections={[]} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Adicionar cor' }))
+    await userEvent.type(screen.getByLabelText('Nome da cor 2'), 'Preto Fosco')
+    expect(screen.getByRole('button', { name: 'Preto' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Preto Fosco' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+  })
+
+  it('cores: remover a cor tira a marcação das fotos na hora', async () => {
+    const initial = {
+      ...productToForm(null),
+      colors: [{ name: 'Preto', hex: '#000000' }],
+      images: [{ ...image, colors: ['Preto'] }],
+    }
+    render(<ProductForm productId={null} initial={initial} collections={[]} />)
+    // O primeiro "Remover" é o da foto; o da cor vem depois.
+    await userEvent.click(screen.getAllByRole('button', { name: 'Remover' })[1]!)
+    await userEvent.click(screen.getByRole('button', { name: 'Adicionar cor' }))
+    await userEvent.type(screen.getByLabelText('Nome da cor 1'), 'Preto')
+    expect(screen.getByRole('button', { name: 'Preto' })).toHaveAttribute('aria-pressed', 'false')
   })
 })

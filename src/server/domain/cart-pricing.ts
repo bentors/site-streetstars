@@ -44,7 +44,12 @@ export function priceLines(lines: CartLine[], products: PricingProduct[]): Price
       productId: product.id,
       slug: product.slug,
       name: product.name,
-      image: color?.image ?? product.images[0]?.url ?? '',
+      // Foto da cor; senão a primeira geral; senão a capa.
+      image:
+        (color && product.images.find((image) => image.colors.includes(color.name))?.url) ??
+        product.images.find((image) => image.colors.length === 0)?.url ??
+        product.images[0]?.url ??
+        '',
       size: line.size,
       color: line.color,
       unitPriceCents: product.priceCents,
