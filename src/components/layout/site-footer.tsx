@@ -33,7 +33,7 @@ export function SiteFooter({ settings }: { settings: StoreSettings }) {
         <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-12">
           <div className={`${column} space-y-6 md:col-span-4`}>
             <Link href="/" aria-label="Voltar ao início">
-              <Logo className="h-16 w-auto text-paper opacity-90 transition-opacity hover:opacity-100" />
+              <Logo className="h-11 w-auto text-paper opacity-90 transition-opacity hover:opacity-100" />
             </Link>
             <p className="max-w-xs text-xs leading-relaxed font-light text-paper/50">
               Street Stars.
