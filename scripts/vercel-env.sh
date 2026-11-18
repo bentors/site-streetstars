@@ -18,9 +18,12 @@ branch=${3:-}
 [[ -z $branch || $target == preview ]] || fail "Branch só vale para preview"
 
 args=("$target")
+# Preview sempre leva o argumento de branch: vazio vale para todas as branches (sem ele, a CLI
+# para e pergunta qual branch).
+if [[ $target == preview ]]; then args+=("$branch"); fi
 # --force substitui só o registro do mesmo ambiente e branch; sem branch, um conflito com
 # variável compartilhada falha em vez de sobrescrever o valor da produção.
-if [[ -n $branch ]]; then args+=("$branch" --force); fi
+if [[ -n $branch ]]; then args+=(--force); fi
 
 count=0
 while IFS= read -r line || [[ -n $line ]]; do
@@ -42,7 +45,7 @@ while IFS= read -r line || [[ -n $line ]]; do
     ok "$name"
     count=$((count + 1))
   else
-    fail "$name falhou. Rode sem o >/dev/null para ver o motivo: npx vercel env add $name ${args[*]}"
+    fail "$name falhou. Rode sem o >/dev/null para ver o motivo: npx vercel env add $name$(printf ' %q' "${args[@]}")"
   fi
 done <"$file"
 
