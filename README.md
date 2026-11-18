@@ -37,7 +37,7 @@ Rode `make` para ver todos. Os principais:
 
 ## Lançamento (checklist)
 
-Enquanto isso, os previews só funcionam nas branches com variáveis próprias: `make vercel-env FILE=.env.preview.local TARGET=preview BRANCH=<branch>`.
+As variáveis de Preview valem para todas as branches (`make vercel-env FILE=.env.preview.local TARGET=preview`, com o `NEXT_PUBLIC_SITE_URL` vazio: cada preview usa a URL da própria branch). Para uma branch específica, acrescente `BRANCH=<branch>`.
 
 As credenciais de produção ficam em `.env.prod.local`. Não use `.env.production.local`: o Next carrega esse nome sozinho em qualquer `next build`/`next start` local, que passaria a ler e gravar na produção.
 

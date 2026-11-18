@@ -45,7 +45,7 @@ while IFS= read -r line || [[ -n $line ]]; do
     ok "$name"
     count=$((count + 1))
   else
-    fail "$name falhou. Rode sem o >/dev/null para ver o motivo: npx vercel env add $name ${args[*]}"
+    fail "$name falhou. Rode sem o >/dev/null para ver o motivo: npx vercel env add $name$(printf ' %q' "${args[@]}")"
   fi
 done <"$file"
 

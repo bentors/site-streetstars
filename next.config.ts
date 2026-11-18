@@ -1,10 +1,12 @@
 import type { NextConfig } from 'next'
 import { securityHeaders } from './src/lib/security-headers'
 
-// Cada preview usa a própria URL (retorno do pagamento, links de pedido, SEO), já que as
-// variáveis de Preview são as mesmas para todas as branches.
+// Preview sem NEXT_PUBLIC_SITE_URL própria usa a URL da branch (retorno do pagamento, links de
+// pedido, SEO): as variáveis gerais de Preview valem para todas as branches.
 const branchUrl =
-  process.env.VERCEL_ENV === 'preview' && process.env.VERCEL_BRANCH_URL
+  process.env.VERCEL_ENV === 'preview' &&
+  !process.env.NEXT_PUBLIC_SITE_URL &&
+  process.env.VERCEL_BRANCH_URL
     ? `https://${process.env.VERCEL_BRANCH_URL}`
     : undefined
 
