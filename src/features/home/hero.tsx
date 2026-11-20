@@ -12,7 +12,7 @@ export function Hero() {
         sizes="(max-width: 639px) 110vw, 100vw"
         loading="eager"
         fetchPriority="high"
-        className="origin-[50%_60%] animate-hero-zoom object-cover object-[54%_65%] max-sm:scale-110 sm:object-[50%_50%] lg:object-[50%_42%]"
+        className="animate-hero-zoom object-cover object-[54%_65%] max-sm:origin-[50%_60%] max-sm:scale-110 sm:object-[50%_50%] lg:object-[50%_42%]"
       />
       <div
         className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/55 to-black/65"
