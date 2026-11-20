@@ -9,7 +9,7 @@ export function Hero() {
         src={HOME_IMAGES.hero}
         alt="Jovens vestindo roupas Street Stars"
         fill
-        sizes="100vw"
+        sizes="(max-width: 639px) 110vw, 100vw"
         loading="eager"
         fetchPriority="high"
         className="origin-[50%_60%] animate-hero-zoom object-cover object-[54%_65%] max-sm:scale-110 sm:object-[50%_50%] lg:object-[50%_42%]"

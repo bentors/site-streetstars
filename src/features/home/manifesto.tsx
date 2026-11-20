@@ -16,7 +16,8 @@ export function Manifesto() {
       className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-ink px-6 py-32"
     >
       <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-        {/* 120% de altura deslocado em -10%: sobra para o parallax sem mostrar borda. */}
+        {/* 120% de altura deslocado em -10%: sobra para o parallax sem mostrar borda (a foto do
+            mobile sobe mais 6% e usa parte dessa sobra). */}
         <div className="parallax relative -top-[10%] h-[120%] w-full">
           <Image
             src={HOME_IMAGES.manifestoDesktop}
