@@ -118,7 +118,7 @@ export function SiteHeader() {
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link href="/" aria-label="Street Stars — página inicial" onClick={() => setOpen(false)}>
-            <Logo className="h-8 w-auto text-paper transition-opacity hover:opacity-80 md:h-12" />
+            <Logo className="h-5 w-auto text-paper transition-opacity hover:opacity-80 md:h-8" />
           </Link>
 
           <nav

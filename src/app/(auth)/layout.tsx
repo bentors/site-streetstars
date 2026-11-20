@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       />
       <div className="relative z-10 flex w-full max-w-sm flex-col items-center">
         <Link href="/" className="mb-10 transition-opacity hover:opacity-80">
-          <Logo className="h-12 w-auto text-paper md:h-16" />
+          <Logo className="h-8 w-auto text-paper md:h-11" />
         </Link>
         {children}
       </div>

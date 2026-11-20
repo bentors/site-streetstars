@@ -1,9 +1,9 @@
-const BASE = 'https://res.cloudinary.com/dmsvju9ca/image/upload'
+const BASE = 'https://res.cloudinary.com/dd5xw1e2/image/upload'
 
 export const HOME_IMAGES = {
-  hero: `${BASE}/v1769638546/hero_rb9jvq.jpg`,
-  manifestoMobile: `${BASE}/v1769639102/manifesto-mobile_ozgxrb.jpg`,
-  manifestoDesktop: `${BASE}/v1769639101/manifesto-desktop_jitoun.jpg`,
-  about: `${BASE}/v1769639378/aboutus_qdafud.jpg`,
-  share: `${BASE}/v1770692903/defaulImage_1.jpg`,
+  hero: `${BASE}/v1794965480/home/hero.jpg`,
+  manifestoMobile: `${BASE}/v1794965486/home/manifesto-mobile.jpg`,
+  manifestoDesktop: `${BASE}/v1794965483/home/manifesto-desktop.jpg`,
+  about: `${BASE}/v1794969900/home/quemsomos.jpg`,
+  share: `${BASE}/v1795186608/home/share.jpg`,
 }
