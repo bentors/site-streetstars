@@ -30,7 +30,7 @@ export function Manifesto() {
             alt=""
             fill
             sizes="100vw"
-            className="object-cover object-[44%_50%] opacity-50 contrast-125 md:hidden"
+            className="-translate-y-[6%] object-cover object-[44%] opacity-50 contrast-125 md:hidden"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
