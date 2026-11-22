@@ -137,6 +137,18 @@ describe('ProductForm', () => {
     )
   })
 
+  it('cores: apagar o nome inteiro e digitar outro mantém as fotos com a cor', async () => {
+    const initial = {
+      ...productToForm(null),
+      colors: [{ name: 'Preto', hex: '#000000' }],
+      images: [{ ...image, colors: ['Preto'] }],
+    }
+    render(<ProductForm productId={null} initial={initial} collections={[]} />)
+    await userEvent.clear(screen.getByLabelText('Nome da cor 1'))
+    await userEvent.type(screen.getByLabelText('Nome da cor 1'), 'Grafite')
+    expect(screen.getByRole('button', { name: 'Grafite' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
   it('cores: remover a cor tira a marcação das fotos na hora', async () => {
     const initial = {
       ...productToForm(null),

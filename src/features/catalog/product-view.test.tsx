@@ -59,6 +59,26 @@ describe('ProductView', () => {
     expect(photos()).toEqual(['preto', 'dupla', 'geral'])
   })
 
+  it('a capa (primeira foto) abre a galeria mesmo marcada com uma cor', () => {
+    render(
+      <ProductView
+        product={{ ...product, images: [image('preto', ['Preto']), image('geral', [])] }}
+      />,
+    )
+    expect(photos()).toEqual(['preto', 'geral'])
+  })
+
+  it('foto marcada com uma cor que não existe mais conta como geral', async () => {
+    render(
+      <ProductView
+        product={{ ...product, images: [image('geral', []), image('orfa', ['Antiga'])] }}
+      />,
+    )
+    expect(photos()).toEqual(['geral', 'orfa'])
+    await userEvent.click(screen.getByRole('button', { name: 'Cor Preto' }))
+    expect(photos()).toEqual(['geral', 'orfa'])
+  })
+
   it('sem fotos gerais, sem cor escolhida mostra todas', () => {
     render(
       <ProductView

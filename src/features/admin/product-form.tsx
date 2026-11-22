@@ -63,8 +63,9 @@ export function ProductForm({
       const before = current.colors[index]?.name
       // Só leva as marcações se nenhuma outra cor tem o mesmo nome (ex.: digitando "Preto Fosco"
       // com "Preto" já cadastrado, o nome passa por "Preto" e não pode roubar as fotos dele).
+      // Vazio também conta: apagar o nome inteiro e digitar outro mantém as fotos com a cor.
       const owns =
-        !!before &&
+        before !== undefined &&
         patch.name !== undefined &&
         !current.colors.some((c, i) => i !== index && c.name === before)
       const rename = (name: string) => (owns && name === before ? (patch.name as string) : name)

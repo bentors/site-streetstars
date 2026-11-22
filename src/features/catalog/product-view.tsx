@@ -9,11 +9,15 @@ import { ProductPurchase } from './product-purchase'
 
 export function ProductView({ product }: { product: StoreProduct }) {
   const [color, setColor] = useState<string | null>(null)
-  // Sem cor escolhida: só as fotos gerais (sem cor marcada). Com cor: as dela, depois as gerais.
-  const general = product.images.filter((image) => image.colors.length === 0)
-  const selected = color
-    ? [...product.images.filter((image) => image.colors.includes(color)), ...general]
-    : general
+  // Sem cor escolhida: só as fotos gerais. Com cor: as dela, depois as gerais. Geral é a foto sem
+  // nenhuma cor existente marcada (marcação de cor apagada não pode esconder a foto).
+  const names = new Set(product.colors.map((c) => c.name))
+  const general = product.images.filter((image) => !image.colors.some((c) => names.has(c)))
+  const cover = product.images[0]
+  let selected = general
+  if (color) selected = [...product.images.filter((i) => i.colors.includes(color)), ...general]
+  // A capa (card da loja, prévia do link) abre a galeria mesmo marcada com uma cor.
+  else if (cover && general.length > 0 && !general.includes(cover)) selected = [cover, ...general]
   // Nada para mostrar (sem fotos gerais nem da cor): todas, em vez de uma galeria vazia.
   const images = (selected.length > 0 ? selected : product.images).map((image) => ({
     url: image.url,
