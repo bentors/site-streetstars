@@ -44,6 +44,17 @@ describe('ProductPurchase', () => {
     expect(screen.queryByRole('button', { name: 'Guia de medidas' })).not.toBeInTheDocument()
   })
 
+  it('cor com secundária mostra a bolinha dividida nas duas cores', () => {
+    render(
+      <ProductPurchase
+        product={{ ...tee, colors: [{ name: 'Black/Red', hex: '#151515', hex2: '#c00000' }] }}
+      />,
+    )
+    expect(screen.getByRole('button', { name: 'Cor Black/Red' }).style.background).toContain(
+      'linear-gradient',
+    )
+  })
+
   it('abre o guia de medidas', async () => {
     render(<ProductPurchase product={tee} />)
     await userEvent.click(screen.getByRole('button', { name: 'Guia de medidas' }))

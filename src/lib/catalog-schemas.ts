@@ -10,9 +10,13 @@ export const productImageSchema = z.object({
   colors: z.array(z.string()).default([]),
 })
 
+const hexColor = z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/)
+
 export const productColorSchema = z.object({
   name: z.string().min(1),
-  hex: z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/),
+  hex: hexColor,
+  /** Cor secundária (peça de duas cores, ex.: boné Black/Red): a bolinha aparece dividida. */
+  hex2: hexColor.nullish(),
 })
 
 // Formato antigo: cada cor apontava para uma foto (`image`), às vezes fora da galeria.
@@ -46,7 +50,7 @@ export const productSchema = z
   })
   .transform(({ colors, images, ...product }) => ({
     ...product,
-    colors: colors.map(({ name, hex }) => ({ name, hex })),
+    colors: colors.map(({ name, hex, hex2 }) => ({ name, hex, ...(hex2 ? { hex2 } : {}) })),
     images: withLegacyColorImages(images, colors, product.name),
   }))
 

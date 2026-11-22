@@ -52,7 +52,11 @@ export function ProductPurchase({
                   setColor(option)
                   onColorChange?.(option.name)
                 }}
-                style={{ backgroundColor: option.hex }}
+                style={{
+                  background: option.hex2
+                    ? `linear-gradient(135deg, ${option.hex} 50%, ${option.hex2} 50%)`
+                    : option.hex,
+                }}
                 className={cn(
                   'size-10 rounded-full border-2',
                   color?.name === option.name

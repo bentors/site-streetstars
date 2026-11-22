@@ -125,6 +125,8 @@ export const productFormSchema = z
   // O slug sai do nome quando vazio; a checagem do formato vem depois, para o erro cair no campo slug.
   .transform(({ price, slug, ...form }): ProductInput => ({
     ...form,
+    // 2ª cor tirada no formulário (null) não vai para o banco.
+    colors: form.colors.map(({ hex2, ...color }) => (hex2 ? { ...color, hex2 } : color)),
     // Cor removida ou renomeada não deixa marcação órfã nas fotos.
     images: form.images.map((image) => ({
       ...image,

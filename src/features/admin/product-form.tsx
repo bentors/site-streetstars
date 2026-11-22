@@ -181,7 +181,7 @@ export function ProductForm({
           Cores
         </legend>
         {values.colors.map((color, index) => (
-          <div key={index} className="grid items-end gap-3 sm:grid-cols-[1fr_120px_auto]">
+          <div key={index} className="grid items-end gap-3 sm:grid-cols-[1fr_120px_160px_auto]">
             <TextField
               label={`Nome da cor ${index + 1}`}
               value={color.name}
@@ -197,6 +197,36 @@ export function ProductForm({
                 />
               )}
             </Field>
+            {color.hex2 ? (
+              <div className="flex items-end gap-1">
+                <Field label={`2ª cor ${index + 1}`}>
+                  {(control) => (
+                    <Input
+                      {...control}
+                      type="color"
+                      value={color.hex2 ?? '#ffffff'}
+                      onChange={(e) => setColor(index, { hex2: e.target.value })}
+                    />
+                  )}
+                </Field>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="Tirar 2ª cor"
+                  onClick={() => setColor(index, { hex2: null })}
+                >
+                  ×
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setColor(index, { hex2: '#ffffff' })}
+              >
+                Adicionar 2ª cor
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="sm"

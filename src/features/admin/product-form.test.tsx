@@ -149,6 +149,28 @@ describe('ProductForm', () => {
     expect(screen.getByRole('button', { name: 'Grafite' })).toHaveAttribute('aria-pressed', 'true')
   })
 
+  it('cores: adiciona e remove a cor secundária', async () => {
+    render(
+      <ProductForm
+        productId={null}
+        initial={{ ...productToForm(null), images: [image] }}
+        collections={[]}
+      />,
+    )
+    await fillRequired()
+    await userEvent.click(screen.getByRole('button', { name: 'Adicionar cor' }))
+    await userEvent.type(screen.getByLabelText('Nome da cor 1'), 'Black/Red')
+    await userEvent.click(screen.getByRole('button', { name: 'Adicionar 2ª cor' }))
+    expect(screen.getByLabelText('2ª cor 1')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar produto' }))
+    expect(saveProductAction.mock.calls[0]?.[1]?.colors).toEqual([
+      { name: 'Black/Red', hex: '#000000', hex2: '#ffffff' },
+    ])
+
+    await userEvent.click(screen.getByRole('button', { name: 'Tirar 2ª cor' }))
+    expect(screen.queryByLabelText('2ª cor 1')).not.toBeInTheDocument()
+  })
+
   it('cores: remover a cor tira a marcação das fotos na hora', async () => {
     const initial = {
       ...productToForm(null),
