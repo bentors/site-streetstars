@@ -26,6 +26,13 @@ describe('SiteHeader', () => {
     expect(screen.queryByRole('navigation', { name: 'Navegação mobile' })).not.toBeInTheDocument()
   })
 
+  it('home regenerada pela Vercel (pathname /index) começa transparente', () => {
+    nav.pathname = '/index'
+    window.scrollY = 0
+    renderHeader()
+    expect(document.querySelector('header')).toHaveClass('bg-transparent')
+  })
+
   describe('estrela da home', () => {
     // O jsdom não tem layout: cada seção ganha uma posição fixa na página.
     function layout(offsets: Record<string, number>, { height = 768, page = 4900 } = {}) {
