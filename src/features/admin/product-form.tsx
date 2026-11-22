@@ -181,7 +181,7 @@ export function ProductForm({
           Cores
         </legend>
         {values.colors.map((color, index) => (
-          <div key={index} className="grid items-end gap-3 sm:grid-cols-[1fr_120px_160px_auto]">
+          <div key={index} className="grid items-end gap-3 sm:grid-cols-[1fr_120px_auto_auto]">
             <TextField
               label={`Nome da cor ${index + 1}`}
               value={color.name}
@@ -197,36 +197,51 @@ export function ProductForm({
                 />
               )}
             </Field>
-            {color.hex2 ? (
-              <div className="flex items-end gap-1">
-                <Field label={`2ª cor ${index + 1}`}>
-                  {(control) => (
-                    <Input
-                      {...control}
-                      type="color"
-                      value={color.hex2 ?? '#ffffff'}
-                      onChange={(e) => setColor(index, { hex2: e.target.value })}
-                    />
-                  )}
-                </Field>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-label="Tirar 2ª cor"
-                  onClick={() => setColor(index, { hex2: null })}
-                >
-                  ×
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setColor(index, { hex2: '#ffffff' })}
-              >
-                Adicionar 2ª cor
-              </Button>
-            )}
+            {/* 2ª e 3ª cor opcionais; tirar a 2ª sobe a 3ª para o lugar dela. */}
+            <div className="flex flex-wrap items-end gap-1">
+              {(['hex2', 'hex3'] as const).map((key, n) => {
+                const value = color[key]
+                const label = `${n + 2}ª cor`
+                if (!value)
+                  return n === 0 || color.hex2 ? (
+                    <Button
+                      key={key}
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setColor(index, { [key]: '#ffffff' })}
+                    >
+                      Adicionar {label}
+                    </Button>
+                  ) : null
+                return (
+                  <div key={key} className="flex items-end gap-1">
+                    <Field label={`${label} ${index + 1}`}>
+                      {(control) => (
+                        <Input
+                          {...control}
+                          type="color"
+                          value={value}
+                          onChange={(e) => setColor(index, { [key]: e.target.value })}
+                        />
+                      )}
+                    </Field>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label={`Tirar ${label}`}
+                      onClick={() =>
+                        setColor(
+                          index,
+                          key === 'hex2' ? { hex2: color.hex3, hex3: null } : { hex3: null },
+                        )
+                      }
+                    >
+                      ×
+                    </Button>
+                  </div>
+                )
+              })}
+            </div>
             <Button
               variant="ghost"
               size="sm"

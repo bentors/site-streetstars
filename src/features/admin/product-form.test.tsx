@@ -161,12 +161,17 @@ describe('ProductForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Adicionar cor' }))
     await userEvent.type(screen.getByLabelText('Nome da cor 1'), 'Black/Red')
     await userEvent.click(screen.getByRole('button', { name: 'Adicionar 2ª cor' }))
-    expect(screen.getByLabelText('2ª cor 1')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Adicionar 3ª cor' }))
+    expect(screen.getByLabelText('3ª cor 1')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Salvar produto' }))
     expect(saveProductAction.mock.calls[0]?.[1]?.colors).toEqual([
-      { name: 'Black/Red', hex: '#000000', hex2: '#ffffff' },
+      { name: 'Black/Red', hex: '#000000', hex2: '#ffffff', hex3: '#ffffff' },
     ])
 
+    // Tirar a 2ª com a 3ª preenchida: a 3ª passa a ser a 2ª.
+    await userEvent.click(screen.getByRole('button', { name: 'Tirar 2ª cor' }))
+    expect(screen.getByLabelText('2ª cor 1')).toBeInTheDocument()
+    expect(screen.queryByLabelText('3ª cor 1')).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Tirar 2ª cor' }))
     expect(screen.queryByLabelText('2ª cor 1')).not.toBeInTheDocument()
   })

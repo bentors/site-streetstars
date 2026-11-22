@@ -55,6 +55,22 @@ describe('ProductPurchase', () => {
     )
   })
 
+  it('pares com as mesmas cores em ordem diferente têm bolinhas diferentes', () => {
+    render(
+      <ProductPurchase
+        product={{
+          ...tee,
+          colors: [
+            { name: 'Black/White', hex: '#000000', hex2: '#ffffff' },
+            { name: 'Black/White/Black', hex: '#000000', hex2: '#ffffff', hex3: '#000000' },
+          ],
+        }}
+      />,
+    )
+    const bg = (name: string) => screen.getByRole('button', { name: `Cor ${name}` }).style.background
+    expect(bg('Black/White')).not.toEqual(bg('Black/White/Black'))
+  })
+
   it('abre o guia de medidas', async () => {
     render(<ProductPurchase product={tee} />)
     await userEvent.click(screen.getByRole('button', { name: 'Guia de medidas' }))

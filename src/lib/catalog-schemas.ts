@@ -15,8 +15,9 @@ const hexColor = z.string().regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/)
 export const productColorSchema = z.object({
   name: z.string().min(1),
   hex: hexColor,
-  /** Cor secundária (peça de duas cores, ex.: boné Black/Red): a bolinha aparece dividida. */
+  /** 2ª e 3ª cor (ex.: boné Black/White/Black): a bolinha aparece em faixas, na ordem. */
   hex2: hexColor.nullish(),
+  hex3: hexColor.nullish(),
 })
 
 // Formato antigo: cada cor apontava para uma foto (`image`), às vezes fora da galeria.
@@ -50,9 +51,15 @@ export const productSchema = z
   })
   .transform(({ colors, images, ...product }) => ({
     ...product,
-    colors: colors.map(({ name, hex, hex2 }) => ({ name, hex, ...(hex2 ? { hex2 } : {}) })),
+    colors: colors.map(compactColor),
     images: withLegacyColorImages(images, colors, product.name),
   }))
+
+/** Tira 2ª/3ª cor vazias (null no formulário); a 3ª sem a 2ª sobe para o lugar dela. */
+export function compactColor({ name, hex, hex2, hex3 }: z.input<typeof productColorSchema>) {
+  const [second, third] = [hex2, hex3].filter((c): c is string => !!c)
+  return { name, hex, ...(second ? { hex2: second } : {}), ...(third ? { hex3: third } : {}) }
+}
 
 /**
  * Formato antigo: a foto da cor fora da galeria entra nela marcada com a cor. Se já estava na
