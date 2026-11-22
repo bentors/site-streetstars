@@ -1,7 +1,7 @@
 # Emuladores do Firebase (Firestore + Auth + UI) sem exigir Java na máquina de quem desenvolve.
 FROM node:24-trixie-slim
 
-ARG FIREBASE_TOOLS_VERSION=15.32.1
+ARG FIREBASE_TOOLS_VERSION=15.37.0
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends openjdk-21-jre-headless curl \

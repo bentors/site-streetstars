@@ -5,8 +5,8 @@ services:
     build:
       context: docker/firebase
       args:
-        FIREBASE_TOOLS_VERSION: 15.32.1
-    image: streetstars-firebase-emulators:15.32.1
+        FIREBASE_TOOLS_VERSION: 15.37.0
+    image: streetstars-firebase-emulators:15.37.0
     environment:
       EMULATOR_PERSIST: ${EMULATOR_PERSIST:-1}
     ports:
