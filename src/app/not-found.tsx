@@ -1,9 +1,12 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Logo } from '@/components/brand/logo'
 
-// Mesmo traço do logo: números e estrela em contorno, sem preenchimento.
+export const metadata: Metadata = { title: 'Página não encontrada' }
+
+// Mesmo traço do logo: números e estrela em contorno, sem preenchimento, com a mesma espessura.
 const OUTLINE =
-  'text-transparent [-webkit-text-stroke:2px_var(--color-paper)] md:[-webkit-text-stroke:3px_var(--color-paper)]'
+  'text-transparent [-webkit-text-stroke:2px_var(--color-paper)] lg:[-webkit-text-stroke:3px_var(--color-paper)]'
 
 export default function NotFound() {
   return (
@@ -19,26 +22,28 @@ export default function NotFound() {
       <div className="flex flex-1 flex-col items-center justify-center pb-16 text-center">
         <p
           aria-hidden="true"
-          className={`flex items-center font-display text-[34vw] leading-none font-bold tracking-tighter select-none md:text-[22rem] ${OUTLINE}`}
+          className={`flex items-center font-display text-[34vw] leading-none font-bold tracking-tighter select-none lg:text-[22rem] ${OUTLINE}`}
         >
           <span>4</span>
           {/* A estrela é o zero: cai como estrela cadente e para torta, fora da linha. */}
           <svg
             viewBox="0 0 100 100"
-            className="mx-[4vw] size-[22vw] animate-star-fall text-paper md:mx-6 md:size-[16rem]"
+            className="mx-[4vw] size-[22vw] animate-star-fall [stroke-width:2px] text-paper lg:mx-6 lg:size-[16rem] lg:[stroke-width:3px]"
           >
+            {/* Traço em px fixos (não escala com o SVG), igual ao contorno dos números. */}
             <polygon
               points="50,4 61,38 97,38 68,59 79,93 50,72 21,93 32,59 3,38 39,38"
               fill="none"
               stroke="currentColor"
-              strokeWidth="3"
               strokeLinejoin="miter"
+              vectorEffect="non-scaling-stroke"
             />
           </svg>
           <span>4</span>
         </p>
 
         <h1 className="mt-10 text-3xl leading-none font-black tracking-tighter uppercase italic md:text-5xl">
+          <span className="sr-only">Erro 404: página não encontrada. </span>
           Essa estrela se perdeu no caminho
         </h1>
         <p className="mt-5 max-w-md text-sm leading-relaxed font-light text-balance text-paper/70 md:text-base">

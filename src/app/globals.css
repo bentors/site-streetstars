@@ -32,6 +32,8 @@ html {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    /* Sem isso, o atraso segura o estado inicial (ex.: escondido) antes de pular para o final. */
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
