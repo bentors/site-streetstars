@@ -208,6 +208,7 @@ export function ProductForm({
                       key={key}
                       variant="ghost"
                       size="sm"
+                      aria-label={`Adicionar ${label} ${index + 1}`}
                       onClick={() => setColor(index, { [key]: '#ffffff' })}
                     >
                       Adicionar {label}
@@ -228,12 +229,19 @@ export function ProductForm({
                     <Button
                       variant="ghost"
                       size="sm"
-                      aria-label={`Tirar ${label}`}
+                      aria-label={`Tirar ${label} ${index + 1}`}
                       onClick={() =>
-                        setColor(
-                          index,
-                          key === 'hex2' ? { hex2: color.hex3, hex3: null } : { hex3: null },
-                        )
+                        // Lê a 3ª do estado atual, não do último render.
+                        setValues((current) => ({
+                          ...current,
+                          colors: current.colors.map((c, i) =>
+                            i !== index
+                              ? c
+                              : key === 'hex2'
+                                ? { ...c, hex2: c.hex3, hex3: null }
+                                : { ...c, hex3: null },
+                          ),
+                        }))
                       }
                     >
                       ×

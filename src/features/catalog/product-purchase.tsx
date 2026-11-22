@@ -18,9 +18,13 @@ export type PurchaseProduct = {
 function swatch({ hex, hex2, hex3 }: ProductColor) {
   const stops = [hex, hex2, hex3].filter((c): c is string => !!c)
   if (stops.length === 1) return hex
-  const step = 100 / stops.length
-  const bands = stops.map((c, i) => `${c} ${i * step}% ${(i + 1) * step}%`)
-  return `linear-gradient(135deg, ${bands.join(', ')})`
+  // A 135° a linha do gradiente vai de canto a canto (√2 × lado); o círculo ocupa só o miolo
+  // dela, então as faixas se dividem nesse trecho para não sumirem nas bordas.
+  const start = (100 - 100 / Math.SQRT2) / 2
+  const step = 100 / Math.SQRT2 / stops.length
+  const at = (i: number) => (i === 0 ? 0 : i === stops.length ? 100 : start + i * step).toFixed(1)
+  const bands = stops.map((c, i) => `${c} ${at(i)}% ${at(i + 1)}%`)
+  return `linear-gradient(135deg, ${bands.join(', ')}) border-box`
 }
 
 export function ProductPurchase({
