@@ -14,7 +14,7 @@ export default function NotFound() {
       <Link
         href="/"
         aria-label="Street Stars — página inicial"
-        className="mx-auto mt-8 w-fit transition-opacity hover:opacity-70 md:mx-0"
+        className="mx-auto mt-8 w-fit transition-opacity hover:opacity-70"
       >
         <Logo className="h-6 w-auto text-paper md:h-8" />
       </Link>
