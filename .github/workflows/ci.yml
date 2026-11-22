@@ -1,8 +1,13 @@
 name: CI
 
+# Push só na main: nas outras branches o PR já roda o CI (antes rodava duas vezes por PR).
 on:
   push:
+    branches: [main]
   pull_request:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}

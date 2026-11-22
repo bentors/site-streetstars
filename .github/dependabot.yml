@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Minor e patch num PR só por semana; major chega separado, para revisar com calma.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: build
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: America/Sao_Paulo
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
