@@ -67,7 +67,8 @@ describe('ProductPurchase', () => {
         }}
       />,
     )
-    const bg = (name: string) => screen.getByRole('button', { name: `Cor ${name}` }).style.background
+    const bg = (name: string) =>
+      screen.getByRole('button', { name: `Cor ${name}` }).style.background
     expect(bg('Black/White')).not.toEqual(bg('Black/White/Black'))
   })
 
