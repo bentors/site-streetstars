@@ -65,7 +65,8 @@ function useActiveSection(enabled: boolean) {
 
 export function SiteHeader() {
   const pathname = usePathname()
-  const isHome = pathname === '/'
+  // A home regenerada em segundo plano na Vercel (ISR) chega com pathname '/index'.
+  const isHome = pathname === '/' || pathname === '/index'
   const [open, setOpen] = useState(false)
   const active = useActiveSection(isHome)
   const scrolled = useSyncExternalStore(
