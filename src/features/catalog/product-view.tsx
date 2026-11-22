@@ -9,12 +9,13 @@ import { ProductPurchase } from './product-purchase'
 
 export function ProductView({ product }: { product: StoreProduct }) {
   const [color, setColor] = useState<string | null>(null)
-  // Com a cor escolhida, só as fotos dela e as gerais (sem cor marcada).
-  const forColor = product.images.filter(
-    (image) => !color || image.colors.length === 0 || image.colors.includes(color),
-  )
-  // Cor sem foto própria e sem fotos gerais: mostra todas em vez de uma galeria vazia.
-  const images = (forColor.length > 0 ? forColor : product.images).map((image) => ({
+  // Sem cor escolhida: só as fotos gerais (sem cor marcada). Com cor: as dela, depois as gerais.
+  const general = product.images.filter((image) => image.colors.length === 0)
+  const selected = color
+    ? [...product.images.filter((image) => image.colors.includes(color)), ...general]
+    : general
+  // Nada para mostrar (sem fotos gerais nem da cor): todas, em vez de uma galeria vazia.
+  const images = (selected.length > 0 ? selected : product.images).map((image) => ({
     url: image.url,
     alt: image.alt || product.name,
   }))

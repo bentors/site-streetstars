@@ -166,7 +166,7 @@ export function ProductForm({
       />
       <ImageListField
         label="Fotos (a primeira é a capa)"
-        hint="Marque as cores de cada foto. Sem cor marcada, a foto aparece em todas."
+        hint="Marque as cores de cada foto. Sem cor marcada, a foto abre a galeria e aparece em todas as cores."
         colors={[...new Set(values.colors.map((color) => color.name).filter(Boolean))]}
         value={values.images}
         onChange={(update) => setValues((c) => ({ ...c, images: update(c.images) }))}
