@@ -56,4 +56,17 @@ describe('productSchema', () => {
     })
     expect(product.images).toEqual(images)
   })
+
+  it('mantém a 2ª e a 3ª cor', () => {
+    const colors = [
+      { name: 'Black/Red', hex: '#151515', hex2: '#c00000' },
+      { name: 'Black/White/Black', hex: '#151515', hex2: '#ffffff', hex3: '#151515' },
+    ]
+    const product = productSchema.parse({
+      ...stored,
+      colors,
+      images: [{ url: `${URL}/a.jpg`, publicId: 'a', alt: '', colors: [] }],
+    })
+    expect(product.colors).toEqual(colors)
+  })
 })

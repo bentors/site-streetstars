@@ -63,8 +63,9 @@ export function ProductForm({
       const before = current.colors[index]?.name
       // Só leva as marcações se nenhuma outra cor tem o mesmo nome (ex.: digitando "Preto Fosco"
       // com "Preto" já cadastrado, o nome passa por "Preto" e não pode roubar as fotos dele).
+      // Vazio também conta: apagar o nome inteiro e digitar outro mantém as fotos com a cor.
       const owns =
-        !!before &&
+        before !== undefined &&
         patch.name !== undefined &&
         !current.colors.some((c, i) => i !== index && c.name === before)
       const rename = (name: string) => (owns && name === before ? (patch.name as string) : name)
@@ -166,7 +167,7 @@ export function ProductForm({
       />
       <ImageListField
         label="Fotos (a primeira é a capa)"
-        hint="Marque as cores de cada foto. Sem cor marcada, a foto aparece em todas."
+        hint="Marque as cores de cada foto. Sem cor marcada, a foto abre a galeria e aparece em todas as cores."
         colors={[...new Set(values.colors.map((color) => color.name).filter(Boolean))]}
         value={values.images}
         onChange={(update) => setValues((c) => ({ ...c, images: update(c.images) }))}
@@ -180,7 +181,7 @@ export function ProductForm({
           Cores
         </legend>
         {values.colors.map((color, index) => (
-          <div key={index} className="grid items-end gap-3 sm:grid-cols-[1fr_120px_auto]">
+          <div key={index} className="grid items-end gap-3 sm:grid-cols-[1fr_120px_auto_auto]">
             <TextField
               label={`Nome da cor ${index + 1}`}
               value={color.name}
@@ -196,6 +197,59 @@ export function ProductForm({
                 />
               )}
             </Field>
+            {/* 2ª e 3ª cor opcionais; tirar a 2ª sobe a 3ª para o lugar dela. */}
+            <div className="flex flex-wrap items-end gap-1">
+              {(['hex2', 'hex3'] as const).map((key, n) => {
+                const value = color[key]
+                const label = `${n + 2}ª cor`
+                if (!value)
+                  return n === 0 || color.hex2 ? (
+                    <Button
+                      key={key}
+                      variant="ghost"
+                      size="sm"
+                      aria-label={`Adicionar ${label} ${index + 1}`}
+                      onClick={() => setColor(index, { [key]: '#ffffff' })}
+                    >
+                      Adicionar {label}
+                    </Button>
+                  ) : null
+                return (
+                  <div key={key} className="flex items-end gap-1">
+                    <Field label={`${label} ${index + 1}`}>
+                      {(control) => (
+                        <Input
+                          {...control}
+                          type="color"
+                          value={value}
+                          onChange={(e) => setColor(index, { [key]: e.target.value })}
+                        />
+                      )}
+                    </Field>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      aria-label={`Tirar ${label} ${index + 1}`}
+                      onClick={() =>
+                        // Lê a 3ª do estado atual, não do último render.
+                        setValues((current) => ({
+                          ...current,
+                          colors: current.colors.map((c, i) =>
+                            i !== index
+                              ? c
+                              : key === 'hex2'
+                                ? { ...c, hex2: c.hex3, hex3: null }
+                                : { ...c, hex3: null },
+                          ),
+                        }))
+                      }
+                    >
+                      ×
+                    </Button>
+                  </div>
+                )
+              })}
+            </div>
             <Button
               variant="ghost"
               size="sm"

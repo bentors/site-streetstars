@@ -137,6 +137,45 @@ describe('ProductForm', () => {
     )
   })
 
+  it('cores: apagar o nome inteiro e digitar outro mantém as fotos com a cor', async () => {
+    const initial = {
+      ...productToForm(null),
+      colors: [{ name: 'Preto', hex: '#000000' }],
+      images: [{ ...image, colors: ['Preto'] }],
+    }
+    render(<ProductForm productId={null} initial={initial} collections={[]} />)
+    await userEvent.clear(screen.getByLabelText('Nome da cor 1'))
+    await userEvent.type(screen.getByLabelText('Nome da cor 1'), 'Grafite')
+    expect(screen.getByRole('button', { name: 'Grafite' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('cores: adiciona e remove a cor secundária', async () => {
+    render(
+      <ProductForm
+        productId={null}
+        initial={{ ...productToForm(null), images: [image] }}
+        collections={[]}
+      />,
+    )
+    await fillRequired()
+    await userEvent.click(screen.getByRole('button', { name: 'Adicionar cor' }))
+    await userEvent.type(screen.getByLabelText('Nome da cor 1'), 'Black/Red')
+    await userEvent.click(screen.getByRole('button', { name: 'Adicionar 2ª cor 1' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Adicionar 3ª cor 1' }))
+    expect(screen.getByLabelText('3ª cor 1')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Salvar produto' }))
+    expect(saveProductAction.mock.calls[0]?.[1]?.colors).toEqual([
+      { name: 'Black/Red', hex: '#000000', hex2: '#ffffff', hex3: '#ffffff' },
+    ])
+
+    // Tirar a 2ª com a 3ª preenchida: a 3ª passa a ser a 2ª.
+    await userEvent.click(screen.getByRole('button', { name: 'Tirar 2ª cor 1' }))
+    expect(screen.getByLabelText('2ª cor 1')).toBeInTheDocument()
+    expect(screen.queryByLabelText('3ª cor 1')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Tirar 2ª cor 1' }))
+    expect(screen.queryByLabelText('2ª cor 1')).not.toBeInTheDocument()
+  })
+
   it('cores: remover a cor tira a marcação das fotos na hora', async () => {
     const initial = {
       ...productToForm(null),

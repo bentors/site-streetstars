@@ -14,6 +14,19 @@ export type PurchaseProduct = {
   sizeGuide: SizeGuide | null
 }
 
+/** Uma cor: bolinha lisa. Duas ou três: faixas diagonais iguais, na ordem do cadastro. */
+function swatch({ hex, hex2, hex3 }: ProductColor) {
+  const stops = [hex, hex2, hex3].filter((c): c is string => !!c)
+  if (stops.length === 1) return hex
+  // A 135° a linha do gradiente vai de canto a canto (√2 × lado); o círculo ocupa só o miolo
+  // dela, então as faixas se dividem nesse trecho para não sumirem nas bordas.
+  const start = (100 - 100 / Math.SQRT2) / 2
+  const step = 100 / Math.SQRT2 / stops.length
+  const at = (i: number) => (i === 0 ? 0 : i === stops.length ? 100 : start + i * step).toFixed(1)
+  const bands = stops.map((c, i) => `${c} ${at(i)}% ${at(i + 1)}%`)
+  return `linear-gradient(135deg, ${bands.join(', ')}) border-box`
+}
+
 export function ProductPurchase({
   product,
   onColorChange,
@@ -52,7 +65,7 @@ export function ProductPurchase({
                   setColor(option)
                   onColorChange?.(option.name)
                 }}
-                style={{ backgroundColor: option.hex }}
+                style={{ background: swatch(option) }}
                 className={cn(
                   'size-10 rounded-full border-2',
                   color?.name === option.name

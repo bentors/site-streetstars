@@ -48,15 +48,44 @@ const product = {
 const photos = () => screen.getAllByRole('img').map((img) => img.getAttribute('alt'))
 
 describe('ProductView', () => {
-  it('mostra só as fotos da cor escolhida e as gerais', async () => {
+  it('sem cor, só as gerais; com cor, as fotos dela primeiro e as gerais depois', async () => {
     render(<ProductView product={product} />)
-    expect(photos()).toEqual(['geral', 'preto', 'branco', 'dupla'])
+    expect(photos()).toEqual(['geral'])
 
     await userEvent.click(screen.getByRole('button', { name: 'Cor Branco' }))
-    expect(photos()).toEqual(['geral', 'branco', 'dupla'])
+    expect(photos()).toEqual(['branco', 'dupla', 'geral'])
 
     await userEvent.click(screen.getByRole('button', { name: 'Cor Preto' }))
-    expect(photos()).toEqual(['geral', 'preto', 'dupla'])
+    expect(photos()).toEqual(['preto', 'dupla', 'geral'])
+  })
+
+  it('a capa (primeira foto) abre a galeria mesmo marcada com uma cor', () => {
+    render(
+      <ProductView
+        product={{ ...product, images: [image('preto', ['Preto']), image('geral', [])] }}
+      />,
+    )
+    expect(photos()).toEqual(['preto', 'geral'])
+  })
+
+  it('foto marcada com uma cor que não existe mais conta como geral', async () => {
+    render(
+      <ProductView
+        product={{ ...product, images: [image('geral', []), image('orfa', ['Antiga'])] }}
+      />,
+    )
+    expect(photos()).toEqual(['geral', 'orfa'])
+    await userEvent.click(screen.getByRole('button', { name: 'Cor Preto' }))
+    expect(photos()).toEqual(['geral', 'orfa'])
+  })
+
+  it('sem fotos gerais, sem cor escolhida mostra todas', () => {
+    render(
+      <ProductView
+        product={{ ...product, images: [image('preto', ['Preto']), image('branco', ['Branco'])] }}
+      />,
+    )
+    expect(photos()).toEqual(['preto', 'branco'])
   })
 
   it('cor sem nenhuma foto para mostrar exibe todas em vez de galeria vazia', async () => {
